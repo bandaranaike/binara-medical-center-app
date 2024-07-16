@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/../binara-medical-center-api/.idea/binara-medical-center-api.iml" filepath="$PROJECT_DIR$/../binara-medical-center-api/.idea/binara-medical-center-api.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/binara-medical-center-app.iml" filepath="$PROJECT_DIR$/.idea/binara-medical-center-app.iml" />
+    </modules>
+  </component>
+</project>
