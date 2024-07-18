@@ -1,0 +1,41 @@
+.
+├── README.md
+├── app
+│   ├── favicon.ico
+│   ├── globals.css
+│   ├── layout.tsx
+│   └── page.tsx
+├── components
+│   ├── AllergiesTable.tsx
+│   ├── BillsTable.tsx
+│   ├── DiseasesTable.tsx
+│   ├── DoctorsChannelingFeesTable.tsx
+│   ├── DoctorsTable.tsx
+│   ├── HospitalsTable.tsx
+│   ├── PatientsHistoriesTable.tsx
+│   ├── PatientsTable.tsx
+│   ├── ServicesTable.tsx
+│   ├── SpecialtiesTable.tsx
+│   └── TableComponent.tsx
+├── next-env.d.ts
+├── next.config.mjs
+├── package-lock.json
+├── package.json
+├── pages
+│   └── api
+│       ├── allergies.ts
+│       ├── bills.ts
+│       ├── diseases.ts
+│       ├── doctors-channeling-fees.ts
+│       ├── doctors.ts
+│       ├── hospitals.ts
+│       ├── patients-histories.ts
+│       ├── patients.ts
+│       ├── services.ts
+│       └── specialties.ts
+├── postcss.config.mjs
+├── public
+│   ├── next.svg
+│   └── vercel.svg
+├── tailwind.config.ts
+└── tsconfig.json
