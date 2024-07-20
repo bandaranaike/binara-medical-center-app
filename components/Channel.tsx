@@ -8,20 +8,24 @@ const Channel = () => {
     const [billNumber, setBillNumber] = React.useState<number>(0);
     const [telephone, setTelephone] = React.useState("");
     const [isNewRecord, setIsNewRecord] = React.useState(false);
+    const [doctor, setDoctor] = React.useState("");
+    const [patientPhone, setPatientPhone] = React.useState("");
 
-    const options = [
-        {value: 'chocolate', label: 'Chocolate'},
-        {value: 'strawberry', label: 'Strawberry'},
-        {value: 'vanilla', label: 'Vanilla'}
-    ];
-
+    const [channelingFee, setChannelingFee] = React.useState("");
+    const [otherFee, setOtherFee] = React.useState("");
 
     const handleSelectChange = (selectedOption: any) => {
         setTelephone(selectedOption);
+        setPatientPhone(selectedOption.label);
     };
+
     const handleOnCreateOption = (selectedOption: any) => {
         setTelephone(selectedOption);
         setIsNewRecord(true);
+    };
+
+    const handleDoctorChangeOption = (selectedOption: any) => {
+        setDoctor(selectedOption);
     };
 
     return (
@@ -35,36 +39,35 @@ const Channel = () => {
 
                     <SearchableSelect
                         placeholder="Patient Telephone"
-                        options={options}
                         apiUri={'patients'}
                         value={telephone}
                         onChange={handleSelectChange}
                         onCreateOption={handleOnCreateOption}
-                        id={'DoctorNameSelect'}
+                        id={'PatientTelephoneSelect'}
                     />
 
                     <SearchableSelect
                         placeholder="Doctor Name"
                         apiUri={'doctors'}
-                        options={options}
-                        onChange={handleSelectChange}
-                        id={'PatientTelephoneSelect'}
+                        value={doctor}
+                        onChange={handleDoctorChangeOption}
+                        id={'DoctorNameSelect'}
                     />
 
                     <TextInput
                         name="Channeling"
-                        value=""
-                        onChange={handleSelectChange}
+                        value={channelingFee}
+                        onChange={value => setChannelingFee(value)}
                     />
 
                     <TextInput
                         name="Others"
-                        value=""
-                        onChange={handleSelectChange}
+                        value={otherFee}
+                        onChange={value => setOtherFee(value)}
                     />
                 </div>
                 <div className="p-8">
-                    <PatientDetails telephone={telephone} isNew={isNewRecord}></PatientDetails>
+                    <PatientDetails patientPhone={patientPhone} isNew={isNewRecord}></PatientDetails>
                 </div>
             </div>
 

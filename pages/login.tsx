@@ -1,30 +1,43 @@
-import {useState, FormEvent, FocusEvent} from 'react';
+import { useState, FormEvent, FocusEvent } from 'react';
 import axios from '../lib/axios';
+import Cookies from 'js-cookie';
 
 export default function LoginPage() {
-    const [email, setEmail] = useState<string>('');
-    const [password, setPassword] = useState<string>('');
+    const [email, setEmail] = useState<string>('era@era.com');
+    const [password, setPassword] = useState<string>('123654');
     const [emailExists, setEmailExists] = useState<boolean | null>(null);
 
     const apiUrl = process.env.BACKEND_API_URL || 'http://localhost/api/';
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
-        const url = emailExists ? "login" : "register";
+        const url = emailExists ? "login" : "login";
         try {
-            const response = await axios.post(apiUrl + url, {email, password});
+            await axios.get(apiUrl + 'sanctum/csrf-cookie');
+            const token = Cookies.get('XSRF-TOKEN');
+
+            const response = await axios.post(apiUrl + url, { email, password }, {
+                headers: {
+                    'X-XSRF-TOKEN': token
+                },
+                withCredentials: true
+            });
+
+            console.log(response);
             // Handle successful login (e.g., redirect or store user data)
         } catch (error) {
             // Handle login error
+            console.error(error);
         }
     };
 
     const handleEmailBlur = async (e: FocusEvent<HTMLInputElement>) => {
         try {
-            const response = await axios.post(apiUrl + 'check-email', {email: e.target.value});
+            const response = await axios.post(apiUrl + 'check-email', { email: e.target.value });
             setEmailExists(response.data.exists);
         } catch (error) {
             // Handle error
+            console.error(error);
         }
     };
 
