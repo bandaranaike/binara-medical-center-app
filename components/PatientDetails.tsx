@@ -1,19 +1,26 @@
-import React, {useEffect} from "react";
+import React, {ChangeEvent, useEffect, useRef} from "react";
 import TextInput from "@/components/form/TextInput";
 import axios from "@/lib/axios";
+import DatePicker from "@/components/form/DatePicker";
+import SearchableSelect from "@/components/form/SearchableSelect"; // Assuming you have this component available
+import {isEmpty} from "lodash";
 
 interface PatientDetailsProps {
-    patientPhone: string,
-    isNew: boolean,
+    patientPhone: string;
+    isNew: boolean;
+    onPatientCreated: (patientData: object) => void;
 }
 
-const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, isNew}) => {
+const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, isNew, onPatientCreated}) => {
+    const [id, setId] = React.useState("");
     const [name, setName] = React.useState("");
     const [age, setAge] = React.useState("");
     const [telephone, setTelephone] = React.useState(patientPhone);
     const [email, setEmail] = React.useState("");
     const [address, setAddress] = React.useState("");
-    const [birthday, setBirthday] = React.useState("");
+    const [birthday, setBirthday] = React.useState(new Date);
+    const [gender, setGender] = React.useState(""); // New state for gender
+    const [savedMessage, setSavedMessage] = React.useState({isSuccess: true, message: ''});
 
     const [errors, setErrors] = React.useState({
         name: "",
@@ -23,14 +30,59 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, isNew}) =>
         address: ""
     });
 
+    const clearDataFlag = useRef(false);
+
+    const fetchUserData = async (phone: string) => {
+        try {
+            const response = await axios.get(`${apiUrl}patients/get-by-phone/${phone}`);
+            const {id, name, age, telephone, email, address, birthday, gender} = response.data;
+            setId(id);
+            setName(name);
+            setAge(age ?? "");
+            setTelephone(telephone);
+            setEmail(email ?? "");
+            setAddress(address ?? "");
+            setBirthday(birthday ? new Date(birthday) : new Date);
+            setGender(gender ?? "");
+        } catch (error) {
+            console.error('Error fetching patient data:', error);
+        }
+    };
+
+    const handleOnBirthdayChange = (date: Date) => {
+        console.log("Birthday changed", date);
+        setBirthday(date)
+    }
+
     useEffect(() => {
+        clearUserData();
         setTelephone(patientPhone);
-        if(!isNew){
-            fetchUserData()
+        if (!isNew) {
+            if (!clearDataFlag.current) {
+                clearDataFlag.current = true;
+            }
+            if (patientPhone)
+                fetchUserData(patientPhone);
         }
     }, [patientPhone]);
 
     const apiUrl = process.env.BACKEND_API_URL || 'http://localhost/api/';
+
+    const clearUserData = () => {
+        setName("");
+        setAge("");
+        setEmail("");
+        setAddress("");
+        setBirthday(new Date);
+        setGender(""); // Clear gender
+        setErrors({
+            name: "",
+            age: "",
+            telephone: "",
+            email: "",
+            address: ""
+        });
+    };
 
     const validateInputs = () => {
         let valid = true;
@@ -74,87 +126,125 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, isNew}) =>
         return valid;
     };
 
+    const genderOptions = [
+        {value: 'male', label: 'Male'},
+        {value: 'female', label: 'Female'},
+        {value: 'other', label: 'Other'},
+    ]
+
     const savePatientData = () => {
+        setSavedMessage({message: '', isSuccess: false})
         if (!validateInputs()) {
             return;
         }
 
-        axios.post(apiUrl + 'patients', {
-            name,
-            age,
-            telephone,
-            email,
-            address,
-            birthday
+        const isCreate = isNew && isEmpty(id);
+
+        axios(apiUrl + `patients${isCreate ? '' : `/${id}`}`, {
+            method: isCreate ? "POST" : "PUT", data: {
+                name,
+                age,
+                telephone,
+                email,
+                address,
+                birthday,
+                gender
+            },
         }).then(createdResponse => {
-            console.log('createdResponse', createdResponse);
+            onPatientCreated(createdResponse.data)
+            setSavedMessage({message: "Patient saved successfully!", isSuccess: true})
         }).catch(error => {
-            console.error('Error:', error);
+            let message = error.response.data?.message;
+            setSavedMessage({message, isSuccess: false})
         });
     };
 
+    const setGenderSelect = (option: { value: string, label: string }) => {
+        console.log("setGenderSelect", option.value);
+        setGender(option.value);
+    }
+
     return (
-        <div className={`border border-dashed ${isNew ? 'border-green-700' : 'border-gray-700'} p-6 rounded-lg grid grid-cols-2 gap-4`}>
+        <>
+            <div className={`border border-dashed ${isNew ? 'border-green-700' : 'border-gray-700'} p-6 rounded-lg`}>
+                <div className=" grid grid-cols-3 gap-4">
+                    <div>
+                        <TextInput
+                            required
+                            name={"Telephone"}
+                            value={telephone}
+                            onChange={setTelephone}
+                            error={errors.telephone}
+                        />
+                    </div>
 
-            <div>
-                <TextInput
-                    name={"Telephone"}
-                    value={telephone}
-                    onChange={setTelephone}
-                    error={errors.telephone}
-                />
+                    <div>
+                        <TextInput
+                            required
+                            name={'Name'}
+                            value={name}
+                            onChange={setName}
+                            error={errors.name}
+                        />
+                    </div>
+
+                    <div>
+                        <TextInput
+                            name={'Age'}
+                            required
+                            value={age}
+                            onChange={setAge}
+                            error={errors.age}
+                        />
+                    </div>
+
+                    <div>
+                        <DatePicker
+                            name={'Birthday'}
+                            onChange={handleOnBirthdayChange}
+                            value={birthday}
+
+                        />
+                    </div>
+
+                    <div>
+                        <TextInput
+                            name={'Address'}
+                            value={address}
+                            onChange={setAddress}
+                            error={errors.address}
+                        />
+                    </div>
+
+                    <div>
+                        <TextInput
+                            name={'Email'}
+                            value={email}
+                            onChange={setEmail}
+                            error={errors.email}
+                        />
+                    </div>
+
+                    <div>
+                        <SearchableSelect
+                            id="GenderSelect"
+                            placeholder="Gender"
+                            options={genderOptions}
+                            value={gender}
+                            onOptionChange={(option) => setGenderSelect(option)}
+                        />
+                    </div>
+                </div>
+                <div className="flex mt-3">
+                    <button className={`py-2 px-4 ${isNew ? 'bg-green-600 border-green-700' : 'bg-gray-800 border-gray-700'} rounded border`} onClick={savePatientData}>
+                        {isNew ? 'Create Profile' : 'Save Profile'}
+                    </button>
+                    <div className={`pt-2 pl-3 ${savedMessage.isSuccess ? 'text-green-500' : 'text-red-500'}`}>{savedMessage.message}</div>
+                </div>
             </div>
 
-            <div>
-                <TextInput
-                    name={'Name'}
-                    value={name}
-                    onChange={setName}
-                    error={errors.name}
-                />
-            </div>
 
-            <div>
-                <TextInput
-                    name={'Age'}
-                    value={age}
-                    onChange={setAge}
-                    error={errors.age}
-                />
-            </div>
-
-            <div>
-                <TextInput
-                    name={'Birthday'}
-                    value={birthday}
-                    onChange={setBirthday}
-                />
-            </div>
-
-            <div>
-                <TextInput
-                    name={'Address'}
-                    value={address}
-                    onChange={setAddress}
-                    error={errors.address}
-                />
-            </div>
-
-            <div>
-                <TextInput
-                    name={'Email'}
-                    value={email}
-                    onChange={setEmail}
-                    error={errors.email}
-                />
-            </div>
-
-            <div className="">
-                <button className={`py-2 px-4 ${isNew ? 'bg-green-600 border-green-700' : 'bg-gray-800 border-gray-700'} rounded border`} onClick={savePatientData}>
-                    {isNew ? 'Create Profile' : 'Save Profile'}
-                </button>
-            </div>
-        </div>
+        </>
     );
 }
 

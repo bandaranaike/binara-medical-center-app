@@ -1,7 +1,8 @@
-import React, { useEffect, useCallback } from 'react';
+import React, {useEffect, useCallback} from 'react';
 import AsyncCreatableSelect from 'react-select/async-creatable';
+import Select from 'react-select';
 import axios from "@/lib/axios";
-import { SingleValue } from "react-select";
+import {SingleValue} from "react-select";
 import debounce from 'lodash/debounce';
 
 interface Option {
@@ -12,10 +13,12 @@ interface Option {
 interface SearchableSelectProps {
     placeholder?: string;
     apiUri?: string;
-    onChange: (selectedOption: SingleValue<string> | null) => void;
+    onChange?: (selectedOption: SingleValue<string> | null) => void;
+    onOptionChange?: (selectedOption: { value: string, label: string } | null) => void;
     onCreateOption?: (newValue: string | null) => void;
     value: string;
     id: string;
+    options?: { value: string, label: string }[];
 }
 
 const customStyles = {
@@ -58,7 +61,9 @@ const SearchableSelect: React.FC<SearchableSelectProps> = (
         apiUri,
         id,
         onChange,
-        value
+        value,
+        options = [],
+        onOptionChange
     }
 ) => {
 
@@ -79,10 +84,11 @@ const SearchableSelect: React.FC<SearchableSelectProps> = (
         }
     };
 
-    const debouncedFetchOptions = useCallback(debounce(fetchOptions, 500), []);
+    // const debouncedFetchOptions = useCallback(debounce(fetchOptions, 300), [1]);
 
     const promiseOptions = (inputValue: string) => {
-        return debouncedFetchOptions(inputValue);
+        // return debouncedFetchOptions(inputValue);
+        return fetchOptions(inputValue);
     };
 
     useEffect(() => {
@@ -93,14 +99,22 @@ const SearchableSelect: React.FC<SearchableSelectProps> = (
         <div className="mb-4">
             <label className="flex-grow-1">
                 <span className="block mb-2">{placeholder} :</span>
-                <AsyncCreatableSelect
-                    onChange={onChange}
-                    styles={customStyles}
-                    onCreateOption={onCreateOption}
-                    loadOptions={promiseOptions}
-                    instanceId={id}
-                    value={selectedValue}
-                />
+                {options.length === 0 ?
+                    <AsyncCreatableSelect
+                        onChange={onChange}
+                        styles={customStyles}
+                        onCreateOption={onCreateOption}
+                        loadOptions={promiseOptions}
+                        instanceId={id}
+                        value={selectedValue}
+                    />
+                    :
+                    <Select
+                        instanceId={id}
+                        onChange={onOptionChange}
+                        styles={customStyles}
+                        options={options}
+                    ></Select>}
             </label>
         </div>
     );
