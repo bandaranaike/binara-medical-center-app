@@ -1,6 +1,6 @@
 import React, {useState} from "react";
-import Datepicker from "tailwind-datepicker-react"
-import theme from "tailwindcss/defaultTheme";
+import Datepicker from "tailwind-datepicker-react";
+import {IOptions} from "tailwind-datepicker-react/types/Options";
 
 interface BInputProps {
     name: string;
@@ -10,21 +10,27 @@ interface BInputProps {
 }
 
 const DatePicker: React.FC<BInputProps> = ({name, value, onChange, error}) => {
-    const [startDate, setStartDate] = useState<Date | null>(value || null);
-    const [show, setShow] = useState<boolean>(false)
-    const handleChange = (selectedDate: Date) => {
-        console.log(selectedDate)
-    }
+    const [show, setShow] = useState<boolean>(false);
+
     const handleClose = (state: boolean) => {
-        setShow(state)
-    }
+        setShow(state);
+    };
 
     const handleOnChange = (date: Date | null) => {
-        setStartDate(date);
-        console.log("Came here ", date)
         if (date) {
-            console.log("Came inside ", date)
             onChange(date);
+        }
+    };
+
+    const theme: IOptions = {
+        todayBtn: true,
+        clearBtn: false,
+        theme: {
+            background: "bg-gray-700 dark:bg-gray-800",
+            input: "w-full rounded text-gray-300 dark:bg-gray-800 dark:text-gray-300 border-gray-500",
+            icons: "",
+            todayBtn: 'Today',
+            clearBtn: "Clear", text: "", disabledText: "Disabled", inputIcon: "", selected: ""
         }
     };
 
@@ -33,9 +39,11 @@ const DatePicker: React.FC<BInputProps> = ({name, value, onChange, error}) => {
             <label className="block mb-2">
                 <span className="block mb-2">{name}:</span>
                 <Datepicker
-                    options={{theme: {background: "bg-gray-700 dark:bg-gray-800", input: "w-full rounded text-gray-300 dark:bg-gray-800 dark:text-gray-300 border-gray-500",}, todayBtn:false}}
-                    show={show} setShow={handleClose}
+                    options={theme}
+                    show={show}
+                    setShow={handleClose}
                     onChange={handleOnChange}
+                    value={value}
                 />
             </label>
             {error && <p className="text-red-500 text-xs italic">{error}</p>}

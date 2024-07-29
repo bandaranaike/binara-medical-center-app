@@ -2,14 +2,11 @@ import React, {ChangeEvent, useEffect, useRef} from "react";
 import TextInput from "@/components/form/TextInput";
 import axios from "@/lib/axios";
 import DatePicker from "@/components/form/DatePicker";
-import SearchableSelect from "@/components/form/SearchableSelect"; // Assuming you have this component available
 import {isEmpty} from "lodash";
+import {Option, PatientDetailsProps} from "@/types/interfaces";
+import Select from "react-select";
+import customStyles from "@/lib/custom-styles";
 
-interface PatientDetailsProps {
-    patientPhone: string;
-    isNew: boolean;
-    onPatientCreated: (patientData: object) => void;
-}
 
 const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, isNew, onPatientCreated}) => {
     const [id, setId] = React.useState("");
@@ -18,8 +15,8 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, isNew, onP
     const [telephone, setTelephone] = React.useState(patientPhone);
     const [email, setEmail] = React.useState("");
     const [address, setAddress] = React.useState("");
-    const [birthday, setBirthday] = React.useState(new Date);
-    const [gender, setGender] = React.useState(""); // New state for gender
+    const [birthday, setBirthday] = React.useState<Date | undefined>(undefined);
+    const [gender, setGender] = React.useState<Option | null>(null); // New state for gender
     const [savedMessage, setSavedMessage] = React.useState({isSuccess: true, message: ''});
 
     const [errors, setErrors] = React.useState({
@@ -42,15 +39,14 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, isNew, onP
             setTelephone(telephone);
             setEmail(email ?? "");
             setAddress(address ?? "");
-            setBirthday(birthday ? new Date(birthday) : new Date);
-            setGender(gender ?? "");
+            setBirthday(birthday ? new Date(birthday) : undefined);
+            setGender({label: gender, value: gender} ?? "");
         } catch (error) {
             console.error('Error fetching patient data:', error);
         }
     };
 
     const handleOnBirthdayChange = (date: Date) => {
-        console.log("Birthday changed", date);
         setBirthday(date)
     }
 
@@ -73,8 +69,8 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, isNew, onP
         setAge("");
         setEmail("");
         setAddress("");
-        setBirthday(new Date);
-        setGender(""); // Clear gender
+        setBirthday(undefined);
+        setGender(null); // Clear gender
         setErrors({
             name: "",
             age: "",
@@ -148,10 +144,11 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, isNew, onP
                 email,
                 address,
                 birthday,
-                gender
+                gender: gender?.value
             },
         }).then(createdResponse => {
-            onPatientCreated(createdResponse.data)
+            if (isCreate)
+                onPatientCreated(createdResponse.data)
             setSavedMessage({message: "Patient saved successfully!", isSuccess: true})
         }).catch(error => {
             let message = error.response.data?.message;
@@ -159,9 +156,8 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, isNew, onP
         });
     };
 
-    const setGenderSelect = (option: { value: string, label: string }) => {
-        console.log("setGenderSelect", option.value);
-        setGender(option.value);
+    const setGenderSelect = (option: Option | null) => {
+        setGender(option);
     }
 
     return (
@@ -226,12 +222,13 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, isNew, onP
                     </div>
 
                     <div>
-                        <SearchableSelect
-                            id="GenderSelect"
+                        <Select
+                            instanceId="GenderSelect"
                             placeholder="Gender"
                             options={genderOptions}
+                            styles={customStyles}
                             value={gender}
-                            onOptionChange={(option) => setGenderSelect(option)}
+                            onChange={(option: Option | null) => setGenderSelect(option)}
                         />
                     </div>
                 </div>
@@ -242,8 +239,6 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, isNew, onP
                     <div className={`pt-2 pl-3 ${savedMessage.isSuccess ? 'text-green-500' : 'text-red-500'}`}>{savedMessage.message}</div>
                 </div>
             </div>
-
-
         </>
     );
 }

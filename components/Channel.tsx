@@ -2,6 +2,7 @@ import React from 'react';
 import SearchableSelect from "@/components/form/SearchableSelect";
 import TextInput from "@/components/form/TextInput";
 import PatientDetails from "@/components/PatientDetails";
+import {PatientData} from "@/types/interfaces";
 
 const Channel = () => {
     const [billNumber, setBillNumber] = React.useState<number>(0);
@@ -12,14 +13,17 @@ const Channel = () => {
 
     const [channelingFee, setChannelingFee] = React.useState("");
     const [otherFee, setOtherFee] = React.useState("");
-    const [patientData, setPatientData] = React.useState({});
 
     const handleSelectChange = (selectedOption: any) => {
         setTelephone(selectedOption);
         setPatientPhone(selectedOption.label);
         setIsNewRecord(false);
-
     };
+
+    const handleOnPatientCreate = (patientData: PatientData) => {
+        const telephone = patientData.data.telephone;
+        setPatientPhone(telephone);
+    }
 
     const handleOnCreateOption = (selectedOption: any) => {
         setPatientPhone(selectedOption);
@@ -30,7 +34,7 @@ const Channel = () => {
         setDoctor(selectedOption);
     };
 
-    const saveAndPrint = ()=>{
+    const saveAndPrint = () => {
 
     }
 
@@ -73,7 +77,7 @@ const Channel = () => {
                     />
                 </div>
                 <div className="p-8 pb-5 col-span-2">
-                    <PatientDetails onPatientCreated={setPatientData} patientPhone={patientPhone} isNew={isNewRecord}></PatientDetails>
+                    <PatientDetails onPatientCreated={handleOnPatientCreate} patientPhone={patientPhone} isNew={isNewRecord}></PatientDetails>
                 </div>
             </div>
 

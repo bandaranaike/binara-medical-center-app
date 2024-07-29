@@ -1,4 +1,4 @@
-.
+├── FolderStructure.txt
 ├── README.md
 ├── app
 │   ├── favicon.ico
@@ -8,34 +8,53 @@
 ├── components
 │   ├── AllergiesTable.tsx
 │   ├── BillsTable.tsx
+│   ├── Channel.tsx
+│   ├── DaySummary.tsx
 │   ├── DiseasesTable.tsx
 │   ├── DoctorsChannelingFeesTable.tsx
 │   ├── DoctorsTable.tsx
 │   ├── HospitalsTable.tsx
+│   ├── LoginWindow.tsx
+│   ├── OPD.tsx
+│   ├── PatientDetails.tsx
 │   ├── PatientsHistoriesTable.tsx
 │   ├── PatientsTable.tsx
 │   ├── ServicesTable.tsx
 │   ├── SpecialtiesTable.tsx
-│   └── TableComponent.tsx
+│   ├── TableComponent.tsx
+│   ├── form
+│   │   ├── DatePicker.tsx
+│   │   ├── SearchableSelect.tsx
+│   │   └── TextInput.tsx
+│   └── popup
+├── lib
+│   └── axios.ts
 ├── next-env.d.ts
 ├── next.config.mjs
 ├── package-lock.json
 ├── package.json
 ├── pages
-│   └── api
-│       ├── allergies.ts
-│       ├── bills.ts
-│       ├── diseases.ts
-│       ├── doctors-channeling-fees.ts
-│       ├── doctors.ts
-│       ├── hospitals.ts
-│       ├── patients-histories.ts
-│       ├── patients.ts
-│       ├── services.ts
-│       └── specialties.ts
+│   ├── api
+│   │   ├── allergies.ts
+│   │   ├── bills.ts
+│   │   ├── check-email.ts
+│   │   ├── diseases.ts
+│   │   ├── doctors-channeling-fees.ts
+│   │   ├── doctors.ts
+│   │   ├── hospitals.ts
+│   │   ├── login.ts
+│   │   ├── patients-histories.ts
+│   │   ├── patients.ts
+│   │   ├── services.ts
+│   │   └── specialties.ts
+│   └── login.tsx
+├── postcss.config.js
 ├── postcss.config.mjs
 ├── public
+│   ├── logo.png
 │   ├── next.svg
 │   └── vercel.svg
 ├── tailwind.config.ts
-└── tsconfig.json
+├── tsconfig.json
+└── types
+    └── interfaces.ts
