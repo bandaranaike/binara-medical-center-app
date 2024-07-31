@@ -11,7 +11,7 @@ export interface SearchableSelectProps {
     onChange?: (selectedOption: SingleValue<Option> | string | undefined) => void;
     onOptionChange?: (selectedOption: Option | null) => void;
     onCreateOption?: (newValue: string) => void;
-    value: Option | string | null;
+    value: Option | undefined;
     id: string;
     options?: Option[];
 }
@@ -28,9 +28,5 @@ export interface Patient {
 export interface PatientDetailsProps {
     patientPhone: string;
     isNew: boolean;
-    onPatientCreated: (patientData: PatientData) => void;
-}
-
-export interface PatientData {
-    data: Patient;
+    onPatientCreatedOrSelected: (patientData: Patient) => void;
 }

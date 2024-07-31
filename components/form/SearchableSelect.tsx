@@ -16,7 +16,7 @@ const SearchableSelect: React.FC<SearchableSelectProps> = (
     }
 ) => {
 
-    const [selectedValue, setSelectedValue] = React.useState<Option | string | null>(value);
+    const [selectedValue, setSelectedValue] = React.useState<Option | undefined>(value);
 
     const apiUrl = process.env.BACKEND_API_URL || 'http://localhost/api/dropdown/';
 
@@ -37,8 +37,8 @@ const SearchableSelect: React.FC<SearchableSelectProps> = (
         setSelectedValue(value);
     }, [value]);
 
-    const handleOnChange = (selectedOption: SingleValue<Option> | string | null) => {
-        setSelectedValue(selectedOption);
+    const handleOnChange = (selectedOption: SingleValue<Option>) => {
+        setSelectedValue(selectedOption as Option);
         if (onChange) {
             onChange(selectedOption);
         }

@@ -11,7 +11,7 @@ interface BInputProps {
 
 const TextInput: React.FC<BInputProps> = ({name, value, onChange, type = 'text', error, required}) => {
     return (
-        <div className="mb-4">
+        <div className="mb-2">
             <label>
                 <span className="block mb-2">{name}{required?<span className="text-red-500 text-sm -mt-2">*</span>:''} :</span>
                 <input

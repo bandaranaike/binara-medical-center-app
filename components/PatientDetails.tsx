@@ -8,7 +8,7 @@ import Select from "react-select";
 import customStyles from "@/lib/custom-styles";
 
 
-const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, isNew, onPatientCreated}) => {
+const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, isNew, onPatientCreatedOrSelected}) => {
     const [id, setId] = React.useState("");
     const [name, setName] = React.useState("");
     const [age, setAge] = React.useState("");
@@ -41,6 +41,7 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, isNew, onP
             setAddress(address ?? "");
             setBirthday(birthday ? new Date(birthday) : undefined);
             setGender({label: gender, value: gender} ?? "");
+            onPatientCreatedOrSelected(response.data)
         } catch (error) {
             console.error('Error fetching patient data:', error);
         }
@@ -148,7 +149,7 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, isNew, onP
             },
         }).then(createdResponse => {
             if (isCreate)
-                onPatientCreated(createdResponse.data)
+                onPatientCreatedOrSelected(createdResponse.data.data)
             setSavedMessage({message: "Patient saved successfully!", isSuccess: true})
         }).catch(error => {
             let message = error.response.data?.message;
@@ -232,7 +233,7 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, isNew, onP
                         />
                     </div>
                 </div>
-                <div className="flex mt-3">
+                <div className="flex mt-6">
                     <button className={`py-2 px-4 ${isNew ? 'bg-green-600 border-green-700' : 'bg-gray-800 border-gray-700'} rounded border`} onClick={savePatientData}>
                         {isNew ? 'Create Profile' : 'Save Profile'}
                     </button>
