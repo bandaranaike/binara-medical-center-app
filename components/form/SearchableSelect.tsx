@@ -18,11 +18,9 @@ const SearchableSelect: React.FC<SearchableSelectProps> = (
 
     const [selectedValue, setSelectedValue] = React.useState<Option | undefined>(value);
 
-    const apiUrl = process.env.BACKEND_API_URL || 'http://localhost/api/dropdown/';
-
     const fetchOptions = async (inputValue: string) => {
         try {
-            const response = await axios.get(apiUrl + apiUri + "?search=" + inputValue);
+            const response = await axios.get('/dropdown/' + apiUri + "?search=" + inputValue);
             return response.data?.map((item: any) => ({
                 value: item.value,
                 label: item.label

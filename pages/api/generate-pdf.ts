@@ -1,5 +1,5 @@
-import { NextApiRequest, NextApiResponse } from 'next';
-import { jsPDF } from 'jspdf';
+import {NextApiRequest, NextApiResponse} from 'next';
+import {jsPDF} from 'jspdf';
 import fs from 'fs';
 import path from 'path';
 
@@ -27,21 +27,21 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     try {
         const pdfBuffer = await generateBillPDF(billData);
 
-        const date = new Date().toISOString().split('T')[0]; // Get current date in YYYY-MM-DD format
+        const date = new Date().toISOString().split('T')[0]; // Get current date in YYYY-MM-DD  format
         const billNumber = billData.billNumber || 'default_bill_number'; // Ensure billNumber is provided in billData
 
         const directoryPath = path.join(process.cwd(), 'bills', date);
         const filePath = path.join(directoryPath, `${billNumber}.pdf`);
 
         // Ensure the directory exists
-        fs.mkdirSync(directoryPath, { recursive: true });
+        fs.mkdirSync(directoryPath, {recursive: true});
 
         // Write the PDF to the file system
         fs.writeFileSync(filePath, Buffer.from(pdfBuffer));
 
-        res.status(200).json({ message: 'PDF generated and saved successfully', filePath });
-    } catch (error) {
+        res.status(200).json({message: 'PDF generated and saved successfully', filePath});
+    } catch (error: any) {
         console.error('Failed to generate PDF', error);
-        res.status(500).json({ error: 'Failed to generate PDF', details: error.message });
+        res.status(500).json({error: 'Failed to generate PDF', details: error.message});
     }
 };

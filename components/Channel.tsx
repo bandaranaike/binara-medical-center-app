@@ -38,8 +38,21 @@ const Channel = () => {
 
     const handleDoctorChangeOption = (selectedOption: any) => {
         setDoctor(selectedOption);
+        getDoctorFees(selectedOption);
         setErrors((prevErrors: any) => ({...prevErrors, doctor: null}));
     };
+
+    const getDoctorFees = (selectedOption: Option) => {
+        axiosLocal.get(`doctor-channeling-fees/get-fee/${selectedOption.value}`).then(drFeeResponse => {
+            setChannelingFee(drFeeResponse.data)
+        })
+    }
+
+    const getNextBillNumber = () => {
+        axiosLocal.get('bills/get-next-bill-number').then(latestBillResponse => {
+            setBillNumber(latestBillResponse.data)
+        })
+    }
 
     const handleChannelingFeeChange = (value: string) => {
         setChannelingFee(value);
@@ -81,13 +94,12 @@ const Channel = () => {
         }
 
         setErrors({});
-        const backendUrl = process.env.BACKEND_API_URL || 'http://localhost/api/';
         try {
-            const billSaveResponse = await axiosLocal.post(backendUrl + 'bills', {
+            const billSaveResponse = await axiosLocal.post('bills', {
                 system_amount: parseFloat(channelingFee) + parseFloat(otherFee),
                 bill_amount: parseFloat(channelingFee) + parseFloat(otherFee),
                 patient_id: patientId, // You need to set the correct patient ID here
-                doctor_id:  doctor?.value, // You need to set the correct doctor ID here
+                doctor_id: doctor?.value, // You need to set the correct doctor ID here
                 status: 'pending',
                 bill_items: [
                     {

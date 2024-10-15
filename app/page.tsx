@@ -6,6 +6,8 @@ import OPD from '../components/OPD';
 import DaySummary from '../components/DaySummary';
 import LoginWindow from "@/components/LoginWindow";
 import Cookies from "js-cookie";
+import DoctorsPatientQueue from "@/components/DoctorsPatientQueue";
+import PharmacyPortal from "@/components/PhamacyPortal";
 
 const Page = () => {
     const [activeTab, setActiveTab] = useState('channel');
@@ -29,6 +31,10 @@ const Page = () => {
                 return <Channel/>;
             case 'opd':
                 return <OPD/>;
+            case 'doctor-area':
+                return <DoctorsPatientQueue/>;
+            case 'pharmacy-area':
+                return <PharmacyPortal/>;
             case 'day-summary':
                 return <DaySummary/>;
             default:
@@ -80,6 +86,28 @@ const Page = () => {
                                     }`}
                                 >
                                     Day Summary
+                                </a>
+                            </li>
+                            <li className="me-2">
+                                <a
+                                    href="#"
+                                    onClick={() => setActiveTab('doctor-area')}
+                                    className={`inline-block p-4 border-b-2 rounded-t-lg ${
+                                        activeTab === 'doctor-area' ? activeTabClass : inactiveTabClass
+                                    }`}
+                                >
+                                    Doctor Area
+                                </a>
+                            </li>
+                            <li className="me-2">
+                                <a
+                                    href="#"
+                                    onClick={() => setActiveTab('pharmacy-area')}
+                                    className={`inline-block p-4 border-b-2 rounded-t-lg ${
+                                        activeTab === 'pharmacy-area' ? activeTabClass : inactiveTabClass
+                                    }`}
+                                >
+                                    Pharmacy Area
                                 </a>
                             </li>
                         </ul>
