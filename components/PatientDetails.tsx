@@ -1,30 +1,33 @@
-import React, {ChangeEvent, useEffect, useRef} from "react";
+import React, { ChangeEvent, useEffect, useRef } from "react";
 import TextInput from "@/components/form/TextInput";
 import axios from "@/lib/axios";
-import DatePicker from "@/components/form/DatePicker";
-import {isEmpty} from "lodash";
-import {Option, PatientDetailsProps} from "@/types/interfaces";
+import { isEmpty } from "lodash";
+import { Option, PatientDetailsProps } from "@/types/interfaces";
 import Select from "react-select";
 import customStyles from "@/lib/custom-styles";
 
-
-const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, isNew, onPatientCreatedOrSelected}) => {
+const PatientDetails: React.FC<PatientDetailsProps> = ({ patientPhone, isNew, onPatientCreatedOrSelected }) => {
     const [id, setId] = React.useState("");
     const [name, setName] = React.useState("");
     const [age, setAge] = React.useState("");
     const [telephone, setTelephone] = React.useState(patientPhone);
     const [email, setEmail] = React.useState("");
     const [address, setAddress] = React.useState("");
-    const [birthday, setBirthday] = React.useState<Date | undefined>(undefined);
-    const [gender, setGender] = React.useState<Option | null>(null); // New state for gender
-    const [savedMessage, setSavedMessage] = React.useState({isSuccess: true, message: ''});
+    const [year, setYear] = React.useState("");
+    const [month, setMonth] = React.useState("");
+    const [day, setDay] = React.useState("");
+    const [gender, setGender] = React.useState<Option | null>(null);
+    const [savedMessage, setSavedMessage] = React.useState({ isSuccess: true, message: '' });
 
     const [errors, setErrors] = React.useState({
         name: "",
         age: "",
         telephone: "",
         email: "",
-        address: ""
+        address: "",
+        year: "",
+        month: "",
+        day: ""
     });
 
     const clearDataFlag = useRef(false);
@@ -32,24 +35,27 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, isNew, onP
     const fetchUserData = async (phone: string) => {
         try {
             const response = await axios.get(`${apiUrl}patients/get-by-phone/${phone}`);
-            const {id, name, age, telephone, email, address, birthday, gender} = response.data;
+            const { id, name, age, telephone, email, address, birthday, gender } = response.data;
             setId(id);
             setName(name);
             setAge(age ?? "");
             setTelephone(telephone);
             setEmail(email ?? "");
             setAddress(address ?? "");
-            setBirthday(birthday ? new Date(birthday) : undefined);
-            setGender({label: gender, value: gender} ?? "");
-            onPatientCreatedOrSelected(response.data)
+
+            if (birthday) {
+                const birthDate = new Date(birthday);
+                setYear(birthDate.getFullYear().toString());
+                setMonth((birthDate.getMonth() + 1).toString());
+                setDay(birthDate.getDate().toString());
+            }
+
+            setGender({ label: gender, value: gender } ?? "");
+            onPatientCreatedOrSelected(response.data);
         } catch (error) {
-            console.error('Error fetching patient data:', error);
+            console.error("Error fetching patient data:", error);
         }
     };
-
-    const handleOnBirthdayChange = (date: Date) => {
-        setBirthday(date)
-    }
 
     useEffect(() => {
         clearUserData();
@@ -58,26 +64,30 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, isNew, onP
             if (!clearDataFlag.current) {
                 clearDataFlag.current = true;
             }
-            if (patientPhone)
-                fetchUserData(patientPhone);
+            if (patientPhone) fetchUserData(patientPhone);
         }
     }, [patientPhone]);
 
-    const apiUrl = process.env.BACKEND_API_URL || 'http://localhost/api/';
+    const apiUrl = process.env.BACKEND_API_URL || "http://localhost/api/";
 
     const clearUserData = () => {
         setName("");
         setAge("");
         setEmail("");
         setAddress("");
-        setBirthday(undefined);
-        setGender(null); // Clear gender
+        setYear("");
+        setMonth("");
+        setDay("");
+        setGender(null);
         setErrors({
             name: "",
             age: "",
             telephone: "",
             email: "",
-            address: ""
+            address: "",
+            year: "",
+            month: "",
+            day: ""
         });
     };
 
@@ -99,6 +109,22 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, isNew, onP
         } else if (!Number.isInteger(Number(age)) || Number(age) < 1) {
             valid = false;
             newErrors.age = "Age must be a positive integer.";
+        }
+
+        const currentYear = new Date().getFullYear();
+        if (!year || Number(year) < 1900 || Number(year) > currentYear) {
+            valid = false;
+            newErrors.year = `Year must be between 1900 and ${currentYear}.`;
+        }
+
+        if (!month || Number(month) < 1 || Number(month) > 12) {
+            valid = false;
+            newErrors.month = "Month must be between 1 and 12.";
+        }
+
+        if (!day || Number(day) < 1 || Number(day) > 31) {
+            valid = false;
+            newErrors.day = "Day must be between 1 and 31.";
         }
 
         if (!telephone) {
@@ -130,15 +156,17 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, isNew, onP
     ]
 
     const savePatientData = () => {
-        setSavedMessage({message: '', isSuccess: false})
+        setSavedMessage({ message: "", isSuccess: false });
         if (!validateInputs()) {
             return;
         }
 
         const isCreate = isNew && isEmpty(id);
+        const birthday = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
 
-        axios(apiUrl + `patients${isCreate ? '' : `/${id}`}`, {
-            method: isCreate ? "POST" : "PUT", data: {
+        axios(apiUrl + `patients${isCreate ? "" : `/${id}`}`, {
+            method: isCreate ? "POST" : "PUT",
+            data: {
                 name,
                 age,
                 telephone,
@@ -147,24 +175,21 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, isNew, onP
                 birthday,
                 gender: gender?.value
             },
-        }).then(createdResponse => {
-            if (isCreate)
-                onPatientCreatedOrSelected(createdResponse.data.data)
-            setSavedMessage({message: "Patient saved successfully!", isSuccess: true})
-        }).catch(error => {
-            let message = error.response.data?.message;
-            setSavedMessage({message, isSuccess: false})
-        });
+        })
+            .then((createdResponse) => {
+                if (isCreate) onPatientCreatedOrSelected(createdResponse.data.data);
+                setSavedMessage({ message: "Patient saved successfully!", isSuccess: true });
+            })
+            .catch((error) => {
+                let message = error.response.data?.message;
+                setSavedMessage({ message, isSuccess: false });
+            });
     };
-
-    const setGenderSelect = (option: Option | null) => {
-        setGender(option);
-    }
 
     return (
         <>
             <div className={`border border-dashed ${isNew ? 'border-green-700' : 'border-gray-700'} p-6 rounded-lg`}>
-                <div className=" grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-3 gap-4">
                     <div>
                         <TextInput
                             required
@@ -178,7 +203,7 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, isNew, onP
                     <div>
                         <TextInput
                             required
-                            name={'Name'}
+                            name={"Name"}
                             value={name}
                             onChange={setName}
                             error={errors.name}
@@ -187,7 +212,7 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, isNew, onP
 
                     <div>
                         <TextInput
-                            name={'Age'}
+                            name={"Age"}
                             required
                             value={age}
                             onChange={setAge}
@@ -195,18 +220,33 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, isNew, onP
                         />
                     </div>
 
-                    <div>
-                        <DatePicker
-                            name={'Birthday'}
-                            onChange={handleOnBirthdayChange}
-                            value={birthday}
-
+                    <div className="flex space-x-4">
+                        <TextInput
+                            name={"Birth Year"}
+                            required
+                            value={year}
+                            onChange={setYear}
+                            error={errors.year}
+                        />
+                        <TextInput
+                            name={"Month"}
+                            required
+                            value={month}
+                            onChange={setMonth}
+                            error={errors.month}
+                        />
+                        <TextInput
+                            name={"Day"}
+                            required
+                            value={day}
+                            onChange={setDay}
+                            error={errors.day}
                         />
                     </div>
 
                     <div>
                         <TextInput
-                            name={'Address'}
+                            name={"Address"}
                             value={address}
                             onChange={setAddress}
                             error={errors.address}
@@ -215,7 +255,7 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, isNew, onP
 
                     <div>
                         <TextInput
-                            name={'Email'}
+                            name={"Email"}
                             value={email}
                             onChange={setEmail}
                             error={errors.email}
@@ -229,19 +269,24 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, isNew, onP
                             options={genderOptions}
                             styles={customStyles}
                             value={gender}
-                            onChange={(option: Option | null) => setGenderSelect(option)}
+                            onChange={(option: Option | null) => setGender(option)}
                         />
                     </div>
                 </div>
                 <div className="flex mt-6">
-                    <button className={`py-2 px-4 ${isNew ? 'bg-green-600 border-green-700' : 'bg-gray-800 border-gray-700'} rounded border`} onClick={savePatientData}>
-                        {isNew ? 'Create Profile' : 'Save Profile'}
+                    <button
+                        className={`py-2 px-4 ${isNew ? "bg-green-600 border-green-700" : "bg-gray-800 border-gray-700"} rounded border`}
+                        onClick={savePatientData}
+                    >
+                        {isNew ? "Create Profile" : "Save Profile"}
                     </button>
-                    <div className={`pt-2 pl-3 ${savedMessage.isSuccess ? 'text-green-500' : 'text-red-500'}`}>{savedMessage.message}</div>
+                    <div className={`pt-2 pl-3 ${savedMessage.isSuccess ? "text-green-500" : "text-red-500"}`}>
+                        {savedMessage.message}
+                    </div>
                 </div>
             </div>
         </>
     );
-}
+};
 
 export default PatientDetails;

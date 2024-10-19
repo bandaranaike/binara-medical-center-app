@@ -188,7 +188,7 @@ const Channel = () => {
 
             <div className="flex justify-between mt-4">
                 <div></div>
-                <button className="bg-gray-700 text-white px-5 py-2 rounded-md" onClick={saveAndPrint}>Send to Print</button>
+                <button className="bg-gray-700 text-white px-5 py-2 rounded-md" onClick={saveAndPrint}>Create invoice</button>
             </div>
         </div>
     );
