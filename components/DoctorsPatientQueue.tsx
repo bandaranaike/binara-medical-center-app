@@ -1,36 +1,41 @@
 import React, {useState, useEffect} from 'react';
-import axios from '../lib/axios'; // Assuming axios is set up in the lib folder
+import axios from '../lib/axios';
+import SearchableSelect from '../components/form/SearchableSelect';
+import {Option} from "@/types/interfaces"; // Assuming SearchableSelect is in the same folder
 
 interface PatientHistory {
     date: string;
     note: string;
 }
 
-interface Allergies {
-    name: string,
-    id: number
+interface Allergy {
+    name: string;
+    id: number;
 }
 
-interface Diseases {
-    name: string,
-    id: number
+interface Disease {
+    name: string;
+    id: number;
 }
 
 interface Patient {
     id: number;
     name: string;
-    allergies: Allergies[];
-    diseases: Diseases[];
+    allergies: Allergy[];
+    diseases: Disease[];
     histories: PatientHistory[];
 }
 
 const PatientHistories: React.FC = () => {
+
     const [activePatient, setActivePatient] = useState<number>(-1);
     const [activeHistory, setActiveHistory] = useState<number>(-1); // Use -1 for the new history form tab
     const [patients, setPatients] = useState<Patient[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
-    const [newNote, setNewNote] = useState<string>(''); // State for the new history note
-    const [doctorId] = useState<number>(1); // Assuming you have the doctor's ID
+    const [newNote, setNewNote] = useState<string>('');
+    const [doctorId] = useState<number>(1);
+    const [allergy, setAllergy] = useState<Option>();
+    const [disease, setDisease] = useState<Option>();
 
     // Fetch the patients data from the API
     useEffect(() => {
@@ -63,6 +68,10 @@ const PatientHistories: React.FC = () => {
     useEffect(() => {
         setActiveHistory(-1); // Reset to the first tab (add new history) when switching patients
     }, [activePatient]);
+
+    const setActiveItems = (paitent : Patient)=> {
+
+    }
 
     // Handle adding new history
     const handleAddHistory = async (e: React.FormEvent) => {
@@ -100,6 +109,89 @@ const PatientHistories: React.FC = () => {
             console.error("Error adding history: ", error);
         }
     };
+
+    // Handle adding new allergy and saving to DB
+    const handleAddAllergy = async (newAllergy: { label: string, value: string }) => {
+        try {
+            // Make an API request to add the new allergy to the patient's record in the database
+            const response = await axios.post('/patients/add-allergy', {
+                patient_id: activePatient,
+                allergy_name: newAllergy.label, // Send the allergy name
+            });
+
+            // Update local state with the added allergy if the request was successful
+            setPatients(prev => prev.map(patient =>
+                patient.id === activePatient ? {
+                    ...patient,
+                    allergies: [...patient.allergies, {id: response.data.id, name: newAllergy.label}]
+                } : patient
+            ));
+        } catch (error) {
+            console.error("Error adding allergy: ", error);
+        }
+    };
+
+    // Handle removing allergy
+    const handleRemoveAllergy = async (allergyId: number) => {
+        try {
+            // Make an API request to remove the allergy from the patient's record in the database
+            await axios.delete(`/patients/remove-allergy/${allergyId}`, {
+                data: {patient_id: activePatient} // Include patient ID in the request body
+            });
+
+            // If the request is successful, update local state to remove the allergy
+            setPatients(prev => prev.map(patient =>
+                patient.id === activePatient ? {
+                    ...patient,
+                    allergies: patient.allergies.filter(allergy => allergy.id !== allergyId)
+                } : patient
+            ));
+        } catch (error) {
+            console.error("Error removing allergy: ", error);
+        }
+    };
+
+    // Handle adding new disease and saving to DB
+    const handleAddDisease = async (newDisease: { label: string, value: string }) => {
+        try {
+            // Make an API request to add the new disease to the patient's record in the database
+            const response = await axios.post('/patients/add-disease', {
+                patient_id: activePatient,
+                disease_name: newDisease.label, // Send the disease name
+            });
+
+            // Update local state with the added disease if the request was successful
+            setPatients(prev => prev.map(patient =>
+                patient.id === activePatient ? {
+                    ...patient,
+                    diseases: [...patient.diseases, {id: response.data.id, name: newDisease.label}]
+                } : patient
+            ));
+        } catch (error) {
+            console.error("Error adding disease: ", error);
+        }
+    };
+
+    // Handle removing disease
+    const handleRemoveDisease = async (diseaseId: number) => {
+        try {
+            // Make an API request to remove the disease from the patient's record in the database
+            await axios.delete(`/patients/remove-disease/${diseaseId}`, {
+                data: {patient_id: activePatient}
+            });
+
+            // If the request is successful, update local state to remove the disease
+            setPatients(prev => prev.map(patient =>
+                patient.id === activePatient ? {
+                    ...patient,
+                    diseases: patient.diseases.filter(disease => disease.id !== diseaseId)
+                } : patient
+            ));
+        } catch (error) {
+            console.error("Error removing disease: ", error);
+        }
+    };
+
 
     if (loading) {
         return <div>Loading...</div>;
@@ -141,8 +233,25 @@ const PatientHistories: React.FC = () => {
                                     patient.allergies.length > 0 ? (
                                         <ul key={patient.id} className="p-2 ml-2">
                                             {patient.allergies.map((allergy, index) => (
-                                                <li className="mb-1" key={index}>{allergy.name}</li>
+                                                <li className="mb-1" key={index}>
+                                                    {allergy.name}
+                                                    <button
+                                                        className="ml-2 text-red-500"
+                                                        onClick={() => handleRemoveAllergy(allergy.id)}
+                                                    >
+                                                        Remove
+                                                    </button>
+                                                </li>
                                             ))}
+                                            <li>
+                                                <SearchableSelect
+                                                    placeholder="Add Allergy"
+                                                    apiUri="allergies"
+                                                    id="allergy"
+                                                    value={allergy}
+                                                    onChange={(value: any) => handleAddAllergy(value)}
+                                                />
+                                            </li>
                                         </ul>
                                     ) : (
                                         <p className="p-3" key={patient.id}>No allergies listed.</p>
@@ -157,8 +266,25 @@ const PatientHistories: React.FC = () => {
                                     patient.diseases.length > 0 ? (
                                         <ul key={patient.id} className="p-2 ml-2">
                                             {patient.diseases.map((disease, index) => (
-                                                <li className="mb-1" key={index}>{disease.name}</li>
+                                                <li className="mb-1" key={index}>
+                                                    {disease.name}
+                                                    <button
+                                                        className="ml-2 text-red-500"
+                                                        onClick={() => handleRemoveDisease(disease.id)}
+                                                    >
+                                                        Remove
+                                                    </button>
+                                                </li>
                                             ))}
+                                            <li>
+                                                <SearchableSelect
+                                                    placeholder="Add Disease"
+                                                    apiUri="diseases"
+                                                    id="disease"
+                                                    value={disease}
+                                                    onChange={(value: any) => handleAddDisease(value)}
+                                                />
+                                            </li>
                                         </ul>
                                     ) : (
                                         <p className="p-3" key={patient.id}>No diseases listed.</p>
