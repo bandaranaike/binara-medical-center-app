@@ -1,9 +1,8 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import SearchableSelect from "@/components/form/SearchableSelect";
 import TextInput from "@/components/form/TextInput";
 import PatientDetails from "@/components/PatientDetails";
-import {Option, Patient} from "@/types/interfaces";
-import axios from "axios";
+import { Option, Patient } from "@/types/interfaces";
 import axiosLocal from "@/lib/axios";
 import CreateNewDoctor from "@/components/CreateNewDoctor";
 
@@ -18,6 +17,7 @@ const Channel = () => {
     const [channelingFee, setChannelingFee] = useState("500");
     const [otherFee, setOtherFee] = useState("100");
     const [errors, setErrors] = useState<any>({});
+    const [successMessage, setSuccessMessage] = useState<string>(""); // State for success message
 
     const [isCreateDoctorOpen, setIsCreateDoctorOpen] = useState(false);
 
@@ -25,47 +25,42 @@ const Channel = () => {
         setTelephone(selectedOption);
         setPatientPhone(selectedOption.label);
         setIsNewRecord(false);
-        setErrors((prevErrors: any) => ({...prevErrors, telephone: null}));
+        setErrors((prevErrors: any) => ({ ...prevErrors, telephone: null }));
     };
 
     const handleOnPatientCreateOrSelect = (patientData: Patient) => {
         setPatientPhone(patientData.telephone);
-        setPatientId(patientData.id)
-    }
+        setPatientId(patientData.id);
+    };
 
     const handleOnCreateOption = (selectedOption: any) => {
         setPatientPhone(selectedOption);
-        setTelephone({value: "", label: selectedOption});
+        setTelephone({ value: "", label: selectedOption });
         setIsNewRecord(true);
-        setErrors((prevErrors: any) => ({...prevErrors, telephone: null}));
+        setErrors((prevErrors: any) => ({ ...prevErrors, telephone: null }));
     };
 
     const handleDoctorChangeOption = (selectedOption: any) => {
         setDoctor(selectedOption);
         getDoctorFees(selectedOption);
-        setErrors((prevErrors: any) => ({...prevErrors, doctor: null}));
+        setErrors((prevErrors: any) => ({ ...prevErrors, doctor: null }));
     };
 
     const getDoctorFees = (selectedOption: Option) => {
         axiosLocal.get(`doctor-channeling-fees/get-fee/${selectedOption.value}`).then(drFeeResponse => {
-            setChannelingFee(drFeeResponse.data)
-        })
-    }
-
-    const getNextBillNumber = () => {
-        axiosLocal.get('bills/get-next-bill-number').then(latestBillResponse => {
-            setBillNumber(latestBillResponse.data)
-        })
-    }
-
-    const handleChannelingFeeChange = (value: string) => {
-        setChannelingFee(value);
-        setErrors((prevErrors: any) => ({...prevErrors, channelingFee: null}));
+            setChannelingFee(drFeeResponse.data);
+        });
     };
 
-    const handleOtherFeeChange = (value: string) => {
-        setOtherFee(value);
-        setErrors((prevErrors: any) => ({...prevErrors, otherFee: null}));
+    const resetForm = () => {
+        setTelephone(undefined);
+        setDoctor(undefined);
+        setPatientPhone("");
+        setPatientId(0);
+        setChannelingFee("500");
+        setOtherFee("100");
+        setIsNewRecord(true);
+        setErrors({});
     };
 
     const validateFields = () => {
@@ -107,32 +102,29 @@ const Channel = () => {
             });
 
             if (billSaveResponse.status === 200) {
-                // await printBillData({
-                //     patientName: 'John Doe',
-                //     amount: 100,
-                //     billNumber: '12345'
-                // });
+                setBillNumber(billSaveResponse.data.bill_number); // Assume bill_number is returned
+                setSuccessMessage(`Invoice #${billSaveResponse.data} successfully generated!`); // Set success message
+                setTimeout(() => setSuccessMessage(""), 10000); // Clear message after 5 seconds
+                resetForm();
             } else {
                 console.error("Error saving bill", billSaveResponse);
             }
         } catch (error) {
             console.error("Error saving bill", error);
         }
-    }
+    };
+    const handleChannelingFeeChange = (value: string) => {
+        setChannelingFee(value);
+        setErrors((prevErrors: any) => ({ ...prevErrors, channelingFee: null }));
+    };
 
-    const printBillData = async (billData: object) => {
-        try {
-            axios.post('/api/generate-pdf', billData, {
-                responseType: 'arraybuffer',
-            });
-        } catch (error) {
-            console.error('Error generating bill PDF', error);
-        }
+    const handleOtherFeeChange = (value: string) => {
+        setOtherFee(value);
+        setErrors((prevErrors: any) => ({ ...prevErrors, otherFee: null }));
     };
 
     const handleOpenCreateDoctor = (doctorsName: any) => {
-        console.log("doctorsName", doctorsName)
-        setDoctor({label: doctorsName, value: '0'})
+        setDoctor({ label: doctorsName, value: '0' });
         setIsCreateDoctorOpen(true);
     };
 
@@ -141,7 +133,6 @@ const Channel = () => {
     };
 
     const refreshDoctorList = (doctor: Option) => {
-        // Add logic to refresh doctor list after creation
         setDoctor(doctor);
         console.log("Doctor list refreshed.", doctor);
     };
@@ -189,7 +180,11 @@ const Channel = () => {
                     {errors.otherFee && <span className="text-red-500">{errors.otherFee}</span>}
                 </div>
                 <div className="p-8 pb-5 col-span-2">
-                    <PatientDetails onPatientCreatedOrSelected={handleOnPatientCreateOrSelect} patientPhone={patientPhone} isNew={isNewRecord}></PatientDetails>
+                    <PatientDetails
+                        onPatientCreatedOrSelected={handleOnPatientCreateOrSelect}
+                        patientPhone={patientPhone}
+                        isNew={isNewRecord}
+                    ></PatientDetails>
                 </div>
             </div>
 
@@ -201,7 +196,9 @@ const Channel = () => {
             />
 
             <div className="flex justify-between mt-4">
-                <div></div>
+                <div className="flex items-center">
+                    {successMessage && <span className="text-green-500 mr-4">{successMessage}</span>}
+                </div>
                 <button className="bg-gray-700 text-white px-5 py-2 rounded-md" onClick={createInvoiceBill}>Create invoice</button>
             </div>
         </div>

@@ -59,7 +59,6 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({ patientPhone, isNew, on
 
     useEffect(() => {
         clearUserData();
-        console.log('55555')
         setTelephone(patientPhone);
         if (!isNew) {
             if (!clearDataFlag.current) {
