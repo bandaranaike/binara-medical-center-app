@@ -5,6 +5,7 @@ import PatientDetails from "@/components/PatientDetails";
 import {Option, Patient} from "@/types/interfaces";
 import axios from "axios";
 import axiosLocal from "@/lib/axios";
+import CreateNewDoctor from "@/components/CreateNewDoctor";
 
 const Channel = () => {
     const [billNumber, setBillNumber] = useState<number>(0);
@@ -17,6 +18,8 @@ const Channel = () => {
     const [channelingFee, setChannelingFee] = useState("500");
     const [otherFee, setOtherFee] = useState("100");
     const [errors, setErrors] = useState<any>({});
+
+    const [isCreateDoctorOpen, setIsCreateDoctorOpen] = useState(false);
 
     const handleSelectChange = (selectedOption: any) => {
         setTelephone(selectedOption);
@@ -32,6 +35,7 @@ const Channel = () => {
 
     const handleOnCreateOption = (selectedOption: any) => {
         setPatientPhone(selectedOption);
+        setTelephone({value: "", label: selectedOption});
         setIsNewRecord(true);
         setErrors((prevErrors: any) => ({...prevErrors, telephone: null}));
     };
@@ -86,7 +90,7 @@ const Channel = () => {
         return validationErrors;
     };
 
-    const saveAndPrint = async () => {
+    const createInvoiceBill = async () => {
         const validationErrors = validateFields();
         if (Object.keys(validationErrors).length > 0) {
             setErrors(validationErrors);
@@ -98,29 +102,16 @@ const Channel = () => {
             const billSaveResponse = await axiosLocal.post('bills', {
                 system_amount: parseFloat(channelingFee) + parseFloat(otherFee),
                 bill_amount: parseFloat(channelingFee) + parseFloat(otherFee),
-                patient_id: patientId, // You need to set the correct patient ID here
-                doctor_id: doctor?.value, // You need to set the correct doctor ID here
-                status: 'pending',
-                bill_items: [
-                    {
-                        service_id: 1, // Set the correct service ID here
-                        system_amount: parseFloat(channelingFee),
-                        bill_amount: parseFloat(channelingFee),
-                    },
-                    {
-                        service_id: 2, // Set the correct service ID here
-                        system_amount: parseFloat(otherFee),
-                        bill_amount: parseFloat(otherFee),
-                    }
-                ]
+                patient_id: patientId,
+                doctor_id: doctor?.value,
             });
 
             if (billSaveResponse.status === 200) {
-                await printBillData({
-                    patientName: 'John Doe',
-                    amount: 100,
-                    billNumber: '12345'
-                });
+                // await printBillData({
+                //     patientName: 'John Doe',
+                //     amount: 100,
+                //     billNumber: '12345'
+                // });
             } else {
                 console.error("Error saving bill", billSaveResponse);
             }
@@ -139,6 +130,21 @@ const Channel = () => {
         }
     };
 
+    const handleOpenCreateDoctor = (doctorsName: any) => {
+        console.log("doctorsName", doctorsName)
+        setDoctor({label: doctorsName, value: '0'})
+        setIsCreateDoctorOpen(true);
+    };
+
+    const handleCloseCreateDoctor = () => {
+        setIsCreateDoctorOpen(false);
+    };
+
+    const refreshDoctorList = (doctor: Option) => {
+        // Add logic to refresh doctor list after creation
+        setDoctor(doctor);
+        console.log("Doctor list refreshed.", doctor);
+    };
 
     return (
         <div className="bg-gray-900 text-white">
@@ -163,6 +169,7 @@ const Channel = () => {
                         apiUri={'doctors'}
                         value={doctor}
                         onChange={handleDoctorChangeOption}
+                        onCreateOption={handleOpenCreateDoctor}
                         id={'DoctorNameSelect'}
                     />
                     {errors.doctor && <span className="text-red-500">{errors.doctor}</span>}
@@ -186,9 +193,16 @@ const Channel = () => {
                 </div>
             </div>
 
+            <CreateNewDoctor
+                isOpen={isCreateDoctorOpen}
+                onClose={handleCloseCreateDoctor}
+                onDoctorCreated={refreshDoctorList}
+                doctorsName={doctor ? doctor.label : ''}
+            />
+
             <div className="flex justify-between mt-4">
                 <div></div>
-                <button className="bg-gray-700 text-white px-5 py-2 rounded-md" onClick={saveAndPrint}>Create invoice</button>
+                <button className="bg-gray-700 text-white px-5 py-2 rounded-md" onClick={createInvoiceBill}>Create invoice</button>
             </div>
         </div>
     );
