@@ -1,7 +1,9 @@
 import React, {useState, useEffect} from 'react';
 import axios from '../lib/axios';
 import SearchableSelect from '../components/form/SearchableSelect';
-import {Option} from "@/types/interfaces"; // Assuming SearchableSelect is in the same folder
+import {MedicineHistory, Option} from "@/types/interfaces";
+import AddIcon from "@/components/icons/AddIcon";
+import PatientMedicine from "@/components/PatientMedicine"; // Assuming SearchableSelect is in the same folder
 
 interface PatientHistory {
     date: string;
@@ -25,6 +27,7 @@ interface PatientBill {
     allergies: Allergy[];
     diseases: Disease[];
     histories: PatientHistory[];
+    medicineHistories: MedicineHistory[];
 }
 
 const PatientHistories: React.FC = () => {
@@ -32,12 +35,14 @@ const PatientHistories: React.FC = () => {
     const [activePatient, setActivePatient] = useState<number>(-1);
     const [activePatientBill, setActivePatientBill] = useState<number>(-1);
     const [activeHistory, setActiveHistory] = useState<number>(-1); // Use -1 for the new history form tab
-    const [patientsBill, setPatientsBill] = useState<PatientBill[]>([]);
+    const [patientsBills, setPatientsBills] = useState<PatientBill[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [newNote, setNewNote] = useState<string>('');
     const [doctorId] = useState<number>(1);
     const [allergy, setAllergy] = useState<Option>();
     const [disease, setDisease] = useState<Option>();
+    const [isAddAllergyModalOpen, setIsAddAllergyModalOpen] = useState(false);
+    const [isAddDiseaseModalOpen, setIsAddDiseaseModalOpen] = useState(false);
 
     // Fetch the patientsBill data from the API
     useEffect(() => {
@@ -56,7 +61,7 @@ const PatientHistories: React.FC = () => {
                         note: history.note,
                     })),
                 }));
-                setPatientsBill(transformedPatientsBill);
+                setPatientsBills(transformedPatientsBill);
                 setLoading(false);
             } catch (error) {
                 console.error("Error fetching patientsBill data: ", error);
@@ -94,7 +99,7 @@ const PatientHistories: React.FC = () => {
             });
 
             // Update the local state with the new history
-            const updatedPatientsBill = patientsBill.map((patientBill) => {
+            const updatedPatientsBill = patientsBills.map((patientBill) => {
                 if (patientBill.id === activePatientBill) {
                     return {
                         ...patientBill,
@@ -107,7 +112,7 @@ const PatientHistories: React.FC = () => {
                 return patientBill;
             });
 
-            setPatientsBill(updatedPatientsBill);
+            setPatientsBills(updatedPatientsBill);
             setNewNote(''); // Clear the input after submission
         } catch (error) {
             console.error("Error adding history: ", error);
@@ -125,7 +130,7 @@ const PatientHistories: React.FC = () => {
             });
 
             // Update local state with the added allergy if the request was successful
-            setPatientsBill(prev => prev.map(patientBill =>
+            setPatientsBills(prev => prev.map(patientBill =>
                 patientBill.id === activePatientBill ? {
                     ...patientBill,
                     allergies: [...patientBill.allergies, {id: response.data.id, name: newAllergy}]
@@ -145,7 +150,7 @@ const PatientHistories: React.FC = () => {
             });
 
             // If the request is successful, update local state to remove the allergy
-            setPatientsBill(prev => prev.map(patientBill =>
+            setPatientsBills(prev => prev.map(patientBill =>
                 patientBill.id === activePatientBill ? {
                     ...patientBill,
                     allergies: patientBill.allergies.filter(allergy => allergy.id !== allergyId)
@@ -166,7 +171,7 @@ const PatientHistories: React.FC = () => {
             });
 
             // Update local state with the added disease if the request was successful
-            setPatientsBill(prev => prev.map(patientBill =>
+            setPatientsBills(prev => prev.map(patientBill =>
                 patientBill.id === activePatientBill ? {
                     ...patientBill,
                     diseases: [...patientBill.diseases, {id: response.data.id, name: newDisease}]
@@ -186,7 +191,7 @@ const PatientHistories: React.FC = () => {
             });
 
             // If the request is successful, update local state to remove the disease
-            setPatientsBill(prev => prev.map(patientBill =>
+            setPatientsBills(prev => prev.map(patientBill =>
                 patientBill.id === activePatientBill ? {
                     ...patientBill,
                     diseases: patientBill.diseases.filter(disease => disease.id !== diseaseId)
@@ -210,7 +215,7 @@ const PatientHistories: React.FC = () => {
             </div>
             {/* Outer Tab for Patients */}
             <ul className="flex flex-wrap -mb-px border-b border-gray-800">
-                {patientsBill.map((patientBill) => (
+                {patientsBills.map((patientBill) => (
                     <li key={patientBill.id} className="me-2">
                         <button
                             className={`inline-block p-4 border-b-2 ${
@@ -231,12 +236,24 @@ const PatientHistories: React.FC = () => {
                 <div className="mt-6 mx-3">
                     <div className="my-3 bg-gray-900 grid grid-cols-2 gap-3 text-left">
                         <div className="border border-gray-600 rounded-lg">
-                            <h3 className="font-bold text-lg border-b border-gray-600 px-4 py-2">Allergies</h3>
-                            {patientsBill
+                            <h3 className="font-bold text-lg border-b border-gray-600 px-4 py-2 flex justify-between items-center">
+                                Allergies
+                            </h3>
+                            <div className="px-3 mt-3">
+                                <SearchableSelect
+                                    placeholder="Add Allergy"
+                                    apiUri="allergies"
+                                    id="allergy"
+                                    value={allergy}
+                                    onChange={(item: any) => handleAddAllergy(item.label)}
+                                    onCreateOption={(value: any) => handleAddAllergy(value)}
+                                />
+                            </div>
+                            {patientsBills
                                 .filter((patientBill) => patientBill.id === activePatientBill)
                                 .map((patientBill) =>
                                     patientBill.allergies.length > 0 ? (
-                                        <ul key={patientBill.id} className="p-2 ml-2">
+                                        <ul key={patientBill.id} className="px-2 pb-2 ml-2">
                                             {patientBill.allergies.map((allergy, index) => (
                                                 <li className="mb-1" key={index}>
                                                     {allergy.name}
@@ -248,16 +265,6 @@ const PatientHistories: React.FC = () => {
                                                     </button>
                                                 </li>
                                             ))}
-                                            <li>
-                                                <SearchableSelect
-                                                    placeholder="Add Allergy"
-                                                    apiUri="allergies"
-                                                    id="allergy"
-                                                    value={allergy}
-                                                    onChange={(item: any) => handleAddAllergy(item.label)}
-                                                    onCreateOption={(value: any) => handleAddAllergy(value)}
-                                                />
-                                            </li>
                                         </ul>
                                     ) : (
                                         <p className="p-3" key={patientBill.id}>No allergies listed.</p>
@@ -265,12 +272,24 @@ const PatientHistories: React.FC = () => {
                                 )}
                         </div>
                         <div className="border border-gray-600 rounded-lg">
-                            <h3 className="font-bold text-lg border-b border-gray-600 px-4 py-2">Diseases</h3>
-                            {patientsBill
+                            <h3 className="font-bold text-lg border-b border-gray-600 px-4 py-2 flex justify-between items-center">
+                                Diseases
+                            </h3>
+                            <div className="px-3 mt-3">
+                                <SearchableSelect
+                                    placeholder="Add Disease"
+                                    apiUri="diseases"
+                                    id="disease"
+                                    value={disease}
+                                    onChange={(item: any) => handleAddDisease(item.label)}
+                                    onCreateOption={(value: any) => handleAddDisease(value)}
+                                />
+                            </div>
+                            {patientsBills
                                 .filter((patientBill) => patientBill.id === activePatientBill)
                                 .map((patientBill) =>
                                     patientBill.diseases.length > 0 ? (
-                                        <ul key={patientBill.id} className="p-2 ml-2">
+                                        <ul key={patientBill.id} className="px-2 pb-2 ml-2">
                                             {patientBill.diseases.map((disease, index) => (
                                                 <li className="mb-1" key={index}>
                                                     {disease.name}
@@ -282,16 +301,6 @@ const PatientHistories: React.FC = () => {
                                                     </button>
                                                 </li>
                                             ))}
-                                            <li>
-                                                <SearchableSelect
-                                                    placeholder="Add Disease"
-                                                    apiUri="diseases"
-                                                    id="disease"
-                                                    value={disease}
-                                                    onChange={(item: any) => handleAddDisease(item.label)}
-                                                    onCreateOption={(value: any) => handleAddDisease(value)}
-                                                />
-                                            </li>
                                         </ul>
                                     ) : (
                                         <p className="p-3" key={patientBill.id}>No diseases listed.</p>
@@ -317,7 +326,7 @@ const PatientHistories: React.FC = () => {
                         </li>
 
                         {/* Patient Histories Tabs */}
-                        {patientsBill
+                        {patientsBills
                             .filter((patientBill) => patientBill.id === activePatientBill)
                             .map((patientBill) => (
                                 patientBill.histories.map((history, index) => (
@@ -360,7 +369,7 @@ const PatientHistories: React.FC = () => {
                     )}
 
                     {/* Display Selected Patient History */}
-                    {activeHistory !== -1 && patientsBill
+                    {activeHistory !== -1 && patientsBills
                         .filter((patientBill) => patientBill.id === activePatientBill)
                         .map((patientBill) => (
                             <div key={patientBill.id} className="text-left p-4 border border-gray-800 rounded-md mb-8">
@@ -368,7 +377,31 @@ const PatientHistories: React.FC = () => {
                                 <p>{patientBill.histories[activeHistory]?.note || "No notes available."}</p>
                             </div>
                         ))}
-
+                    {activePatientBill > 0 && (
+                        <PatientMedicine
+                            patientId={activePatient}
+                            patientCurrentBillId={activePatientBill}
+                            doctorId={doctorId}
+                            medicineHistories={
+                                patientsBills.find((bill) => bill.id === activePatientBill)?.medicineHistories || []
+                            }
+                            updateMedicineHistories={(newHistory) => {
+                                setPatientsBills((prev) =>
+                                    prev.map((bill) =>
+                                        bill.id === activePatientBill
+                                            ? {
+                                                ...bill,
+                                                medicineHistories: [
+                                                    newHistory,
+                                                    ...(bill.medicineHistories || []),
+                                                ],
+                                            }
+                                            : bill
+                                    )
+                                );
+                            }}
+                        />
+                    )}
                 </div>
             )}
         </div>

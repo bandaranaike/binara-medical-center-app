@@ -30,3 +30,11 @@ export interface PatientDetailsProps {
     isNew: boolean;
     onPatientCreatedOrSelected: (patientData: Patient) => void;
 }
+
+export interface MedicineHistory {
+    date: string;
+    medicine: string;
+    dosage: string;
+    type: string;
+    duration: string;
+}
