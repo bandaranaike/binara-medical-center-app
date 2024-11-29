@@ -33,7 +33,7 @@ export interface PatientDetailsProps {
 
 export interface MedicineHistory {
     date: string;
-    medicine: string;
+    medicineName: string;
     dosage: string;
     type: string;
     duration: string;

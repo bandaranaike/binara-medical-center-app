@@ -60,7 +60,20 @@ const PatientHistories: React.FC = () => {
                         date: history.created_at.toString().split('T')[0],
                         note: history.note,
                     })),
+                    medicineHistories: bill.patient.bills
+                        .filter((patientBill: any) => patientBill.patient_medicine_bill_item) // Only bills with medicines
+                        .flatMap((patientBill: any) => {
+                            const {patient_medicine_bill_item} = patientBill;
+                            return patient_medicine_bill_item.patient_medicines.map((medicine: any) => ({
+                                date: patientBill.created_at.split('T')[0],
+                                medicineName: medicine.medicine.name,
+                                dosage: medicine.dosage,
+                                type: medicine.type,
+                                duration: medicine.duration,
+                            }));
+                        }),
                 }));
+                setActivePatientBill(bills[0].id)
                 setPatientsBills(transformedPatientsBill);
                 setLoading(false);
             } catch (error) {
@@ -385,21 +398,7 @@ const PatientHistories: React.FC = () => {
                             medicineHistories={
                                 patientsBills.find((bill) => bill.id === activePatientBill)?.medicineHistories || []
                             }
-                            updateMedicineHistories={(newHistory) => {
-                                setPatientsBills((prev) =>
-                                    prev.map((bill) =>
-                                        bill.id === activePatientBill
-                                            ? {
-                                                ...bill,
-                                                medicineHistories: [
-                                                    newHistory,
-                                                    ...(bill.medicineHistories || []),
-                                                ],
-                                            }
-                                            : bill
-                                    )
-                                );
-                            }}
+                            updateMedicineHistories={()=>{}}
                         />
                     )}
                 </div>

@@ -3,8 +3,6 @@ import axios from '../lib/axios';
 import SearchableSelect from './form/SearchableSelect';
 import {MedicineHistory, Option} from "@/types/interfaces";
 
-
-
 interface PatientMedicineProps {
     patientId: number;
     patientCurrentBillId: number;
@@ -13,13 +11,14 @@ interface PatientMedicineProps {
     updateMedicineHistories: (newHistory: MedicineHistory) => void;
 }
 
-const PatientMedicine: React.FC<PatientMedicineProps> = ({
-                                                             patientId,
-                                                             patientCurrentBillId,
-                                                             doctorId,
-                                                             medicineHistories,
-                                                             updateMedicineHistories,
-                                                         }) => {
+const PatientMedicine: React.FC<PatientMedicineProps> = (
+    {
+        patientId,
+        patientCurrentBillId,
+        doctorId,
+        medicineHistories,
+        updateMedicineHistories,
+    }) => {
     const [activeTab, setActiveTab] = useState<number>(-1);
     const [selectedMedicine, setSelectedMedicine] = useState<Option>();
     const [dosage, setDosage] = useState<string>('');
@@ -44,9 +43,9 @@ const PatientMedicine: React.FC<PatientMedicineProps> = ({
                 duration,
             });
 
-            const newHistory = {
+            const newHistory: MedicineHistory = {
                 date: new Date().toISOString().split('T')[0],
-                medicine: selectedMedicine.value,
+                medicineName: selectedMedicine.label,
                 dosage,
                 type,
                 duration,
@@ -55,7 +54,7 @@ const PatientMedicine: React.FC<PatientMedicineProps> = ({
             updateMedicineHistories(newHistory);
 
             // Clear the form fields
-            setSelectedMedicine({label: '', value: ''});
+            setSelectedMedicine(undefined);
             setDosage('');
             setType('');
             setDuration('');
@@ -102,7 +101,7 @@ const PatientMedicine: React.FC<PatientMedicineProps> = ({
                                 <SearchableSelect
                                     id="selectMedicine"
                                     value={selectedMedicine}
-                                    onChange={(item:any) => setSelectedMedicine(item)}
+                                    onChange={(item: any) => setSelectedMedicine(item)}
                                     placeholder="Medicine"
                                     apiUri="medicines"
                                 />
@@ -152,10 +151,11 @@ const PatientMedicine: React.FC<PatientMedicineProps> = ({
             ) : (
                 <div className="text-left p-4 border border-gray-800 rounded-md mb-8">
                     <h3 className="font-bold">Medicine Details:</h3>
-                    <p><strong>Medicine:</strong> {medicineHistories[activeTab]?.medicine || 'No details available.'}</p>
-                    <p><strong>Dosage:</strong> {medicineHistories[activeTab]?.dosage || 'No details available.'}</p>
-                    <p><strong>Type:</strong> {medicineHistories[activeTab]?.type || 'No details available.'}</p>
-                    <p><strong>Duration:</strong> {medicineHistories[activeTab]?.duration || 'No details available.'}</p>
+                    <p><strong>Date:</strong> {medicineHistories[activeTab]?.date}</p>
+                    <p><strong>Medicine:</strong> {medicineHistories[activeTab]?.medicineName}</p>
+                    <p><strong>Dosage:</strong> {medicineHistories[activeTab]?.dosage}</p>
+                    <p><strong>Type:</strong> {medicineHistories[activeTab]?.type}</p>
+                    <p><strong>Duration:</strong> {medicineHistories[activeTab]?.duration}</p>
                 </div>
             )}
         </div>
