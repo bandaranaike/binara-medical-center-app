@@ -1,5 +1,13 @@
-import React, { useEffect, useState } from "react";
-import axios from "../lib/axios"; // Adjust import as per your project structure
+import React, {useEffect, useState} from "react";
+import axios from "../lib/axios";
+import SearchableSelect from "@/components/form/SearchableSelect";
+import {Option} from "@/types/interfaces"; // Adjust import as per your project structure
+
+interface Service {
+    id: number;
+    name: string;
+    price: string;
+}
 
 interface Medicine {
     id: number;
@@ -20,6 +28,7 @@ interface BillItem {
     id: number;
     bill_id: number;
     service_id: number;
+    service: Service;
     bill_amount: string;
     patient_medicines: PatientMedicine[];
 }
@@ -40,6 +49,8 @@ interface Bill {
 const PendingBillsPortal: React.FC = () => {
     const [pendingBills, setPendingBills] = useState<Bill[]>([]);
     const [activeBillId, setActiveBillId] = useState<number | null>(null);
+    const [selectedService, setSelectedService] = useState<Option>();
+    const [servicePrice, setServicePrice] = useState<string>("");
 
     useEffect(() => {
         // Fetch pending bills from API
@@ -54,6 +65,38 @@ const PendingBillsPortal: React.FC = () => {
             .catch((error) => console.error("Error fetching pending bills:", error));
     }, []);
 
+    const handleAddService = () => {
+        if (activeBillId && selectedService && servicePrice) {
+            const newBillItem = {
+                bill_id: activeBillId,
+                service_id: selectedService.value,
+                bill_amount: servicePrice,
+            };
+
+            // Send to API
+            axios
+                .post("bill-items", newBillItem)
+                .then((response) => {
+                    // Update the state with the new item
+                    setPendingBills((prevBills) =>
+                        prevBills.map((bill) =>
+                            bill.id === activeBillId
+                                ? {
+                                    ...bill,
+                                    bill_items: [...bill.bill_items, response.data.data],
+                                }
+                                : bill
+                        )
+                    );
+
+                    // Reset selection and price
+                    setSelectedService({label: '', value: ''});
+                    setServicePrice("");
+                })
+                .catch((error) => console.error("Error adding service:", error));
+        }
+    };
+
     const handleUpdateBillItem = (billId: number, itemId: number, newAmount: string) => {
         setPendingBills((prevBills) =>
             prevBills.map((bill) =>
@@ -61,36 +104,7 @@ const PendingBillsPortal: React.FC = () => {
                     ? {
                         ...bill,
                         bill_items: bill.bill_items.map((item) =>
-                            item.id === itemId ? { ...item, bill_amount: newAmount } : item
-                        ),
-                    }
-                    : bill
-            )
-        );
-    };
-
-    const handleUpdateMedicine = (
-        billId: number,
-        itemId: number,
-        medicineId: number,
-        newPrice: string
-    ) => {
-        setPendingBills((prevBills) =>
-            prevBills.map((bill) =>
-                bill.id === billId
-                    ? {
-                        ...bill,
-                        bill_items: bill.bill_items.map((item) =>
-                            item.id === itemId
-                                ? {
-                                    ...item,
-                                    patient_medicines: item.patient_medicines.map((medicine) =>
-                                        medicine.id === medicineId
-                                            ? { ...medicine, price: newPrice }
-                                            : medicine
-                                    ),
-                                }
-                                : item
+                            item.id === itemId ? {...item, bill_amount: newAmount} : item
                         ),
                     }
                     : bill
@@ -127,49 +141,56 @@ const PendingBillsPortal: React.FC = () => {
                         #{activeBill.id} : {activeBill.patient.name}
                     </h2>
                     <form>
+                        {/* Add New Service Section */}
+                        <div className="mt-6">
+                            <h3 className="text-sm font-bold mb-4">Add a Service</h3>
+                            <div className="grid gap-4 grid-cols-6 items-center ">
+                                <div className="">
+                                    <SearchableSelect
+                                        apiUri="services"
+                                        value={selectedService}
+                                        onChange={(selectedServiceOption: any) =>
+                                            setSelectedService(selectedServiceOption)
+                                        }
+                                        placeholder="Service"
+                                        id={'ServiceNameSelect'}
+                                    />
+                                </div>
+                                <input
+                                    type="text"
+                                    placeholder="Price"
+                                    className="px-4 mt-3 py-2 border rounded bg-gray-800 dark:border-gray-700"
+                                    value={servicePrice}
+                                    onChange={(e) => setServicePrice(e.target.value)}
+                                />
+                                <button
+                                    type="button"
+                                    className="mt-3 bg-green-600 text-white py-2.5 px-4 rounded hover:bg-green-700"
+                                    onClick={handleAddService}
+                                >
+                                    Add
+                                </button>
+                            </div>
+                        </div>
+
+                        <hr className="border-t border-gray-700 mb-4 mt-2"/>
+
                         {activeBill.bill_items.map((item) => (
-                            <div key={item.id} className="mb-6">
-                                <label className="block text-sm font-medium text-gray-700">
-                                    Service ID: {item.service_id}
+                            <div key={item.id} className="mb-6 gap-4 grid grid-cols-6 items-center">
+                                <label className="block text-sm font-medium text-gray-400 text-right">
+                                    {item.service?.name || 'Service'}
                                 </label>
                                 <input
                                     type="text"
-                                    className="mt-1 p-2 border rounded w-full"
+                                    className="mt-1 p-2 border rounded dark:border-gray-600 bg-gray-800"
                                     value={item.bill_amount}
                                     onChange={(e) =>
-                                        handleUpdateBillItem(activeBill.id, item.id, e.target.value)
+                                        (activeBill.id, item.id, e.target.value)
                                     }
                                 />
-
-                                {/* Nested Medicines */}
-                                {item.patient_medicines.length > 0 && (
-                                    <div className="mt-4 pl-4 border-l border-gray-300">
-                                        <h4 className="text-sm font-bold mb-2">Medicines:</h4>
-                                        {item.patient_medicines.map((medicine) => (
-                                            <div key={medicine.id} className="mb-2">
-                                                <label className="block text-sm font-medium text-gray-700">
-                                                    {medicine.medicine.name} (
-                                                    {medicine.medicine.drug_name})
-                                                </label>
-                                                <input
-                                                    type="text"
-                                                    className="mt-1 p-2 border rounded w-full"
-                                                    value={medicine.price}
-                                                    onChange={(e) =>
-                                                        handleUpdateMedicine(
-                                                            activeBill.id,
-                                                            item.id,
-                                                            medicine.id,
-                                                            e.target.value
-                                                        )
-                                                    }
-                                                />
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
                             </div>
                         ))}
+
                         <div className="font-bold text-lg mt-4">
                             Total: $
                             {activeBill.bill_items.reduce((total, item) => {
@@ -186,7 +207,7 @@ const PendingBillsPortal: React.FC = () => {
                             className="mt-4 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"
                             onClick={() => console.log("Update button clicked")}
                         >
-                            Update
+                            Finalize bill
                         </button>
                     </form>
                 </div>
