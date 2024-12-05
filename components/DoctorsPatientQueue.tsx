@@ -73,7 +73,9 @@ const PatientHistories: React.FC = () => {
                             }));
                         }),
                 }));
-                setActivePatientBill(bills[0].id)
+                if (bills[0])
+                    setActivePatientBill(bills[0].id)
+
                 setPatientsBills(transformedPatientsBill);
                 setLoading(false);
             } catch (error) {
@@ -398,7 +400,8 @@ const PatientHistories: React.FC = () => {
                             medicineHistories={
                                 patientsBills.find((bill) => bill.id === activePatientBill)?.medicineHistories || []
                             }
-                            updateMedicineHistories={()=>{}}
+                            updateMedicineHistories={() => {
+                            }}
                         />
                     )}
                 </div>

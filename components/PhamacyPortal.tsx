@@ -52,6 +52,7 @@ const PendingBillsPortal: React.FC = () => {
     const [selectedService, setSelectedService] = useState<Option>();
     const [servicePrice, setServicePrice] = useState<string>("");
     const [finalBillAmount, setFinalBillAmount] = useState<number>(0);
+    const [typingTimeout, setTypingTimeout] = useState<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
         // Fetch pending bills from API
@@ -115,8 +116,10 @@ const PendingBillsPortal: React.FC = () => {
                 );
 
                 // Reset the active bill if the current one was finalized
-                if (activeBillId === billId) {
-                    setActiveBillId(pendingBills[0].id);
+                const nextBillIndex = pendingBills.length - 2;
+                if (activeBillId === billId && pendingBills[nextBillIndex]) {
+                    console.log("Pending bill count", nextBillIndex);
+                    setActiveBillId(pendingBills[nextBillIndex].id);
                 }
             })
             .catch((error) => console.error("Error finalizing bill:", error));
@@ -139,6 +142,39 @@ const PendingBillsPortal: React.FC = () => {
             setFinalBillAmount(parseFloat(billAmount.toFixed(2))); // Ensure value is fixed to 2 decimal places
         } else {
             setFinalBillAmount(0); // Reset if no active bill
+        }
+    };
+
+    const handleInputChange = (billId: number, itemId: number, newAmountValue: string) => {
+        const newAmount = newAmountValue ? newAmountValue : '0'
+        // Update the state immediately
+        setPendingBills((prevBills) =>
+            prevBills.map((bill) =>
+                bill.id === billId
+                    ? {
+                        ...bill,
+                        bill_items: bill.bill_items.map((item) =>
+                            item.id === itemId ? {...item, bill_amount: newAmountValue} : item
+                        ),
+                    }
+                    : bill
+            )
+        );
+
+        // Add delay before sending API update
+        if (typingTimeout) clearTimeout(typingTimeout); // Clear any existing timeout
+        const timeout = setTimeout(() => {
+            updateBillItemAmount(itemId, newAmount); // Call API update
+        }, 800);
+        setTypingTimeout(timeout); // Store the timeout
+    };
+
+    const updateBillItemAmount = async (itemId: number, amount: string) => {
+        try {
+            await axios.put(`bill-items/${itemId}`, {bill_amount: amount});
+            console.log("Bill item updated successfully");
+        } catch (error) {
+            console.error("Error updating bill item:", error);
         }
     };
 
@@ -215,7 +251,7 @@ const PendingBillsPortal: React.FC = () => {
                                     className="mt-1 p-2 border rounded dark:border-gray-600 bg-gray-800"
                                     value={item.bill_amount}
                                     onChange={(e) =>
-                                        (activeBill.id, item.id, e.target.value)
+                                        handleInputChange(activeBill.id, item.id, e.target.value)
                                     }
                                 />
                             </div>
@@ -236,7 +272,7 @@ const PendingBillsPortal: React.FC = () => {
             )}
 
             {!activeBill && (
-                <div className="p-4 bg-gray-100 rounded-lg shadow mt-4">
+                <div className="p-4 rounded-lg shadow mt-4">
                     <p className="text-gray-600">No pending bills available.</p>
                 </div>
             )}
