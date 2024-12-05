@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import axios from "../lib/axios";
 import SearchableSelect from "@/components/form/SearchableSelect";
-import {Option} from "@/types/interfaces"; // Adjust import as per your project structure
+import {Option} from "@/types/interfaces";
 
 interface Service {
     id: number;
@@ -51,6 +51,7 @@ const PendingBillsPortal: React.FC = () => {
     const [activeBillId, setActiveBillId] = useState<number | null>(null);
     const [selectedService, setSelectedService] = useState<Option>();
     const [servicePrice, setServicePrice] = useState<string>("");
+    const [finalBillAmount, setFinalBillAmount] = useState<number>(0);
 
     useEffect(() => {
         // Fetch pending bills from API
@@ -64,6 +65,11 @@ const PendingBillsPortal: React.FC = () => {
             })
             .catch((error) => console.error("Error fetching pending bills:", error));
     }, []);
+
+    useEffect(() => {
+        // Recalculate the final bill amount whenever the active bill changes
+        calculateFinalBillAmount();
+    }, [activeBillId, pendingBills]);
 
     const handleAddService = () => {
         if (activeBillId && selectedService && servicePrice) {
@@ -90,26 +96,50 @@ const PendingBillsPortal: React.FC = () => {
                     );
 
                     // Reset selection and price
-                    setSelectedService({label: '', value: ''});
+                    setSelectedService({label: "", value: ""});
                     setServicePrice("");
+
+                    // Recalculate the total bill amount
+                    calculateFinalBillAmount();
                 })
                 .catch((error) => console.error("Error adding service:", error));
         }
     };
 
-    const handleUpdateBillItem = (billId: number, itemId: number, newAmount: string) => {
-        setPendingBills((prevBills) =>
-            prevBills.map((bill) =>
-                bill.id === billId
-                    ? {
-                        ...bill,
-                        bill_items: bill.bill_items.map((item) =>
-                            item.id === itemId ? {...item, bill_amount: newAmount} : item
-                        ),
-                    }
-                    : bill
-            )
-        );
+    const handleFinalizeBill = (billId: number) => {
+        axios.put(`bills/${billId}/finalize`, {status: "done", "bill_amount": finalBillAmount})
+            .then(() => {
+                // Remove the finalized bill from the state
+                setPendingBills((prevBills) =>
+                    prevBills.filter((bill) => bill.id !== billId)
+                );
+
+                // Reset the active bill if the current one was finalized
+                if (activeBillId === billId) {
+                    setActiveBillId(pendingBills[0].id);
+                }
+            })
+            .catch((error) => console.error("Error finalizing bill:", error));
+    };
+
+    const calculateFinalBillAmount = () => {
+        const activeBill = pendingBills.find((bill) => bill.id === activeBillId);
+        if (activeBill) {
+            const billAmount = activeBill.bill_items.reduce((total, item) => {
+                const serviceAmount = parseFloat(item.bill_amount) || 0;
+                let medicineAmount = 0;
+                if (item.patient_medicines) {
+                    medicineAmount = item.patient_medicines.reduce(
+                        (medTotal, med) => medTotal + (parseFloat(med.price) || 0),
+                        0
+                    );
+                }
+                return total + serviceAmount + medicineAmount;
+            }, 0);
+            setFinalBillAmount(parseFloat(billAmount.toFixed(2))); // Ensure value is fixed to 2 decimal places
+        } else {
+            setFinalBillAmount(0); // Reset if no active bill
+        }
     };
 
     const activeBill = pendingBills.find((bill) => bill.id === activeBillId);
@@ -153,7 +183,7 @@ const PendingBillsPortal: React.FC = () => {
                                             setSelectedService(selectedServiceOption)
                                         }
                                         placeholder="Service"
-                                        id={'ServiceNameSelect'}
+                                        id={"ServiceNameSelect"}
                                     />
                                 </div>
                                 <input
@@ -178,7 +208,7 @@ const PendingBillsPortal: React.FC = () => {
                         {activeBill.bill_items.map((item) => (
                             <div key={item.id} className="mb-6 gap-4 grid grid-cols-6 items-center">
                                 <label className="block text-sm font-medium text-gray-400 text-right">
-                                    {item.service?.name || 'Service'}
+                                    {item.service?.name || "Service"}
                                 </label>
                                 <input
                                     type="text"
@@ -192,20 +222,12 @@ const PendingBillsPortal: React.FC = () => {
                         ))}
 
                         <div className="font-bold text-lg mt-4">
-                            Total: $
-                            {activeBill.bill_items.reduce((total, item) => {
-                                const itemTotal = parseFloat(item.bill_amount) || 0;
-                                const medicineTotal = item.patient_medicines.reduce(
-                                    (sum, med) => sum + (parseFloat(med.price) || 0),
-                                    0
-                                );
-                                return total + itemTotal + medicineTotal;
-                            }, 0).toFixed(2)}
+                            Total: LKR {finalBillAmount}
                         </div>
                         <button
                             type="button"
                             className="mt-4 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"
-                            onClick={() => console.log("Update button clicked")}
+                            onClick={() => handleFinalizeBill(activeBill.id)}
                         >
                             Finalize bill
                         </button>
