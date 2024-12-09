@@ -38,3 +38,35 @@ export interface MedicineHistory {
     type: string;
     duration: string;
 }
+
+export interface PatientBill {
+    id: number;
+    name: string;
+    patient_id: number,
+    allergies: Allergy[];
+    diseases: Disease[];
+    histories: PatientHistory[];
+    medicineHistories: MedicineHistory[];
+}
+
+
+export interface PatientHistory {
+    date: string;
+    note: string;
+}
+
+export interface Allergy {
+    name: string;
+    id: number;
+}
+
+export interface Disease {
+    name: string;
+    id: number;
+}
+
+export interface History {
+    id: number;
+    date: string;
+    note: string;
+}

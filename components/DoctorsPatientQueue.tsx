@@ -1,48 +1,20 @@
 import React, {useState, useEffect} from 'react';
 import axios from '../lib/axios';
 import SearchableSelect from '../components/form/SearchableSelect';
-import {MedicineHistory, Option} from "@/types/interfaces";
-import AddIcon from "@/components/icons/AddIcon";
-import PatientMedicine from "@/components/PatientMedicine"; // Assuming SearchableSelect is in the same folder
-
-interface PatientHistory {
-    date: string;
-    note: string;
-}
-
-interface Allergy {
-    name: string;
-    id: number;
-}
-
-interface Disease {
-    name: string;
-    id: number;
-}
-
-interface PatientBill {
-    id: number;
-    name: string;
-    patient_id: number,
-    allergies: Allergy[];
-    diseases: Disease[];
-    histories: PatientHistory[];
-    medicineHistories: MedicineHistory[];
-}
+import {Option, PatientBill} from "@/types/interfaces";
+import PatientMedicine from "@/components/PatientMedicine";
+import DoctorPatientHistory from "@/components/DoctorPatientHistory"; // Assuming SearchableSelect is in the same folder
 
 const PatientHistories: React.FC = () => {
 
     const [activePatient, setActivePatient] = useState<number>(-1);
     const [activePatientBill, setActivePatientBill] = useState<number>(-1);
-    const [activeHistory, setActiveHistory] = useState<number>(-1); // Use -1 for the new history form tab
     const [patientsBills, setPatientsBills] = useState<PatientBill[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [newNote, setNewNote] = useState<string>('');
     const [doctorId] = useState<number>(1);
-    const [allergy, setAllergy] = useState<Option>();
-    const [disease, setDisease] = useState<Option>();
-    const [isAddAllergyModalOpen, setIsAddAllergyModalOpen] = useState(false);
-    const [isAddDiseaseModalOpen, setIsAddDiseaseModalOpen] = useState(false);
+    const [allergy] = useState<Option>();
+    const [disease] = useState<Option>();
 
     // Fetch the patientsBill data from the API
     useEffect(() => {
@@ -73,8 +45,10 @@ const PatientHistories: React.FC = () => {
                             }));
                         }),
                 }));
-                if (bills[0])
+                if (bills[0]) {
                     setActivePatientBill(bills[0].id)
+                    setActivePatient(bills[0].patient.id)
+                }
 
                 setPatientsBills(transformedPatientsBill);
                 setLoading(false);
@@ -86,11 +60,6 @@ const PatientHistories: React.FC = () => {
 
         fetchPatientsBill();
     }, []);
-
-    // Reset activeHistory when the activePatientBill changes
-    useEffect(() => {
-        setActiveHistory(-1); // Reset to the first tab (add new history) when switching patientsBill
-    }, [activePatientBill]);
 
     const setActiveItems = (patientBill: PatientBill) => {
         setActivePatient(patientBill.patient_id)
@@ -325,73 +294,8 @@ const PatientHistories: React.FC = () => {
                         </div>
                     </div>
 
-                    <ul className="flex flex-wrap -mb-px">
-                        {/* Add New History Tab */}
-                        <li className="me-2 ml-2">
-                            <button
-                                className={`inline-block p-4 border-b-2 ${
-                                    activeHistory === -1
-                                        ? 'text-blue-600 border-blue-600 dark:text-blue-500 dark:border-blue-500'
-                                        : 'border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300'
-                                } rounded-t-lg`}
-                                onClick={() => setActiveHistory(-1)}
-                            >
-                                Add New History
-                            </button>
-                        </li>
+                    <DoctorPatientHistory patientId={activePatient} doctorId={doctorId}></DoctorPatientHistory>
 
-                        {/* Patient Histories Tabs */}
-                        {patientsBills
-                            .filter((patientBill) => patientBill.id === activePatientBill)
-                            .map((patientBill) => (
-                                patientBill.histories.map((history, index) => (
-                                    <li key={index} className="me-2 ml-2">
-                                        <button
-                                            className={`inline-block p-4 border-b-2 ${
-                                                activeHistory === index
-                                                    ? 'text-blue-600 border-blue-600 dark:text-blue-500 dark:border-blue-500'
-                                                    : 'border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300'
-                                            } rounded-t-lg`}
-
-                                            onClick={() => setActiveHistory(index)}
-                                        >
-                                            {history.date}
-                                        </button>
-                                    </li>
-                                ))
-                            ))}
-                    </ul>
-
-                    {/* Form to Add New History */}
-                    {activeHistory === -1 && (
-                        <div className="text-left p-4 border border-gray-800 rounded-md mb-8">
-                            <form onSubmit={handleAddHistory}>
-                                <label className="block mb-2 text-left">Note:</label>
-                                <textarea
-                                    className="block w-full p-2 border border-gray-600 rounded mb-4 bg-gray-700"
-                                    value={newNote}
-                                    onChange={(e) => setNewNote(e.target.value)}
-                                    placeholder="Enter note for patientBill history..."
-                                />
-                                <button
-                                    type="submit"
-                                    className="px-4 py-2 bg-blue-500 text-white rounded"
-                                >
-                                    Add History
-                                </button>
-                            </form>
-                        </div>
-                    )}
-
-                    {/* Display Selected Patient History */}
-                    {activeHistory !== -1 && patientsBills
-                        .filter((patientBill) => patientBill.id === activePatientBill)
-                        .map((patientBill) => (
-                            <div key={patientBill.id} className="text-left p-4 border border-gray-800 rounded-md mb-8">
-                                <h3 className="font-bold">Note:</h3>
-                                <p>{patientBill.histories[activeHistory]?.note || "No notes available."}</p>
-                            </div>
-                        ))}
                     {activePatientBill > 0 && (
                         <PatientMedicine
                             patientId={activePatient}

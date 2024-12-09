@@ -118,7 +118,6 @@ const PendingBillsPortal: React.FC = () => {
                 // Reset the active bill if the current one was finalized
                 const nextBillIndex = pendingBills.length - 2;
                 if (activeBillId === billId && pendingBills[nextBillIndex]) {
-                    console.log("Pending bill count", nextBillIndex);
                     setActiveBillId(pendingBills[nextBillIndex].id);
                 }
             })
