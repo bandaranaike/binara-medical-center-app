@@ -294,19 +294,10 @@ const PatientHistories: React.FC = () => {
                         </div>
                     </div>
 
-                    <DoctorPatientHistory patientId={activePatient} doctorId={doctorId}></DoctorPatientHistory>
+                    <DoctorPatientHistory patientId={activePatient}/>
 
                     {activePatientBill > 0 && (
-                        <PatientMedicine
-                            patientId={activePatient}
-                            patientCurrentBillId={activePatientBill}
-                            doctorId={doctorId}
-                            medicineHistories={
-                                patientsBills.find((bill) => bill.id === activePatientBill)?.medicineHistories || []
-                            }
-                            updateMedicineHistories={() => {
-                            }}
-                        />
+                        <PatientMedicine patientId={activePatient}/>
                     )}
                 </div>
             )}

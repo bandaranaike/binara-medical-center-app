@@ -1,29 +1,35 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import axios from '../lib/axios';
 import SearchableSelect from './form/SearchableSelect';
-import {MedicineHistory, Option} from "@/types/interfaces";
+import {MedicineHistory, Option} from '@/types/interfaces';
 
 interface PatientMedicineProps {
     patientId: number;
-    patientCurrentBillId: number;
-    doctorId: number;
-    medicineHistories: MedicineHistory[];
-    updateMedicineHistories: (newHistory: MedicineHistory) => void;
 }
 
-const PatientMedicine: React.FC<PatientMedicineProps> = (
-    {
-        patientId,
-        patientCurrentBillId,
-        doctorId,
-        medicineHistories,
-        updateMedicineHistories,
-    }) => {
+const PatientMedicine: React.FC<PatientMedicineProps> = ({patientId}) => {
+    const [medicineHistories, setMedicineHistories] = useState<MedicineHistory[]>([]);
     const [activeTab, setActiveTab] = useState<number>(-1);
     const [selectedMedicine, setSelectedMedicine] = useState<Option>();
     const [dosage, setDosage] = useState<string>('');
     const [type, setType] = useState<string>('');
     const [duration, setDuration] = useState<string>('');
+    const [loading, setLoading] = useState<boolean>(true);
+
+    useEffect(() => {
+        const fetchMedicineHistories = async () => {
+            try {
+                const response = await axios.get(`/doctors/patient/${patientId}/medicine-histories`);
+                setMedicineHistories(response.data);
+            } catch (error) {
+                console.error('Error fetching medicine histories:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchMedicineHistories();
+    }, [patientId]);
 
     const handleAddMedicine = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -35,23 +41,22 @@ const PatientMedicine: React.FC<PatientMedicineProps> = (
         try {
             const response = await axios.post('/patients/add-medicine', {
                 patient_id: patientId,
-                bill_id: patientCurrentBillId,
-                doctor_id: doctorId,
+                bill_id: medicineHistories.find((history) => history.billId)?.billId, // Use the first bill's ID
                 medicine_id: selectedMedicine.value,
                 dosage,
                 type,
                 duration,
             });
 
-            const newHistory: MedicineHistory = {
-                date: new Date().toISOString().split('T')[0],
-                medicineName: selectedMedicine.label,
+            const newMedicine = {
+                name: selectedMedicine.label,
                 dosage,
                 type,
                 duration,
             };
 
-            updateMedicineHistories(newHistory);
+            // Update the medicine history for the current bill
+            setMedicineHistories(response.data.data);
 
             // Clear the form fields
             setSelectedMedicine(undefined);
@@ -62,6 +67,10 @@ const PatientMedicine: React.FC<PatientMedicineProps> = (
             console.error('Error adding medicine:', error);
         }
     };
+
+    if (loading) {
+        return <div>Loading medicine histories...</div>;
+    }
 
     return (
         <div className="mt-6 mx-3">
@@ -150,12 +159,14 @@ const PatientMedicine: React.FC<PatientMedicineProps> = (
                 </div>
             ) : (
                 <div className="text-left p-4 border border-gray-800 rounded-md mb-8">
-                    <h3 className="font-bold">Medicine Details:</h3>
-                    <p><strong>Date:</strong> {medicineHistories[activeTab]?.date}</p>
-                    <p><strong>Medicine:</strong> {medicineHistories[activeTab]?.medicineName}</p>
-                    <p><strong>Dosage:</strong> {medicineHistories[activeTab]?.dosage}</p>
-                    <p><strong>Type:</strong> {medicineHistories[activeTab]?.type}</p>
-                    <p><strong>Duration:</strong> {medicineHistories[activeTab]?.duration}</p>
+                    <h3 className="font-bold">Medicines List for {medicineHistories[activeTab]?.date}</h3>
+                    <ul>
+                        {medicineHistories[activeTab]?.medicines.map((medicine, idx) => (
+                            <li key={idx}>
+                                <strong>{medicine.name}</strong>: {medicine.dosage}, {medicine.type}, {medicine.duration}
+                            </li>
+                        ))}
+                    </ul>
                 </div>
             )}
         </div>

@@ -31,12 +31,17 @@ export interface PatientDetailsProps {
     onPatientCreatedOrSelected: (patientData: Patient) => void;
 }
 
-export interface MedicineHistory {
-    date: string;
-    medicineName: string;
+export interface Medicine {
+    name: string;
     dosage: string;
     type: string;
     duration: string;
+}
+
+export interface MedicineHistory {
+    billId: string;
+    date: string;
+    medicines: Medicine[];
 }
 
 export interface PatientBill {

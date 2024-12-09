@@ -4,14 +4,9 @@ import axios from '@/lib/axios'; // Assumes you have a setup for axios instance
 
 interface DoctorPatientHistoryProps {
     patientId: number;
-    doctorId: number;
 }
 
-const DoctorPatientHistory: React.FC<DoctorPatientHistoryProps> =
-    ({
-         patientId,
-         doctorId,
-     }) => {
+const DoctorPatientHistory: React.FC<DoctorPatientHistoryProps> = ({patientId}) => {
         const [activeHistory, setActiveHistory] = useState<number>(1);
         const [newNote, setNewNote] = useState<string>('');
         const [histories, setHistories] = useState<History[]>([]);
@@ -25,7 +20,7 @@ const DoctorPatientHistory: React.FC<DoctorPatientHistoryProps> =
                     setLoading(true);
                     setError(null);
 
-                    const response = await axios.get(`/doctor/${doctorId}/patient/${patientId}/history`);
+                    const response = await axios.get(`/doctors/patient/${patientId}/histories`);
                     setHistories(response.data.data || []);
                 } catch (err) {
                     setError('Failed to load patient history.');
@@ -35,7 +30,7 @@ const DoctorPatientHistory: React.FC<DoctorPatientHistoryProps> =
             };
 
             fetchHistory();
-        }, [patientId, doctorId]);
+        }, [patientId]);
 
         // Handle Add History Submit
         const handleAddHistorySubmit =
@@ -52,7 +47,6 @@ const DoctorPatientHistory: React.FC<DoctorPatientHistoryProps> =
                     const response = await axios.post('/patients/add-history', {
                         note: newNote,
                         patient_id: patientId,
-                        doctor_id: doctorId,
                     });
 
                     // Extract the created history from the API response (assuming the API returns the created history)
