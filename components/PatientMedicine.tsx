@@ -9,7 +9,7 @@ interface PatientMedicineProps {
 
 const PatientMedicine: React.FC<PatientMedicineProps> = ({patientId}) => {
     const [medicineHistories, setMedicineHistories] = useState<MedicineHistory[]>([]);
-    const [activeTab, setActiveTab] = useState<number>(-1);
+    const [activeTab, setActiveTab] = useState<number>(0);
     const [selectedMedicine, setSelectedMedicine] = useState<Option>();
     const [dosage, setDosage] = useState<string>('');
     const [type, setType] = useState<string>('');
@@ -48,13 +48,6 @@ const PatientMedicine: React.FC<PatientMedicineProps> = ({patientId}) => {
                 duration,
             });
 
-            const newMedicine = {
-                name: selectedMedicine.label,
-                dosage,
-                type,
-                duration,
-            };
-
             // Update the medicine history for the current bill
             setMedicineHistories(response.data.data);
 
@@ -75,18 +68,6 @@ const PatientMedicine: React.FC<PatientMedicineProps> = ({patientId}) => {
     return (
         <div className="mt-6 mx-3">
             <ul className="flex flex-wrap -mb-px">
-                <li className="me-2 ml-2">
-                    <button
-                        className={`inline-block p-4 border-b-2 ${
-                            activeTab === -1
-                                ? 'text-blue-600 border-blue-600 dark:text-blue-500 dark:border-blue-500'
-                                : 'border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300'
-                        } rounded-t-lg`}
-                        onClick={() => setActiveTab(-1)}
-                    >
-                        Add Medicine
-                    </button>
-                </li>
                 {medicineHistories.map((history, index) => (
                     <li key={index} className="me-2 ml-2">
                         <button
@@ -102,8 +83,8 @@ const PatientMedicine: React.FC<PatientMedicineProps> = ({patientId}) => {
                     </li>
                 ))}
             </ul>
-            {activeTab === -1 ? (
-                <div className="text-left p-4 border border-gray-800 rounded-md mb-8">
+            <div className="text-left p-4 border border-gray-800 rounded-md mb-8">
+                {medicineHistories[activeTab]?.status === 'doctor' && (
                     <form onSubmit={handleAddMedicine}>
                         <div className="grid grid-cols-1 lg:grid-cols-5 gap-3">
                             <div>
@@ -156,19 +137,17 @@ const PatientMedicine: React.FC<PatientMedicineProps> = ({patientId}) => {
                             </div>
                         </div>
                     </form>
-                </div>
-            ) : (
-                <div className="text-left p-4 border border-gray-800 rounded-md mb-8">
-                    <h3 className="font-bold">Medicines List for {medicineHistories[activeTab]?.date}</h3>
-                    <ul>
-                        {medicineHistories[activeTab]?.medicines.map((medicine, idx) => (
-                            <li key={idx}>
-                                <strong>{medicine.name}</strong>: {medicine.dosage}, {medicine.type}, {medicine.duration}
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            )}
+                )}
+
+                <h3 className="font-bold">Medicines List for {medicineHistories[activeTab]?.date}</h3>
+                <ul>
+                    {medicineHistories[activeTab]?.medicines.map((medicine, idx) => (
+                        <li key={idx}>
+                            <strong>{medicine.name}</strong>: {medicine.dosage}, {medicine.type}, {medicine.duration}
+                        </li>
+                    ))}
+                </ul>
+            </div>
         </div>
     );
 };

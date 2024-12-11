@@ -22,35 +22,13 @@ const PatientHistories: React.FC = () => {
             try {
                 const response = await axios.get('/bills/pending'); // Update to your API endpoint
                 const bills = response.data;
-                const transformedPatientsBill = bills.map((bill: any) => ({
-                    id: bill.id,
-                    patient_id: bill.patient.id,
-                    name: bill.patient.name,
-                    allergies: bill.patient.allergies,
-                    diseases: bill.patient.diseases,
-                    histories: bill.patient.patient_histories.map((history: any) => ({
-                        date: history.created_at.toString().split('T')[0],
-                        note: history.note,
-                    })),
-                    medicineHistories: bill.patient.bills
-                        .filter((patientBill: any) => patientBill.patient_medicine_bill_item) // Only bills with medicines
-                        .flatMap((patientBill: any) => {
-                            const {patient_medicine_bill_item} = patientBill;
-                            return patient_medicine_bill_item.patient_medicines.map((medicine: any) => ({
-                                date: patientBill.created_at.split('T')[0],
-                                medicineName: medicine.medicine.name,
-                                dosage: medicine.dosage,
-                                type: medicine.type,
-                                duration: medicine.duration,
-                            }));
-                        }),
-                }));
+
                 if (bills[0]) {
                     setActivePatientBill(bills[0].id)
                     setActivePatient(bills[0].patient.id)
                 }
 
-                setPatientsBills(transformedPatientsBill);
+                setPatientsBills(bills);
                 setLoading(false);
             } catch (error) {
                 console.error("Error fetching patientsBill data: ", error);
@@ -66,43 +44,6 @@ const PatientHistories: React.FC = () => {
         setActivePatientBill(patientBill.id)
     }
 
-    // Handle adding new history
-    const handleAddHistory = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!newNote) {
-            alert("Please enter a note before submitting.");
-            return;
-        }
-
-        try {
-            // Send the new history to the API
-            await axios.post('/patients-histories', {
-                note: newNote,
-                patient_id: activePatient,
-                doctor_id: doctorId, // Assuming you have the doctor ID from somewhere
-            });
-
-            // Update the local state with the new history
-            const updatedPatientsBill = patientsBills.map((patientBill) => {
-                if (patientBill.id === activePatientBill) {
-                    return {
-                        ...patientBill,
-                        histories: [
-                            {date: new Date().toISOString().split('T')[0], note: newNote}, // Add new history locally
-                            ...patientBill.histories,
-                        ],
-                    };
-                }
-                return patientBill;
-            });
-
-            setPatientsBills(updatedPatientsBill);
-            setNewNote(''); // Clear the input after submission
-        } catch (error) {
-            console.error("Error adding history: ", error);
-        }
-    };
-
     // Handle adding new allergy and saving to DB
     const handleAddAllergy = async (newAllergy: string) => {
         console.log("newAllergy", newAllergy)
@@ -117,7 +58,10 @@ const PatientHistories: React.FC = () => {
             setPatientsBills(prev => prev.map(patientBill =>
                 patientBill.id === activePatientBill ? {
                     ...patientBill,
-                    allergies: [...patientBill.allergies, {id: response.data.id, name: newAllergy}]
+                    patient: {
+                        ...patientBill.patient,
+                        allergies: [...patientBill.patient.allergies, {id: response.data.id, name: newAllergy}]
+                    },
                 } : patientBill
             ));
         } catch (error) {
@@ -137,7 +81,10 @@ const PatientHistories: React.FC = () => {
             setPatientsBills(prev => prev.map(patientBill =>
                 patientBill.id === activePatientBill ? {
                     ...patientBill,
-                    allergies: patientBill.allergies.filter(allergy => allergy.id !== allergyId)
+                    patient: {
+                        ...patientBill.patient,
+                        allergies: patientBill.patient.allergies.filter(allergy => allergy.id !== allergyId)
+                    },
                 } : patientBill
             ));
         } catch (error) {
@@ -158,7 +105,10 @@ const PatientHistories: React.FC = () => {
             setPatientsBills(prev => prev.map(patientBill =>
                 patientBill.id === activePatientBill ? {
                     ...patientBill,
-                    diseases: [...patientBill.diseases, {id: response.data.id, name: newDisease}]
+                    patient: {
+                        ...patientBill.patient,
+                        diseases: [...patientBill.patient.diseases, {id: response.data.id, name: newDisease}]
+                    },
                 } : patientBill
             ));
         } catch (error) {
@@ -178,7 +128,10 @@ const PatientHistories: React.FC = () => {
             setPatientsBills(prev => prev.map(patientBill =>
                 patientBill.id === activePatientBill ? {
                     ...patientBill,
-                    diseases: patientBill.diseases.filter(disease => disease.id !== diseaseId)
+                    patient: {
+                        ...patientBill.patient,
+                        diseases: patientBill.patient.diseases.filter(disease => disease.id !== diseaseId)
+                    },
                 } : patientBill
             ));
         } catch (error) {
@@ -209,7 +162,7 @@ const PatientHistories: React.FC = () => {
                             } rounded-t-lg`}
                             onClick={() => setActiveItems(patientBill)}
                         >
-                            #{patientBill.id} : {patientBill.name}
+                            #{patientBill.id} : {patientBill.patient.name}
                         </button>
                     </li>
                 ))}
@@ -236,9 +189,9 @@ const PatientHistories: React.FC = () => {
                             {patientsBills
                                 .filter((patientBill) => patientBill.id === activePatientBill)
                                 .map((patientBill) =>
-                                    patientBill.allergies.length > 0 ? (
+                                    patientBill.patient.allergies.length > 0 ? (
                                         <ul key={patientBill.id} className="px-2 pb-2 ml-2">
-                                            {patientBill.allergies.map((allergy, index) => (
+                                            {patientBill.patient.allergies.map((allergy, index) => (
                                                 <li className="mb-1" key={index}>
                                                     {allergy.name}
                                                     <button
@@ -272,9 +225,9 @@ const PatientHistories: React.FC = () => {
                             {patientsBills
                                 .filter((patientBill) => patientBill.id === activePatientBill)
                                 .map((patientBill) =>
-                                    patientBill.diseases.length > 0 ? (
+                                    patientBill.patient.diseases.length > 0 ? (
                                         <ul key={patientBill.id} className="px-2 pb-2 ml-2">
-                                            {patientBill.diseases.map((disease, index) => (
+                                            {patientBill.patient.diseases.map((disease, index) => (
                                                 <li className="mb-1" key={index}>
                                                     {disease.name}
                                                     <button

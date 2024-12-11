@@ -23,6 +23,8 @@ export interface Patient {
     id: number
     name: string
     telephone: string
+    allergies: Allergy[]
+    diseases: Disease[]
 }
 
 export interface PatientDetailsProps {
@@ -41,17 +43,16 @@ export interface Medicine {
 export interface MedicineHistory {
     billId: string;
     date: string;
+    status: string;
     medicines: Medicine[];
 }
 
 export interface PatientBill {
     id: number;
-    name: string;
     patient_id: number,
-    allergies: Allergy[];
-    diseases: Disease[];
     histories: PatientHistory[];
     medicineHistories: MedicineHistory[];
+    patient: Patient;
 }
 
 
