@@ -69,6 +69,7 @@ export interface Patient {
     email: string
     id: number
     name: string
+    gender: string
     telephone: string
     allergies: Allergy[]
     diseases: Disease[]

@@ -35,32 +35,31 @@ const PendingBillsPortal: React.FC = () => {
             const newBillItem = {
                 bill_id: activeBillId,
                 service_id: selectedService.value,
+                service_name: selectedService.value === '-1' ? selectedService.label : null,
                 bill_amount: servicePrice,
             };
 
             // Send to API
-            axios
-                .post("bill-items", newBillItem)
-                .then((response) => {
-                    // Update the state with the new item
-                    setPendingBills((prevBills) =>
-                        prevBills.map((bill) =>
-                            bill.id === activeBillId
-                                ? {
-                                    ...bill,
-                                    bill_items: [...bill.bill_items, response.data.data],
-                                }
-                                : bill
-                        )
-                    );
+            axios.post("bill-items", newBillItem).then((response) => {
+                // Update the state with the new item
+                setPendingBills((prevBills) =>
+                    prevBills.map((bill) =>
+                        bill.id === activeBillId
+                            ? {
+                                ...bill,
+                                bill_items: [...bill.bill_items, response.data.data],
+                            }
+                            : bill
+                    )
+                );
 
-                    // Reset selection and price
-                    setSelectedService({label: "", value: ""});
-                    setServicePrice("");
+                // Reset selection and price
+                setSelectedService({label: "", value: ""});
+                setServicePrice("");
 
-                    // Recalculate the total bill amount
-                    calculateFinalBillAmount();
-                })
+                // Recalculate the total bill amount
+                calculateFinalBillAmount();
+            })
                 .catch((error) => console.error("Error adding service:", error));
         }
     };
@@ -101,6 +100,10 @@ const PendingBillsPortal: React.FC = () => {
             setFinalBillAmount(0); // Reset if no active bill
         }
     };
+
+    const handleOnNewServiceCreate = (serviceName: string) => {
+        setSelectedService({label: serviceName, value: "-1"});
+    }
 
     const handleInputChange = (billId: number, itemId: number, newAmountValue: string) => {
         const newAmount = newAmountValue ? newAmountValue : '0'
@@ -161,14 +164,17 @@ const PendingBillsPortal: React.FC = () => {
             {activeBill && (
                 <div className="py-3 text-left">
                     <div className="flex justify-between py-3">
-                        <h2 className="text-2xl font-bold mb-4">
-                            {activeBill.patient.name}
-                        </h2>
+                        <div className="">
+                            <h2 className="text-2xl font-bold mb-1 text-gray-400">
+                                {activeBill.patient.name}
+                            </h2>
+                            <div className="text-gray-500">Age: {activeBill.patient.age} <span className="px-1">|</span> Gender: {activeBill.patient.gender}</div>
+                        </div>
                         <div className="text-right">
                             <div className="font-bold mb-1 text-lg">Doctor : {activeBill.doctor.name}</div>
                             <div className="text-gray-500">
-                                <div className="">Created at : {formatReadableDateTime(activeBill.created_at)}</div>
-                                <div className="">Updated at : {formatReadableDateTime(activeBill.updated_at)}</div>
+                                <div className="">Created : {formatReadableDateTime(activeBill.created_at)}</div>
+                                <div className="">Last edit : {formatReadableDateTime(activeBill.updated_at)}</div>
                             </div>
                         </div>
                     </div>
@@ -184,6 +190,7 @@ const PendingBillsPortal: React.FC = () => {
                                         onChange={(selectedServiceOption: any) =>
                                             setSelectedService(selectedServiceOption)
                                         }
+                                        onCreateOption={handleOnNewServiceCreate}
                                         placeholder="Service"
                                         id={"ServiceNameSelect"}
                                     />
@@ -222,17 +229,18 @@ const PendingBillsPortal: React.FC = () => {
                                 />
                             </div>
                         ))}
-
-                        <div className="font-bold text-lg mt-4">
-                            Total: LKR {finalBillAmount}
+                        <div className="flex justify-between content-center">
+                            <div className="font-bold text-lg mt-4">
+                                Total: LKR {finalBillAmount}
+                            </div>
+                            <button
+                                type="button"
+                                className="mt-4 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 mb-3"
+                                onClick={() => handleFinalizeBill(activeBill.id)}
+                            >
+                                Finalize bill
+                            </button>
                         </div>
-                        <button
-                            type="button"
-                            className="mt-4 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"
-                            onClick={() => handleFinalizeBill(activeBill.id)}
-                        >
-                            Finalize bill
-                        </button>
                     </form>
                 </div>
             )}
