@@ -5,9 +5,10 @@ import {MedicineHistory, Option} from '@/types/interfaces';
 
 interface PatientMedicineProps {
     patientId: number;
+    initialBillId: string;
 }
 
-const PatientMedicine: React.FC<PatientMedicineProps> = ({patientId}) => {
+const PatientMedicine: React.FC<PatientMedicineProps> = ({patientId, initialBillId}) => {
     const [medicineHistories, setMedicineHistories] = useState<MedicineHistory[]>([]);
     const [activeTab, setActiveTab] = useState<number>(0);
     const [selectedMedicine, setSelectedMedicine] = useState<Option>();
@@ -15,6 +16,7 @@ const PatientMedicine: React.FC<PatientMedicineProps> = ({patientId}) => {
     const [type, setType] = useState<string>('');
     const [duration, setDuration] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(true);
+    const [billId, setBillId] = useState<string>(initialBillId);
 
     useEffect(() => {
         const fetchMedicineHistories = async () => {
@@ -31,6 +33,35 @@ const PatientMedicine: React.FC<PatientMedicineProps> = ({patientId}) => {
         fetchMedicineHistories();
     }, [patientId]);
 
+    const handleCreateNewMedicine = (item: any) => {
+        setSelectedMedicine({label: item, value: "-1"})
+    }
+
+    const setActiveTabAndBillId = (index: number, billId: string) => {
+        setActiveTab(index);
+        setBillId(billId);
+    }
+
+    const changeBillStatus = async () => {
+        try {
+            const billId = medicineHistories[activeTab]?.billId;
+
+            const response = await axios.put(`/bills/${billId}/status`, {
+                status: 'pharmacy',
+            });
+
+            if (response.status === 200) {
+                setMedicineHistories(medicineHistories.filter((item) => item.billId !== billId));
+                console.log('Bill status updated successfully:', response.data);
+                return response.data; // Handle the response data as needed
+            } else {
+                console.error('Failed to update the bill status:', response);
+            }
+        } catch (error) {
+            console.error('Error updating the bill status:', error);
+        }
+    }
+
     const handleAddMedicine = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!selectedMedicine || !dosage || !type || !duration) {
@@ -41,8 +72,9 @@ const PatientMedicine: React.FC<PatientMedicineProps> = ({patientId}) => {
         try {
             const response = await axios.post('/patients/add-medicine', {
                 patient_id: patientId,
-                bill_id: medicineHistories.find((history) => history.billId)?.billId, // Use the first bill's ID
+                bill_id: billId, // medicineHistories.find((history) => history.billId)?.billId, // Use the first bill's ID
                 medicine_id: selectedMedicine.value,
+                medicine_name: selectedMedicine.value === '-1' ? selectedMedicine.label : null,
                 dosage,
                 type,
                 duration,
@@ -66,8 +98,15 @@ const PatientMedicine: React.FC<PatientMedicineProps> = ({patientId}) => {
     }
 
     return (
-        <div className="mt-6 mx-3">
+        <div className="mt-6">
             <ul className="flex flex-wrap -mb-px">
+                {medicineHistories.length === 0 && (
+                    <li key="first" className="me-2 ml-2">
+                        <button className={`inline-block p-4 border-b-2 'text-blue-600 border-blue-600 dark:text-blue-500 dark:border-blue-500' rounded-t-lg`}>
+                            Add new
+                        </button>
+                    </li>
+                )}
                 {medicineHistories.map((history, index) => (
                     <li key={index} className="me-2 ml-2">
                         <button
@@ -76,7 +115,7 @@ const PatientMedicine: React.FC<PatientMedicineProps> = ({patientId}) => {
                                     ? 'text-blue-600 border-blue-600 dark:text-blue-500 dark:border-blue-500'
                                     : 'border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300'
                             } rounded-t-lg`}
-                            onClick={() => setActiveTab(index)}
+                            onClick={() => setActiveTabAndBillId(index, history.billId)}
                         >
                             {history.date}
                         </button>
@@ -84,7 +123,7 @@ const PatientMedicine: React.FC<PatientMedicineProps> = ({patientId}) => {
                 ))}
             </ul>
             <div className="text-left p-4 border border-gray-800 rounded-md mb-8">
-                {medicineHistories[activeTab]?.status === 'doctor' && (
+                {(medicineHistories[activeTab]?.status === 'doctor') || medicineHistories.length === 0 && (
                     <form onSubmit={handleAddMedicine}>
                         <div className="grid grid-cols-1 lg:grid-cols-5 gap-3">
                             <div>
@@ -92,6 +131,7 @@ const PatientMedicine: React.FC<PatientMedicineProps> = ({patientId}) => {
                                     id="selectMedicine"
                                     value={selectedMedicine}
                                     onChange={(item: any) => setSelectedMedicine(item)}
+                                    onCreateOption={item => handleCreateNewMedicine(item)}
                                     placeholder="Medicine"
                                     apiUri="medicines"
                                 />
@@ -147,6 +187,11 @@ const PatientMedicine: React.FC<PatientMedicineProps> = ({patientId}) => {
                         </li>
                     ))}
                 </ul>
+
+                <div className="text-right">
+                    <button onClick={changeBillStatus} className="border-green-600 border rounded px-4 py-2 bg-green-700 text-gray-100">Send to pharmacy</button>
+                </div>
+
             </div>
         </div>
     );

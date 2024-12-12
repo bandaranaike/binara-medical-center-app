@@ -1,19 +1,66 @@
 import {SingleValue} from "react-select";
 
+export interface Allergy {
+    name: string;
+    id: number;
+}
+
+export interface Bill {
+    id: number;
+    patient_id: number;
+    status: string;
+    patient: Patient;
+    doctor: Doctor;
+    bill_items: BillItem[];
+    created_at: string;
+    updated_at: string;
+}
+
+export interface BillItem {
+    id: number;
+    bill_id: number;
+    service_id: number;
+    service: Service;
+    bill_amount: string;
+    patient_medicines: PatientMedicine[];
+}
+
+export interface Disease {
+    name: string;
+    id: number;
+}
+
+export interface Doctor {
+    id: number;
+    name: string;
+}
+
+export interface History {
+    id: number;
+    date: string;
+    note: string;
+}
+
+export interface Medicine {
+    id: number;
+    name: string;
+    drug_name: string;
+    price: string;
+    dosage: string;
+    type: string;
+    duration: string;
+}
+
+export interface MedicineHistory {
+    billId: string;
+    date: string;
+    status: string;
+    medicines: Medicine[];
+}
+
 export interface Option {
     value: string;
     label: string;
-}
-
-export interface SearchableSelectProps {
-    placeholder?: string;
-    apiUri?: string;
-    onChange?: (selectedOption: SingleValue<Option> | string | undefined) => void;
-    onOptionChange?: (selectedOption: Option | null) => void;
-    onCreateOption?: (newValue: string) => void;
-    value: Option | undefined;
-    id: string;
-    options?: Option[];
 }
 
 export interface Patient {
@@ -27,26 +74,6 @@ export interface Patient {
     diseases: Disease[]
 }
 
-export interface PatientDetailsProps {
-    patientPhone: string;
-    isNew: boolean;
-    onPatientCreatedOrSelected: (patientData: Patient) => void;
-}
-
-export interface Medicine {
-    name: string;
-    dosage: string;
-    type: string;
-    duration: string;
-}
-
-export interface MedicineHistory {
-    billId: string;
-    date: string;
-    status: string;
-    medicines: Medicine[];
-}
-
 export interface PatientBill {
     id: number;
     patient_id: number,
@@ -55,24 +82,38 @@ export interface PatientBill {
     patient: Patient;
 }
 
+export interface PatientDetailsProps {
+    patientPhone: string;
+    isNew: boolean;
+    onPatientCreatedOrSelected: (patientData: Patient) => void;
+}
 
 export interface PatientHistory {
     date: string;
     note: string;
 }
 
-export interface Allergy {
-    name: string;
+export interface PatientMedicine {
     id: number;
+    bill_item_id: number;
+    medicine_id: number;
+    price: string;
+    medicine: Medicine;
 }
 
-export interface Disease {
-    name: string;
-    id: number;
+export interface SearchableSelectProps {
+    placeholder?: string;
+    apiUri?: string;
+    onChange?: (selectedOption: SingleValue<Option> | string | undefined) => void;
+    onOptionChange?: (selectedOption: Option | null) => void;
+    onCreateOption?: (newValue: string) => void;
+    value: Option | undefined;
+    id: string;
+    options?: Option[];
 }
 
-export interface History {
+export interface Service {
     id: number;
-    date: string;
-    note: string;
+    name: string;
+    price: string;
 }

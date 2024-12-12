@@ -7,7 +7,7 @@ interface DoctorPatientHistoryProps {
 }
 
 const DoctorPatientHistory: React.FC<DoctorPatientHistoryProps> = ({patientId}) => {
-        const [activeHistory, setActiveHistory] = useState<number>(1);
+        const [activeHistory, setActiveHistory] = useState<number>(-1);
         const [newNote, setNewNote] = useState<string>('');
         const [histories, setHistories] = useState<History[]>([]);
         const [loading, setLoading] = useState<boolean>(true);
@@ -21,6 +21,7 @@ const DoctorPatientHistory: React.FC<DoctorPatientHistoryProps> = ({patientId}) 
                     setError(null);
 
                     const response = await axios.get(`/doctors/patient/${patientId}/histories`);
+                    setHistories(response.data.data || []);
                     setHistories(response.data.data || []);
                 } catch (err) {
                     setError('Failed to load patient history.');

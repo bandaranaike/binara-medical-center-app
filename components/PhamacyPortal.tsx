@@ -1,50 +1,8 @@
 import React, {useEffect, useState} from "react";
 import axios from "../lib/axios";
 import SearchableSelect from "@/components/form/SearchableSelect";
-import {Option} from "@/types/interfaces";
-
-interface Service {
-    id: number;
-    name: string;
-    price: string;
-}
-
-interface Medicine {
-    id: number;
-    name: string;
-    drug_name: string;
-    price: string;
-}
-
-interface PatientMedicine {
-    id: number;
-    bill_item_id: number;
-    medicine_id: number;
-    price: string;
-    medicine: Medicine;
-}
-
-interface BillItem {
-    id: number;
-    bill_id: number;
-    service_id: number;
-    service: Service;
-    bill_amount: string;
-    patient_medicines: PatientMedicine[];
-}
-
-interface Patient {
-    id: number;
-    name: string;
-}
-
-interface Bill {
-    id: number;
-    patient_id: number;
-    status: string;
-    patient: Patient;
-    bill_items: BillItem[];
-}
+import {Bill, Option} from "@/types/interfaces";
+import {formatReadableDateTime} from "@/lib/readbale-date";
 
 const PendingBillsPortal: React.FC = () => {
     const [pendingBills, setPendingBills] = useState<Bill[]>([]);
@@ -202,9 +160,18 @@ const PendingBillsPortal: React.FC = () => {
             {/* Active Bill Details */}
             {activeBill && (
                 <div className="py-3 text-left">
-                    <h2 className="text-lg font-bold mb-4">
-                        #{activeBill.id} : {activeBill.patient.name}
-                    </h2>
+                    <div className="flex justify-between py-3">
+                        <h2 className="text-2xl font-bold mb-4">
+                            {activeBill.patient.name}
+                        </h2>
+                        <div className="text-right">
+                            <div className="font-bold mb-1 text-lg">Doctor : {activeBill.doctor.name}</div>
+                            <div className="text-gray-500">
+                                <div className="">Created at : {formatReadableDateTime(activeBill.created_at)}</div>
+                                <div className="">Updated at : {formatReadableDateTime(activeBill.updated_at)}</div>
+                            </div>
+                        </div>
+                    </div>
                     <form>
                         {/* Add New Service Section */}
                         <div className="mt-6">

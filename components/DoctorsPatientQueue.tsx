@@ -11,8 +11,6 @@ const PatientHistories: React.FC = () => {
     const [activePatientBill, setActivePatientBill] = useState<number>(-1);
     const [patientsBills, setPatientsBills] = useState<PatientBill[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
-    const [newNote, setNewNote] = useState<string>('');
-    const [doctorId] = useState<number>(1);
     const [allergy] = useState<Option>();
     const [disease] = useState<Option>();
 
@@ -167,6 +165,7 @@ const PatientHistories: React.FC = () => {
                     </li>
                 ))}
             </ul>
+            <div className="text-center my-6">There are currently no bills available for you</div>
 
             {/* Tabs for Adding New History and Patient Histories */}
             {(activePatientBill > 0 &&
@@ -250,7 +249,7 @@ const PatientHistories: React.FC = () => {
                     <DoctorPatientHistory patientId={activePatient}/>
 
                     {activePatientBill > 0 && (
-                        <PatientMedicine patientId={activePatient}/>
+                        <PatientMedicine patientId={activePatient} initialBillId={activePatientBill.toString()}/>
                     )}
                 </div>
             )}
