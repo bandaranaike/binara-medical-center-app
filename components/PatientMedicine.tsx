@@ -6,9 +6,10 @@ import {MedicineHistory, Option} from '@/types/interfaces';
 interface PatientMedicineProps {
     patientId: number;
     initialBillId: string;
+    onBillStatusChange: (billId: number) => void;
 }
 
-const PatientMedicine: React.FC<PatientMedicineProps> = ({patientId, initialBillId}) => {
+const PatientMedicine: React.FC<PatientMedicineProps> = ({patientId, initialBillId, onBillStatusChange}) => {
     const [medicineHistories, setMedicineHistories] = useState<MedicineHistory[]>([]);
     const [activeTab, setActiveTab] = useState<number>(0);
     const [selectedMedicine, setSelectedMedicine] = useState<Option>();
@@ -44,15 +45,16 @@ const PatientMedicine: React.FC<PatientMedicineProps> = ({patientId, initialBill
 
     const changeBillStatus = async () => {
         try {
-            const billId = medicineHistories[activeTab]?.billId;
 
-            const response = await axios.put(`/bills/${billId}/status`, {
+            const currentBillId = medicineHistories[activeTab] ? medicineHistories[activeTab].billId : billId;
+
+            const response = await axios.put(`/bills/${currentBillId}/status`, {
                 status: 'pharmacy',
             });
 
             if (response.status === 200) {
-                setMedicineHistories(medicineHistories.filter((item) => item.billId !== billId));
-                console.log('Bill status updated successfully:', response.data);
+                setMedicineHistories(medicineHistories.filter((item) => item.billId !== currentBillId));
+                onBillStatusChange(Number(currentBillId));
                 return response.data; // Handle the response data as needed
             } else {
                 console.error('Failed to update the bill status:', response);
@@ -123,7 +125,7 @@ const PatientMedicine: React.FC<PatientMedicineProps> = ({patientId, initialBill
                 ))}
             </ul>
             <div className="text-left p-4 border border-gray-800 rounded-md mb-8">
-                {(medicineHistories[activeTab]?.status === 'doctor') || medicineHistories.length === 0 && (
+                {(medicineHistories[activeTab]?.status === 'doctor' || medicineHistories.length === 0) && (
                     <form onSubmit={handleAddMedicine}>
                         <div className="grid grid-cols-1 lg:grid-cols-5 gap-3">
                             <div>

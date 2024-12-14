@@ -42,10 +42,6 @@ const Page = () => {
         }
     };
 
-    const handlerLoggedUser = (status: object) => {
-        setIsLoggedIn(true);
-    }
-
     return (
         <div>
             <div className={`min-h-screen ${!isLoggedIn ? 'blur' : ''}`}>
@@ -122,7 +118,7 @@ const Page = () => {
 
             </div>
             {!isLoggedIn && (
-                <LoginWindow loginStatus={handlerLoggedUser}></LoginWindow>
+                <LoginWindow loginStatus={setIsLoggedIn}></LoginWindow>
             )}
         </div>
     );

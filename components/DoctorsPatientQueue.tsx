@@ -11,6 +11,7 @@ const PatientHistories: React.FC = () => {
     const [activePatientBill, setActivePatientBill] = useState<number>(-1);
     const [patientsBills, setPatientsBills] = useState<PatientBill[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
+    const [patientBillsChanged, setPatientBillsChanged] = useState<boolean>(false);
     const [allergy] = useState<Option>();
     const [disease] = useState<Option>();
 
@@ -35,7 +36,7 @@ const PatientHistories: React.FC = () => {
         };
 
         fetchPatientsBill();
-    }, []);
+    }, [patientBillsChanged]);
 
     const setActiveItems = (patientBill: PatientBill) => {
         setActivePatient(patientBill.patient_id)
@@ -44,7 +45,6 @@ const PatientHistories: React.FC = () => {
 
     // Handle adding new allergy and saving to DB
     const handleAddAllergy = async (newAllergy: string) => {
-        console.log("newAllergy", newAllergy)
         try {
             // Make an API request to add the new allergy to the patient's record in the database
             const response = await axios.post('/patients/add-allergy', {
@@ -137,6 +137,9 @@ const PatientHistories: React.FC = () => {
         }
     };
 
+    const billStatusHasChanged = (billId: number): any => {
+        setPatientBillsChanged((prev) => !prev);
+    }
 
     if (loading) {
         return <div>Loading...</div>;
@@ -165,10 +168,11 @@ const PatientHistories: React.FC = () => {
                     </li>
                 ))}
             </ul>
-            <div className="text-center my-6">There are currently no bills available for you</div>
+
+            {!patientsBills.length && (<div className="text-center my-6">There are currently no bills available for you</div>)}
 
             {/* Tabs for Adding New History and Patient Histories */}
-            {(activePatientBill > 0 &&
+            {(activePatientBill && patientsBills.length > 0 &&
                 <div className="mt-6 mx-3">
                     <div className="my-3 bg-gray-900 grid grid-cols-2 gap-3 text-left">
                         <div className="border border-gray-600 rounded-lg">
@@ -246,10 +250,16 @@ const PatientHistories: React.FC = () => {
                         </div>
                     </div>
 
-                    <DoctorPatientHistory patientId={activePatient}/>
-
+                    <DoctorPatientHistory
+                        key={`${activePatientBill}-${activePatient}-${patientBillsChanged}`}
+                        patientId={activePatient}
+                    />
                     {activePatientBill > 0 && (
-                        <PatientMedicine patientId={activePatient} initialBillId={activePatientBill.toString()}/>
+                        <PatientMedicine
+                            key={`${activePatientBill}-${patientBillsChanged}`}
+                            patientId={activePatient}
+                            initialBillId={activePatientBill.toString()}
+                            onBillStatusChange={billStatusHasChanged}/>
                     )}
                 </div>
             )}

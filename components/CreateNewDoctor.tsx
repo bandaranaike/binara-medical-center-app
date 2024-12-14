@@ -4,22 +4,22 @@ import SearchableSelect from '@/components/form/SearchableSelect';
 import CreateHospitalModal from '@/components/CreateHospitalModal';
 import CreateSpecialtyModal from '@/components/CreateSpecialtyModal'; // Import the new specialty modal
 import {Option} from "@/types/interfaces";
+import TextInput from "@/components/form/TextInput";
 
 interface CreateNewDoctorProps {
     isOpen: boolean;
+    isOPD: boolean;
     doctorsName: string;
     onClose: () => void;
     onDoctorCreated: (doctor: Option) => void;
 }
 
-const CreateNewDoctor: React.FC<CreateNewDoctorProps> = ({isOpen, doctorsName, onClose, onDoctorCreated}) => {
+const CreateNewDoctor: React.FC<CreateNewDoctorProps> = ({isOpen, isOPD, doctorsName, onClose, onDoctorCreated}) => {
     const [name, setName] = useState(doctorsName);
     const [hospital, setHospital] = useState<Option>();
     const [specialty, setSpecialty] = useState<Option>();
     const [telephone, setTelephone] = useState('');
     const [email, setEmail] = useState('');
-    const [age, setAge] = useState<number | string>('');
-    const [address, setAddress] = useState('');
     const [isHospitalModalOpen, setIsHospitalModalOpen] = useState(false);
     const [isSpecialtyModalOpen, setIsSpecialtyModalOpen] = useState(false);
 
@@ -36,10 +36,8 @@ const CreateNewDoctor: React.FC<CreateNewDoctorProps> = ({isOpen, doctorsName, o
                 specialty_id: specialty?.value,
                 telephone,
                 email,
-                age,
-                address,
+                is_opd: isOPD
             });
-            console.log("response.data", response.data)
             onDoctorCreated({value: response.data.id, label: response.data.name});
             onClose();
         } catch (error) {
@@ -81,12 +79,11 @@ const CreateNewDoctor: React.FC<CreateNewDoctorProps> = ({isOpen, doctorsName, o
                 <h2 className="text-xl font-semibold mb-4">Create New Doctor</h2>
                 <form onSubmit={handleSubmit}>
                     <div className="mb-4">
-                        <label className="block text-sm font-medium mb-1">Name :</label>
-                        <input
+                        <TextInput
+                            name="Name"
                             type="text"
                             value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            className="w-full border border-gray-600 p-2 rounded-md bg-gray-700"
+                            onChange={setName}
                             required
                         />
                     </div>
@@ -111,22 +108,20 @@ const CreateNewDoctor: React.FC<CreateNewDoctorProps> = ({isOpen, doctorsName, o
                         />
                     </div>
                     <div className="mb-4">
-                        <label className="block text-sm font-medium mb-1">Telephone :</label>
-                        <input
+                        <TextInput
+                            name="Telephone"
                             type="text"
                             value={telephone}
-                            onChange={(e) => setTelephone(e.target.value)}
-                            className="w-full border border-gray-600 p-2 rounded-md bg-gray-700"
+                            onChange={setTelephone}
                             required
                         />
                     </div>
                     <div className="mb-4">
-                        <label className="block text-sm font-medium mb-1">Email :</label>
-                        <input
+                        <TextInput
+                            name="Email"
                             type="email"
                             value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            className="w-full border border-gray-600 p-2 rounded-md bg-gray-700"
+                            onChange={setEmail}
                         />
                     </div>
                     <div className="flex justify-end">

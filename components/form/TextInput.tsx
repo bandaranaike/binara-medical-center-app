@@ -4,7 +4,7 @@ interface BInputProps {
     name: string;
     value?: string;
     type?: string;
-    onChange: (value: string) => void;
+    onChange: (value: any) => void;
     error?: string;
     required?: boolean;
 }

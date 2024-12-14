@@ -134,7 +134,6 @@ const Channel = () => {
 
     const refreshDoctorList = (doctor: Option) => {
         setDoctor(doctor);
-        console.log("Doctor list refreshed.", doctor);
     };
 
     return (
@@ -193,13 +192,14 @@ const Channel = () => {
                 onClose={handleCloseCreateDoctor}
                 onDoctorCreated={refreshDoctorList}
                 doctorsName={doctor ? doctor.label : ''}
+                isOPD={false}
             />
 
             <div className="flex justify-between mt-4">
                 <div className="flex items-center">
                     {successMessage && <span className="text-green-500 mr-4">{successMessage}</span>}
                 </div>
-                <button className="bg-gray-700 text-white px-5 py-2 rounded-md" onClick={createInvoiceBill}>Create invoice</button>
+                <button className="bg-gray-700 text-white px-5 py-2 rounded-md" onClick={createInvoiceBill}>Create invoice and print</button>
             </div>
         </div>
     );

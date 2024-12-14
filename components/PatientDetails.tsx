@@ -112,17 +112,17 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({ patientPhone, isNew, on
         }
 
         const currentYear = new Date().getFullYear();
-        if (!year || Number(year) < 1900 || Number(year) > currentYear) {
+        if (year && (Number(year) < 1900 || Number(year) > currentYear)) {
             valid = false;
             newErrors.year = `Year must be between 1900 and ${currentYear}.`;
         }
 
-        if (!month || Number(month) < 1 || Number(month) > 12) {
+        if (month &&( Number(month) < 1 || Number(month) > 12)) {
             valid = false;
             newErrors.month = "Month must be between 1 and 12.";
         }
 
-        if (!day || Number(day) < 1 || Number(day) > 31) {
+        if (day && ( Number(day) < 1 || Number(day) > 31)) {
             valid = false;
             newErrors.day = "Day must be between 1 and 31.";
         }
@@ -223,21 +223,18 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({ patientPhone, isNew, on
                     <div className="flex space-x-4">
                         <TextInput
                             name={"Birth Year"}
-                            required
                             value={year}
                             onChange={setYear}
                             error={errors.year}
                         />
                         <TextInput
                             name={"Month"}
-                            required
                             value={month}
                             onChange={setMonth}
                             error={errors.month}
                         />
                         <TextInput
                             name={"Day"}
-                            required
                             value={day}
                             onChange={setDay}
                             error={errors.day}
