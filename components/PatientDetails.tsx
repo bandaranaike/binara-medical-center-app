@@ -6,9 +6,9 @@ import { Option, PatientDetailsProps } from "@/types/interfaces";
 import Select from "react-select";
 import customStyles from "@/lib/custom-styles";
 
-const PatientDetails: React.FC<PatientDetailsProps> = ({ patientPhone, isNew, onPatientCreatedOrSelected }) => {
+const PatientDetails: React.FC<PatientDetailsProps> = ({ patientPhone, patientName, isNew, onPatientCreatedOrSelected }) => {
     const [id, setId] = React.useState("");
-    const [name, setName] = React.useState("");
+    const [name, setName] = React.useState(patientName);
     const [age, setAge] = React.useState("");
     const [telephone, setTelephone] = React.useState(patientPhone);
     const [email, setEmail] = React.useState("");
@@ -60,13 +60,14 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({ patientPhone, isNew, on
     useEffect(() => {
         clearUserData();
         setTelephone(patientPhone);
+        setName(patientName);
         if (!isNew) {
             if (!clearDataFlag.current) {
                 clearDataFlag.current = true;
             }
             if (patientPhone) fetchUserData(patientPhone);
         }
-    }, [patientPhone]);
+    }, [patientPhone, patientName]);
 
     const apiUrl = process.env.BACKEND_API_URL || "http://localhost/api/";
 
@@ -188,7 +189,7 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({ patientPhone, isNew, on
 
     return (
         <>
-            <div className={`border border-dashed ${isNew ? 'border-green-700' : 'border-gray-700'} p-6 rounded-lg`}>
+            <div className={`border border-dashed ${isNew ? 'border-green-700' : 'border-blue-800'} p-6 rounded-lg`}>
                 <div className="grid grid-cols-3 gap-4">
                     <div>
                         <TextInput
@@ -272,7 +273,7 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({ patientPhone, isNew, on
                 </div>
                 <div className="flex mt-6">
                     <button
-                        className={`py-2 px-4 ${isNew ? "bg-green-600 border-green-700" : "bg-gray-800 border-gray-700"} rounded border`}
+                        className={`py-2 px-4 ${isNew ? "bg-green-600 border-green-700" : "bg-blue-800 border-blue-700"} rounded border`}
                         onClick={savePatientData}
                     >
                         {isNew ? "Create Profile" : "Save Profile"}

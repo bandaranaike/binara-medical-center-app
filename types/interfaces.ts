@@ -85,6 +85,7 @@ export interface PatientBill {
 
 export interface PatientDetailsProps {
     patientPhone: string;
+    patientName: string;
     isNew: boolean;
     onPatientCreatedOrSelected: (patientData: Patient) => void;
 }

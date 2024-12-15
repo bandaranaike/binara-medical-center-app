@@ -14,8 +14,8 @@ const OPD = () => {
     const [patientPhone, setPatientPhone] = useState("");
     const [patientId, setPatientId] = useState(0);
 
-    const [channelingFee, setChannelingFee] = useState("500");
-    const [otherFee, setOtherFee] = useState("100");
+    const [channelingFee, setChannelingFee] = useState("");
+    const [otherFee, setOtherFee] = useState("");
     const [errors, setErrors] = useState<any>({});
     const [successMessage, setSuccessMessage] = useState<string>(""); // State for success message
 
@@ -47,7 +47,7 @@ const OPD = () => {
     };
 
     const getDoctorFees = (selectedOption: Option) => {
-        axiosLocal.get(`doctor-channeling-fees/get-fee/${selectedOption.value}`).then(drFeeResponse => {
+        axiosLocal.get(`doctor-channeling-fees/get-fee/${selectedOption.value}/true`).then(drFeeResponse => {
             setChannelingFee(drFeeResponse.data);
         });
     };
@@ -65,14 +65,6 @@ const OPD = () => {
 
     const validateFields = () => {
         let validationErrors: any = {};
-
-        if (!channelingFee || isNaN(Number(channelingFee))) {
-            validationErrors.channelingFee = "Channeling fee is required and must be numeric.";
-        }
-
-        if (!otherFee || isNaN(Number(otherFee))) {
-            validationErrors.otherFee = "Other fee is required and must be numeric.";
-        }
 
         if (!telephone) {
             validationErrors.telephone = "Patient telephone is required.";
@@ -95,8 +87,6 @@ const OPD = () => {
         setErrors({});
         try {
             const billSaveResponse = await axiosLocal.post('bills', {
-                system_amount: parseFloat(channelingFee) + parseFloat(otherFee),
-                bill_amount: parseFloat(channelingFee) + parseFloat(otherFee),
                 patient_id: patientId,
                 doctor_id: doctor?.value,
             });
@@ -113,15 +103,6 @@ const OPD = () => {
             console.error("Error saving bill", error);
         }
     };
-    const handleChannelingFeeChange = (value: string) => {
-        setChannelingFee(value);
-        setErrors((prevErrors: any) => ({...prevErrors, channelingFee: null}));
-    };
-
-    const handleOtherFeeChange = (value: string) => {
-        setOtherFee(value);
-        setErrors((prevErrors: any) => ({...prevErrors, otherFee: null}));
-    };
 
     const handleOpenCreateDoctor = (doctorsName: any) => {
         setDoctor({label: doctorsName, value: '0'});
@@ -131,8 +112,6 @@ const OPD = () => {
     const handleCloseCreateDoctor = () => {
         setIsCreateDoctorOpen(false);
     };
-
-
 
     return (
         <div className="bg-gray-900 text-white">
@@ -161,20 +140,6 @@ const OPD = () => {
                         id={'DoctorNameSelect'}
                     />
                     {errors.doctor && <span className="text-red-500">{errors.doctor}</span>}
-
-                    <TextInput
-                        name="Channeling"
-                        value={channelingFee}
-                        onChange={handleChannelingFeeChange}
-                    />
-                    {errors.channelingFee && <span className="text-red-500">{errors.channelingFee}</span>}
-
-                    <TextInput
-                        name="Others"
-                        value={otherFee}
-                        onChange={handleOtherFeeChange}
-                    />
-                    {errors.otherFee && <span className="text-red-500">{errors.otherFee}</span>}
                 </div>
                 <div className="p-8 pb-5 col-span-2">
                     <PatientDetails

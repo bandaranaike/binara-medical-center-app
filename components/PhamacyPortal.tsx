@@ -15,7 +15,7 @@ const PendingBillsPortal: React.FC = () => {
     useEffect(() => {
         // Fetch pending bills from API
         axios
-            .get("bills/pending-invoices")
+            .get("bills/pending/pharmacy")
             .then((response) => {
                 setPendingBills(response.data);
                 if (response.data.length > 0) {

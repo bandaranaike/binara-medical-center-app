@@ -19,7 +19,7 @@ const PatientHistories: React.FC = () => {
     useEffect(() => {
         const fetchPatientsBill = async () => {
             try {
-                const response = await axios.get('/bills/pending'); // Update to your API endpoint
+                const response = await axios.get('/bills/pending/doctor'); // Update to your API endpoint
                 const bills = response.data;
 
                 if (bills[0]) {
