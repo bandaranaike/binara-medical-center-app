@@ -10,7 +10,7 @@ import CustomCheckbox from "@/components/form/CustomCheckbox";
 
 const Channel = () => {
     const [billNumber, setBillNumber] = useState<number>(0);
-    const [telephone, setTelephone] = useState<Option>();
+    const [patientNotFound, setPatientNotFound] = useState<boolean>(false);
     const [isNewRecord, setIsNewRecord] = useState(true);
     const [isBooking, setIsBooking] = useState(false);
     const [doctor, setDoctor] = useState<Option>();
@@ -26,7 +26,6 @@ const Channel = () => {
     const [isCreateDoctorOpen, setIsCreateDoctorOpen] = useState(false);
 
     const handleSelectChange = (selectedOption: any) => {
-        setTelephone(selectedOption);
         setPatientPhone(selectedOption.label);
         setIsNewRecord(false);
         setErrors((prevErrors: any) => ({...prevErrors, telephone: null}));
@@ -34,12 +33,12 @@ const Channel = () => {
 
     const handleOnPatientCreateOrSelect = (patientData: Patient) => {
         setPatientPhone(patientData.telephone);
+        setPatientNotFound(false)
         setPatientId(patientData.id);
     };
 
     const handleOnCreateOption = (selectedOption: any) => {
         setPatientPhone(selectedOption);
-        setTelephone({value: "", label: selectedOption});
         setIsNewRecord(true);
         setErrors((prevErrors: any) => ({...prevErrors, telephone: null}));
     };
@@ -57,7 +56,6 @@ const Channel = () => {
     };
 
     const resetForm = () => {
-        setTelephone(undefined);
         setDoctor(undefined);
         setPatientPhone("");
         setPatientId(0);
@@ -82,6 +80,11 @@ const Channel = () => {
             validationErrors.doctor = "Doctor selection is required.";
         }
 
+        if (!patientId) {
+            validationErrors.patient = "Patient is required.";
+            setPatientNotFound(true);
+        }
+
         return validationErrors;
     };
 
@@ -104,9 +107,12 @@ const Channel = () => {
 
             if (billSaveResponse.status === 200) {
                 setBillNumber(billSaveResponse.data.bill_number); // Assume bill_number is returned
-                setSuccessMessage(`Invoice #${billSaveResponse.data} successfully generated!`); // Set success message
+                setSuccessMessage(`Invoice #${billSaveResponse.data} was successfully generated!`); // Set success message
                 setTimeout(() => setSuccessMessage(""), 10000); // Clear message after 5 seconds
                 resetForm();
+                setPatientId(0);
+                setDoctor({value: '0', label: ''});
+                setPatientNotFound(false);
             } else {
                 console.error("Error saving bill", billSaveResponse);
             }
@@ -139,8 +145,6 @@ const Channel = () => {
 
     const handlePatientSelect = (patient: Patient) => {
         setPatientPhone(patient.telephone);
-        setTelephone({value: patient.id.toString(), label: patient.telephone});
-
         setIsNewRecord(false);
     };
 
@@ -197,6 +201,7 @@ const Channel = () => {
                         patientPhone={patientPhone}
                         patientName={patientName}
                         isNew={isNewRecord}
+                        patientNotFound={patientNotFound}
                     ></PatientDetails>
                 </div>
             </div>

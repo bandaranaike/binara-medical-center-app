@@ -1,12 +1,12 @@
-import React, { ChangeEvent, useEffect, useRef } from "react";
+import React, {ChangeEvent, useEffect, useRef} from "react";
 import TextInput from "@/components/form/TextInput";
 import axios from "@/lib/axios";
-import { isEmpty } from "lodash";
-import { Option, PatientDetailsProps } from "@/types/interfaces";
+import {isEmpty} from "lodash";
+import {Option, PatientDetailsProps} from "@/types/interfaces";
 import Select from "react-select";
 import customStyles from "@/lib/custom-styles";
 
-const PatientDetails: React.FC<PatientDetailsProps> = ({ patientPhone, patientName, isNew, onPatientCreatedOrSelected }) => {
+const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, patientName, isNew, onPatientCreatedOrSelected, patientNotFound}) => {
     const [id, setId] = React.useState("");
     const [name, setName] = React.useState(patientName);
     const [age, setAge] = React.useState("");
@@ -17,7 +17,7 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({ patientPhone, patientNa
     const [month, setMonth] = React.useState("");
     const [day, setDay] = React.useState("");
     const [gender, setGender] = React.useState<Option | null>(null);
-    const [savedMessage, setSavedMessage] = React.useState({ isSuccess: true, message: '' });
+    const [savedMessage, setSavedMessage] = React.useState({isSuccess: true, message: ''});
 
     const [errors, setErrors] = React.useState({
         name: "",
@@ -35,7 +35,7 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({ patientPhone, patientNa
     const fetchUserData = async (phone: string) => {
         try {
             const response = await axios.get(`${apiUrl}patients/get-by-phone/${phone}`);
-            const { id, name, age, telephone, email, address, birthday, gender } = response.data;
+            const {id, name, age, telephone, email, address, birthday, gender} = response.data;
             setId(id);
             setName(name);
             setAge(age ?? "");
@@ -50,7 +50,7 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({ patientPhone, patientNa
                 setDay(birthDate.getDate().toString());
             }
 
-            setGender({ label: gender, value: gender } ?? "");
+            setGender({label: gender, value: gender} ?? "");
             onPatientCreatedOrSelected(response.data);
         } catch (error) {
             console.error("Error fetching patient data:", error);
@@ -68,6 +68,16 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({ patientPhone, patientNa
             if (patientPhone) fetchUserData(patientPhone);
         }
     }, [patientPhone, patientName]);
+
+    useEffect(() => {
+        console.log("patientNotFound", patientNotFound);
+        if (patientNotFound) {
+            setSavedMessage(prevMessage => ({
+                message: "Please save the patient first!",
+                isSuccess: false
+            }));
+        }
+    }, [patientNotFound]);
 
     const apiUrl = process.env.BACKEND_API_URL || "http://localhost/api/";
 
@@ -118,12 +128,12 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({ patientPhone, patientNa
             newErrors.year = `Year must be between 1900 and ${currentYear}.`;
         }
 
-        if (month &&( Number(month) < 1 || Number(month) > 12)) {
+        if (month && (Number(month) < 1 || Number(month) > 12)) {
             valid = false;
             newErrors.month = "Month must be between 1 and 12.";
         }
 
-        if (day && ( Number(day) < 1 || Number(day) > 31)) {
+        if (day && (Number(day) < 1 || Number(day) > 31)) {
             valid = false;
             newErrors.day = "Day must be between 1 and 31.";
         }
@@ -157,7 +167,7 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({ patientPhone, patientNa
     ]
 
     const savePatientData = () => {
-        setSavedMessage({ message: "", isSuccess: false });
+        setSavedMessage({message: "", isSuccess: false});
         if (!validateInputs()) {
             return;
         }
@@ -179,11 +189,11 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({ patientPhone, patientNa
         })
             .then((createdResponse) => {
                 if (isCreate) onPatientCreatedOrSelected(createdResponse.data.data);
-                setSavedMessage({ message: "Patient saved successfully!", isSuccess: true });
+                setSavedMessage({message: "Patient saved successfully!", isSuccess: true});
             })
             .catch((error) => {
                 let message = error.response.data?.message;
-                setSavedMessage({ message, isSuccess: false });
+                setSavedMessage({message, isSuccess: false});
             });
     };
 
