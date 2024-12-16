@@ -56,13 +56,15 @@ const Channel = () => {
     };
 
     const resetForm = () => {
-        setDoctor(undefined);
+        setDoctor({label: "", value: "0"});
         setPatientPhone("");
         setPatientId(0);
         setChannelingFee("500");
         setOtherFee("100");
         setIsNewRecord(true);
         setErrors({});
+        setPatientName('');
+        setPatientNotFound(false);
     };
 
     const validateFields = () => {
@@ -82,7 +84,9 @@ const Channel = () => {
 
         if (!patientId) {
             validationErrors.patient = "Patient is required.";
-            setPatientNotFound(true);
+            setPatientNotFound(true); // Show the patient not found message
+        } else {
+            setPatientNotFound(false); // Hide the message once a patient is found
         }
 
         return validationErrors;
@@ -96,6 +100,7 @@ const Channel = () => {
         }
 
         setErrors({});
+        setPatientNotFound(false); // Clear patient not found state if all is valid
         try {
             const billSaveResponse = await axiosLocal.post('bills', {
                 system_amount: parseFloat(channelingFee) + parseFloat(otherFee),
@@ -107,12 +112,9 @@ const Channel = () => {
 
             if (billSaveResponse.status === 200) {
                 setBillNumber(billSaveResponse.data.bill_number); // Assume bill_number is returned
-                setSuccessMessage(`Invoice #${billSaveResponse.data} was successfully generated!`); // Set success message
-                setTimeout(() => setSuccessMessage(""), 10000); // Clear message after 5 seconds
+                setSuccessMessage(`Invoice #${billSaveResponse.data} was successfully generated!`);
+                setTimeout(() => setSuccessMessage(""), 10000);
                 resetForm();
-                setPatientId(0);
-                setDoctor({value: '0', label: ''});
-                setPatientNotFound(false);
             } else {
                 console.error("Error saving bill", billSaveResponse);
             }
@@ -120,6 +122,7 @@ const Channel = () => {
             console.error("Error saving bill", error);
         }
     };
+
     const handleChannelingFeeChange = (value: string) => {
         setChannelingFee(value);
         setErrors((prevErrors: any) => ({...prevErrors, channelingFee: null}));
@@ -167,7 +170,7 @@ const Channel = () => {
             <div className="grid grid-cols-3 gap-8">
 
                 <div>
-                    <div className="mb-4">
+                    <div className="mb-4 border-b border-dashed border-gray-700 pb-6 mb-6 bg-gray-900">
                         <div className="mb-2">Search patient :</div>
                         <SearchablePatientSelect onCreateNew={handlePatientOnCreate} onPatientSelect={handlePatientSelect}/>
                     </div>

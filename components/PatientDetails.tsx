@@ -70,12 +70,16 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, patientNam
     }, [patientPhone, patientName]);
 
     useEffect(() => {
-        console.log("patientNotFound", patientNotFound);
         if (patientNotFound) {
-            setSavedMessage(prevMessage => ({
+            setSavedMessage({
                 message: "Please save the patient first!",
-                isSuccess: false
-            }));
+                isSuccess: false,
+            });
+        } else {
+            setSavedMessage({
+                message: "",
+                isSuccess: true,
+            });
         }
     }, [patientNotFound]);
 
@@ -204,20 +208,20 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, patientNam
                     <div>
                         <TextInput
                             required
-                            name={"Telephone"}
-                            value={telephone}
-                            onChange={setTelephone}
-                            error={errors.telephone}
+                            name={"Name"}
+                            value={name}
+                            onChange={setName}
+                            error={errors.name}
                         />
                     </div>
 
                     <div>
                         <TextInput
                             required
-                            name={"Name"}
-                            value={name}
-                            onChange={setName}
-                            error={errors.name}
+                            name={"Telephone"}
+                            value={telephone}
+                            onChange={setTelephone}
+                            error={errors.telephone}
                         />
                     </div>
 
