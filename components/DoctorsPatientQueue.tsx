@@ -163,7 +163,7 @@ const PatientHistories: React.FC = () => {
                             } rounded-t-lg`}
                             onClick={() => setActiveItems(patientBill)}
                         >
-                            #{patientBill.id} : {patientBill.patient.name}
+                            #{patientBill.queue_number} : {patientBill.patient.name}
                         </button>
                     </li>
                 ))}
@@ -175,8 +175,8 @@ const PatientHistories: React.FC = () => {
             {(activePatientBill && patientsBills.length > 0 &&
                 <div className="mt-6 mx-3">
                     <div className="my-3 bg-gray-900 grid grid-cols-2 gap-3 text-left">
-                        <div className="border border-gray-600 rounded-lg">
-                            <h3 className="font-bold text-lg border-b border-gray-600 px-4 py-2 flex justify-between items-center">
+                        <div className="border border-gray-700 rounded-lg">
+                            <h3 className="font-bold text-lg border-b border-gray-700 px-4 py-2 flex justify-between items-center">
                                 Allergies
                             </h3>
                             <div className="px-3 mt-3">
@@ -211,8 +211,8 @@ const PatientHistories: React.FC = () => {
                                     )
                                 )}
                         </div>
-                        <div className="border border-gray-600 rounded-lg">
-                            <h3 className="font-bold text-lg border-b border-gray-600 px-4 py-2 flex justify-between items-center">
+                        <div className="border border-gray-700 rounded-lg">
+                            <h3 className="font-bold text-lg border-b border-gray-700 px-4 py-2 flex justify-between items-center">
                                 Diseases
                             </h3>
                             <div className="px-3 mt-3">

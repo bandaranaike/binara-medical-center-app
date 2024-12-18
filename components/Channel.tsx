@@ -103,11 +103,11 @@ const Channel = () => {
         setPatientNotFound(false); // Clear patient not found state if all is valid
         try {
             const billSaveResponse = await axiosLocal.post('bills', {
-                system_amount: parseFloat(channelingFee) + parseFloat(otherFee),
-                bill_amount: parseFloat(channelingFee) + parseFloat(otherFee),
+                bill_amount: parseFloat(channelingFee),
                 patient_id: patientId,
                 doctor_id: doctor?.value,
                 is_booking: isBooking,
+                is_opd: false,
             });
 
             if (billSaveResponse.status === 200) {
@@ -152,7 +152,13 @@ const Channel = () => {
     };
 
     const handlePatientOnCreate = (searchedKey: string) => {
-        /^-?\d+$/.test(searchedKey) ? setPatientPhone(searchedKey) : setPatientName(searchedKey);
+        if (/^-?\d+$/.test(searchedKey)) {
+            setPatientPhone(searchedKey);
+            setPatientName("");
+        } else {
+            setPatientName(searchedKey);
+            setPatientPhone("")
+        }
         setIsNewRecord(true);
     }
 
@@ -191,12 +197,6 @@ const Channel = () => {
                     />
                     {errors.channelingFee && <span className="text-red-500">{errors.channelingFee}</span>}
 
-                    <TextInput
-                        name="Others"
-                        value={otherFee}
-                        onChange={handleOtherFeeChange}
-                    />
-                    {errors.otherFee && <span className="text-red-500">{errors.otherFee}</span>}
                 </div>
                 <div className="p-8 pb-5 col-span-2">
                     <PatientDetails

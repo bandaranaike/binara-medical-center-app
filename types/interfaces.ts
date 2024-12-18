@@ -78,6 +78,8 @@ export interface Patient {
 export interface PatientBill {
     id: number;
     patient_id: number,
+    doctor_id: number,
+    queue_number: number,
     histories: PatientHistory[];
     medicineHistories: MedicineHistory[];
     patient: Patient;
