@@ -88,6 +88,7 @@ export interface PatientBill {
 export interface PatientDetailsProps {
     patientPhone: string;
     patientName: string;
+    patientId?: number;
     isNew: boolean;
     patientNotFound: boolean;
     onPatientCreatedOrSelected: (patientData: Patient) => void;

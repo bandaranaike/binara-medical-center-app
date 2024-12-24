@@ -1,14 +1,12 @@
 import React, {useState} from 'react';
-import SearchableSelect from "@/components/form/SearchableSelect";
-import TextInput from "@/components/form/TextInput";
 import PatientDetails from "@/components/PatientDetails";
 import {Option, Patient} from "@/types/interfaces";
 import axiosLocal from "@/lib/axios";
-import CreateNewDoctor from "@/components/CreateNewDoctor";
 import SearchablePatientSelect from "@/components/form/SearchablePatientSelect";
 import CustomCheckbox from "@/components/form/CustomCheckbox";
+import Services from "@/components/Services";
 
-const Channel = () => {
+const ServicesPortal = () => {
     const [billNumber, setBillNumber] = useState<number>(0);
     const [patientNotFound, setPatientNotFound] = useState<boolean>(false);
     const [isNewRecord, setIsNewRecord] = useState(true);
@@ -23,36 +21,11 @@ const Channel = () => {
     const [errors, setErrors] = useState<any>({});
     const [successMessage, setSuccessMessage] = useState<string>("");
 
-    const [isCreateDoctorOpen, setIsCreateDoctorOpen] = useState(false);
-
-    const handleSelectChange = (selectedOption: any) => {
-        setPatientPhone(selectedOption.label);
-        setIsNewRecord(false);
-        setErrors((prevErrors: any) => ({...prevErrors, telephone: null}));
-    };
 
     const handleOnPatientCreateOrSelect = (patientData: Patient) => {
         setPatientPhone(patientData.telephone);
         setPatientNotFound(false)
         setPatientId(patientData.id);
-    };
-
-    const handleOnCreateOption = (selectedOption: any) => {
-        setPatientPhone(selectedOption);
-        setIsNewRecord(true);
-        setErrors((prevErrors: any) => ({...prevErrors, telephone: null}));
-    };
-
-    const handleDoctorChangeOption = (selectedOption: any) => {
-        setDoctor(selectedOption);
-        getDoctorFees(selectedOption);
-        setErrors((prevErrors: any) => ({...prevErrors, doctor: null}));
-    };
-
-    const getDoctorFees = (selectedOption: Option) => {
-        axiosLocal.get(`doctor-channeling-fees/get-fee/${selectedOption.value}`).then(drFeeResponse => {
-            setChannelingFee(drFeeResponse.data);
-        });
     };
 
     const resetForm = () => {
@@ -123,32 +96,11 @@ const Channel = () => {
         }
     };
 
-    const handleChannelingFeeChange = (value: string) => {
-        setChannelingFee(value);
-        setErrors((prevErrors: any) => ({...prevErrors, channelingFee: null}));
-    };
-
-    const handleOtherFeeChange = (value: string) => {
-        setOtherFee(value);
-        setErrors((prevErrors: any) => ({...prevErrors, otherFee: null}));
-    };
-
-    const handleOpenCreateDoctor = (doctorsName: any) => {
-        setDoctor({label: doctorsName, value: '0'});
-        setIsCreateDoctorOpen(true);
-    };
-
-    const handleCloseCreateDoctor = () => {
-        setIsCreateDoctorOpen(false);
-    };
-
-    const refreshDoctorList = (doctor: Option) => {
-        setDoctor(doctor);
-    };
 
     const handlePatientSelect = (patient: Patient) => {
         setPatientPhone(patient.telephone);
         setIsNewRecord(false);
+        setPatientId(patient.id);
     };
 
     const handlePatientOnCreate = (searchedKey: string) => {
@@ -180,42 +132,20 @@ const Channel = () => {
                         <div className="mb-2">Search patient :</div>
                         <SearchablePatientSelect onCreateNew={handlePatientOnCreate} onPatientSelect={handlePatientSelect}/>
                     </div>
-                    <SearchableSelect
-                        placeholder="Doctor Name"
-                        apiUri={'doctors'}
-                        value={doctor}
-                        onChange={handleDoctorChangeOption}
-                        onCreateOption={handleOpenCreateDoctor}
-                        id={'DoctorNameSelect'}
-                    />
-                    {errors.doctor && <span className="text-red-500">{errors.doctor}</span>}
-
-                    <TextInput
-                        name="Channeling Fee"
-                        value={channelingFee}
-                        onChange={handleChannelingFeeChange}
-                    />
-                    {errors.channelingFee && <span className="text-red-500">{errors.channelingFee}</span>}
-
+                    <Services/>
                 </div>
                 <div className="p-8 pb-5 col-span-2">
                     <PatientDetails
                         onPatientCreatedOrSelected={handleOnPatientCreateOrSelect}
                         patientPhone={patientPhone}
                         patientName={patientName}
+                        patientId={patientId}
                         isNew={isNewRecord}
                         patientNotFound={patientNotFound}
                     ></PatientDetails>
                 </div>
             </div>
 
-            <CreateNewDoctor
-                isOpen={isCreateDoctorOpen}
-                onClose={handleCloseCreateDoctor}
-                onDoctorCreated={refreshDoctorList}
-                doctorsName={doctor ? doctor.label : ''}
-                isOPD={false}
-            />
 
             <div className="flex justify-between mt-4">
                 <div className="flex items-center">
@@ -228,10 +158,9 @@ const Channel = () => {
                         {isBooking ? 'Create a booking' : 'Create invoice and print'}
                     </button>
                 </div>
-
             </div>
         </div>
     );
 };
 
-export default Channel;
+export default ServicesPortal;

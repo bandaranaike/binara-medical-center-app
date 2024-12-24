@@ -10,6 +10,7 @@ import DoctorsPatientQueue from "@/components/DoctorsPatientQueue";
 import PharmacyPortal from "@/components/PhamacyPortal";
 import Reception from "@/components/Reception";
 import Bookings from "@/components/Bookings";
+import ServicesPortal from "@/components/ServicesPortal";
 
 const Page = () => {
     const [activeTab, setActiveTab] = useState("channel");
@@ -32,6 +33,7 @@ const Page = () => {
         { id: "channel", label: "Channel", component: <Channel /> },
         { id: "opd", label: "OPD", component: <OPD /> },
         { id: "bookings", label: "Bookings", component: <Bookings /> },
+        { id: "services", label: "Services", component: <ServicesPortal /> },
         { id: "day-summary", label: "Day Summary", component: <DaySummary /> },
         { id: "doctor-area", label: "Doctor Area", component: <DoctorsPatientQueue /> },
         { id: "pharmacy-area", label: "Pharmacy Area", component: <PharmacyPortal /> },

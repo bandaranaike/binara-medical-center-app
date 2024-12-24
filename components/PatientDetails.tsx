@@ -6,7 +6,7 @@ import {Option, PatientDetailsProps} from "@/types/interfaces";
 import Select from "react-select";
 import customStyles from "@/lib/custom-styles";
 
-const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, patientName, isNew, onPatientCreatedOrSelected, patientNotFound}) => {
+const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, patientName, isNew, onPatientCreatedOrSelected, patientNotFound, patientId}) => {
     const [id, setId] = React.useState("");
     const [name, setName] = React.useState(patientName);
     const [age, setAge] = React.useState("");
@@ -32,9 +32,9 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, patientNam
 
     const clearDataFlag = useRef(false);
 
-    const fetchUserData = async (phone: string) => {
+    const fetchUserData = async (patientId: number) => {
         try {
-            const response = await axios.get(`patients/get-by-phone/${phone}`);
+            const response = await axios.get(`/patients/${patientId}`);
             const {id, name, age, telephone, email, address, birthday, gender} = response.data;
             populateFields({id, name, age, address, telephone, email, birthday, gender});
             onPatientCreatedOrSelected(response.data);
@@ -51,8 +51,6 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, patientNam
         setEmail(email ?? "");
         setAddress(address ?? "");
 
-        console.log(id, name, age, telephone, email, address, birthday, gender);
-
         if (birthday) {
             const birthDate = new Date(birthday);
             setYear(birthDate.getFullYear().toString());
@@ -65,15 +63,13 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, patientNam
 
     useEffect(() => {
         clearUserData();
-        setTelephone(patientPhone);
-        setName(patientName);
         if (!isNew) {
             if (!clearDataFlag.current) {
                 clearDataFlag.current = true;
             }
-            if (patientPhone) fetchUserData(patientPhone);
+            if (patientId) fetchUserData(patientId);
         }
-    }, [patientPhone, patientName]);
+    }, [isNew, patientId]);
 
     useEffect(() => {
         if (patientNotFound) {
@@ -189,7 +185,6 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, patientNam
         })
             .then((createdResponse) => {
                 const newPatientData = createdResponse.data.data;
-                console.log(newPatientData);
                 const {id, name, age, telephone, email, address, birthday, gender} = newPatientData;
                 populateFields({id, name, age, telephone, email, address, birthday, gender});
                 onPatientCreatedOrSelected(newPatientData);
