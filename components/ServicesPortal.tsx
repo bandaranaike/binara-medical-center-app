@@ -111,6 +111,7 @@ const ServicesPortal = () => {
             setPatientName(searchedKey);
             setPatientPhone("")
         }
+        setPatientId(0);
         setIsNewRecord(true);
     }
 
@@ -132,7 +133,7 @@ const ServicesPortal = () => {
                         <div className="mb-2">Search patient :</div>
                         <SearchablePatientSelect onCreateNew={handlePatientOnCreate} onPatientSelect={handlePatientSelect}/>
                     </div>
-                    <Services/>
+                    <Services patientId={patientId} onNotPatientFound={() => setPatientNotFound(true)}/>
                 </div>
                 <div className="p-8 pb-5 col-span-2">
                     <PatientDetails

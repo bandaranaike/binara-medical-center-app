@@ -1,31 +1,22 @@
 import React, {useEffect, useState} from 'react';
 import SearchableSelect from "@/components/form/SearchableSelect";
-import {Bill, Option, Patient} from "@/types/interfaces";
+import {Bill, Option, Patient, ServicesProps} from "@/types/interfaces";
 import axios from "@/lib/axios";
+import Loader from "@/components/form/Loader";
 
-const ServicesPortal = () => {
+const ServicesPortal: React.FC<ServicesProps> = ({patientId, onNotPatientFound}) => {
 
 
     const [selectedService, setSelectedService] = useState<Option>();
 
     const [pendingBills, setPendingBills] = useState<Bill[]>([]);
-    const [activeBillId, setActiveBillId] = useState<number | null>(null);
+    const [activeBillId, setActiveBillId] = useState<number>(-1);
     const [servicePrice, setServicePrice] = useState<string>("");
     const [finalBillAmount, setFinalBillAmount] = useState<number>(0);
     const [typingTimeout, setTypingTimeout] = useState<NodeJS.Timeout | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        // Fetch pending bills from API
-        axios
-            .get("bills/pending/pharmacy")
-            .then((response) => {
-                setPendingBills(response.data);
-                if (response.data.length > 0) {
-                    setActiveBillId(response.data[0].id); // Set the first bill as active by default
-                }
-            })
-            .catch((error) => console.error("Error fetching pending bills:", error));
-    }, []);
 
     useEffect(() => {
         // Recalculate the final bill amount whenever the active bill changes
@@ -33,7 +24,12 @@ const ServicesPortal = () => {
     }, [activeBillId, pendingBills]);
 
     const handleAddService = () => {
-        if (activeBillId && selectedService && servicePrice) {
+        if (!patientId) {
+            onNotPatientFound();
+            return;
+        }
+
+        if (selectedService && servicePrice) {
             const newBillItem = {
                 bill_id: activeBillId,
                 service_id: selectedService.value,
@@ -54,6 +50,8 @@ const ServicesPortal = () => {
                             : bill
                     )
                 );
+
+                setActiveBillId(response.data.data.bill_id);
 
                 // Reset selection and price
                 setSelectedService({label: "", value: ""});
@@ -84,25 +82,6 @@ const ServicesPortal = () => {
                 .catch((error) => console.error("Error removing bill item:", error));
         }
     };
-
-
-    const handleFinalizeBill = (billId: number) => {
-        axios.put(`bills/${billId}/finalize`, {status: "done", "bill_amount": finalBillAmount})
-            .then(() => {
-                // Remove the finalized bill from the state
-                setPendingBills((prevBills) =>
-                    prevBills.filter((bill) => bill.id !== billId)
-                );
-
-                // Reset the active bill if the current one was finalized
-                const nextBillIndex = pendingBills.length - 2;
-                if (activeBillId === billId && pendingBills[nextBillIndex]) {
-                    setActiveBillId(pendingBills[nextBillIndex].id);
-                }
-            })
-            .catch((error) => console.error("Error finalizing bill:", error));
-    };
-
 
     const handleOnNewServiceCreate = (serviceName: string) => {
         setSelectedService({label: serviceName, value: "-1"});
@@ -141,7 +120,6 @@ const ServicesPortal = () => {
         }
     };
 
-
     const calculateFinalBillAmount = () => {
         const activeBill = pendingBills.find((bill) => bill.id === activeBillId);
         if (activeBill) {
@@ -156,9 +134,9 @@ const ServicesPortal = () => {
                 }
                 return total + serviceAmount + medicineAmount;
             }, 0);
-            setFinalBillAmount(parseFloat(billAmount.toFixed(2))); // Ensure value is fixed to 2 decimal places
+            setFinalBillAmount(parseFloat(billAmount.toFixed(2)));
         } else {
-            setFinalBillAmount(0); // Reset if no active bill
+            setFinalBillAmount(0);
         }
     };
 
@@ -170,7 +148,7 @@ const ServicesPortal = () => {
             <form>
                 {/* Add New Service Section */}
                 <div className="mt-6">
-                    <h3 className="text-sm font-bold mb-4">Add a Service</h3>
+                    <h3 className="font-bold text-xl mb-4">Services</h3>
                     <div className="grid gap-4 grid-cols-4 items-center ">
                         <div className="col-span-2">
                             <SearchableSelect
@@ -225,6 +203,13 @@ const ServicesPortal = () => {
                         </button>
                     </div>
                 ))}
+                {isLoading && <Loader/>}
+                {activeBill && (
+                    <div className="flex justify-between content-center">
+                        <div className="font-bold text-lg mt-4">
+                            Total: LKR {finalBillAmount}
+                        </div>
+                    </div>)}
             </form>
         </div>
     );

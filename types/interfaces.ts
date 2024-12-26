@@ -123,3 +123,8 @@ export interface Service {
     name: string;
     price: string;
 }
+
+export interface ServicesProps {
+    patientId: number;
+    onNotPatientFound: () => void;
+}
