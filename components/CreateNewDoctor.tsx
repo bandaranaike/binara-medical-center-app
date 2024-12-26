@@ -74,7 +74,7 @@ const CreateNewDoctor: React.FC<CreateNewDoctorProps> = ({isOpen, isOPD, doctors
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-10">
             <div className="bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-lg">
                 <h2 className="text-xl font-semibold mb-4">Create New Doctor</h2>
                 <form onSubmit={handleSubmit}>

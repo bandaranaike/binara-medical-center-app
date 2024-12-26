@@ -1,27 +1,44 @@
 import React, {useEffect, useState} from 'react';
 import SearchableSelect from "@/components/form/SearchableSelect";
-import {Bill, Option, Patient, ServicesProps} from "@/types/interfaces";
+import {Bill, Option, ServicesProps} from "@/types/interfaces";
 import axios from "@/lib/axios";
 import Loader from "@/components/form/Loader";
 
-const ServicesPortal: React.FC<ServicesProps> = ({patientId, onNotPatientFound}) => {
+const ServicesPortal: React.FC<ServicesProps> = ({patientId, onNotPatientFound, onServiceStatusChange, resetBillItems}) => {
 
+    const initialBill = {
+        id: -1,
+        patient_id: 0,
+        status: '',
+        patient: {} as any,
+        doctor: {} as any,
+        bill_items: [],
+        created_at: '',
+        updated_at: ''
+    }
 
     const [selectedService, setSelectedService] = useState<Option>();
-
-    const [pendingBills, setPendingBills] = useState<Bill[]>([]);
-    const [activeBillId, setActiveBillId] = useState<number>(-1);
+    const [activeBill, setActiveBill] = useState<Bill | null>(initialBill);
     const [servicePrice, setServicePrice] = useState<string>("");
     const [finalBillAmount, setFinalBillAmount] = useState<number>(0);
     const [typingTimeout, setTypingTimeout] = useState<NodeJS.Timeout | null>(null);
     const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-
 
     useEffect(() => {
-        // Recalculate the final bill amount whenever the active bill changes
         calculateFinalBillAmount();
-    }, [activeBillId, pendingBills]);
+    }, [activeBill]);
+
+    useEffect(() => {
+        setActiveBill(initialBill)
+    }, [resetBillItems]);
+
+    useEffect(() => {
+        onServiceStatusChange({
+            bill_id: activeBill?.id || 0,
+            count: activeBill?.bill_items.length || 0,
+            total: finalBillAmount,
+        });
+    }, [activeBill]);
 
     const handleAddService = () => {
         if (!patientId) {
@@ -30,98 +47,87 @@ const ServicesPortal: React.FC<ServicesProps> = ({patientId, onNotPatientFound})
         }
 
         if (selectedService && servicePrice) {
+            setIsLoading(true);
             const newBillItem = {
-                bill_id: activeBillId,
+                bill_id: activeBill?.id,
                 service_id: selectedService.value,
                 service_name: selectedService.value === '-1' ? selectedService.label : null,
                 bill_amount: servicePrice,
+                patient_id: patientId,
             };
 
-            // Send to API
             axios.post("bill-items", newBillItem).then((response) => {
-                // Update the state with the new item
-                setPendingBills((prevBills) =>
-                    prevBills.map((bill) =>
-                        bill.id === activeBillId
-                            ? {
-                                ...bill,
-                                bill_items: [...bill.bill_items, response.data.data],
-                            }
-                            : bill
-                    )
-                );
+                const updatedBillItem = response.data.data;
 
-                setActiveBillId(response.data.data.bill_id);
+                setActiveBill((prevBill) => {
+                    if (prevBill) {
+                        return {
+                            ...prevBill,
+                            id: updatedBillItem.bill_id,
+                            bill_items: [...prevBill.bill_items, updatedBillItem],
+                        };
+                    }
+                    return prevBill;
+                });
 
-                // Reset selection and price
                 setSelectedService({label: "", value: ""});
                 setServicePrice("");
-
-                // Recalculate the total bill amount
                 calculateFinalBillAmount();
-            })
-                .catch((error) => console.error("Error adding service:", error));
+            }).catch((error) => console.error("Error adding service:", error)).finally(() => setIsLoading(false));
         }
     };
 
     const handleRemoveBillItem = (billItemId: number) => {
         if (billItemId) {
-            // Send delete request to API
             axios.delete(`bill-items/${billItemId}`).then(() => {
-                // Update the state to remove the item
-                setPendingBills((prevBills) =>
-                    prevBills.map((bill) => ({
-                        ...bill,
-                        bill_items: bill.bill_items.filter((item) => item.id !== billItemId),
-                    }))
-                );
-
-                // Recalculate the total bill amount
+                setActiveBill((prevBill) => {
+                    if (prevBill) {
+                        return {
+                            ...prevBill,
+                            bill_items: prevBill.bill_items.filter((item) => item.id !== billItemId),
+                        };
+                    }
+                    return prevBill;
+                });
                 calculateFinalBillAmount();
-            })
-                .catch((error) => console.error("Error removing bill item:", error));
+            }).catch((error) => console.error("Error removing bill item:", error));
         }
     };
 
     const handleOnNewServiceCreate = (serviceName: string) => {
         setSelectedService({label: serviceName, value: "-1"});
-    }
+    };
 
-    const handleInputChange = (billId: number, itemId: number, newAmountValue: string) => {
-        const newAmount = newAmountValue ? newAmountValue : '0'
-        // Update the state immediately
-        setPendingBills((prevBills) =>
-            prevBills.map((bill) =>
-                bill.id === billId
-                    ? {
-                        ...bill,
-                        bill_items: bill.bill_items.map((item) =>
-                            item.id === itemId ? {...item, bill_amount: newAmountValue} : item
-                        ),
-                    }
-                    : bill
-            )
-        );
+    const handleInputChange = (itemId: number, newAmountValue: string) => {
+        const newAmount = newAmountValue || '0';
+        setActiveBill((prevBill) => {
+            if (prevBill) {
+                return {
+                    ...prevBill,
+                    bill_items: prevBill.bill_items.map((item) =>
+                        item.id === itemId ? {...item, bill_amount: newAmountValue} : item
+                    ),
+                };
+            }
+            return prevBill;
+        });
 
-        // Add delay before sending API update
-        if (typingTimeout) clearTimeout(typingTimeout); // Clear any existing timeout
+        if (typingTimeout) clearTimeout(typingTimeout);
         const timeout = setTimeout(() => {
-            updateBillItemAmount(itemId, newAmount); // Call API update
+            updateBillItemAmount(itemId, newAmount);
         }, 800);
-        setTypingTimeout(timeout); // Store the timeout
+        setTypingTimeout(timeout);
     };
 
     const updateBillItemAmount = async (itemId: number, amount: string) => {
         try {
             await axios.put(`bill-items/${itemId}`, {bill_amount: amount});
-            console.log("Bill item updated successfully");
         } catch (error) {
             console.error("Error updating bill item:", error);
         }
     };
 
     const calculateFinalBillAmount = () => {
-        const activeBill = pendingBills.find((bill) => bill.id === activeBillId);
         if (activeBill) {
             const billAmount = activeBill.bill_items.reduce((total, item) => {
                 const serviceAmount = parseFloat(item.bill_amount) || 0;
@@ -140,15 +146,10 @@ const ServicesPortal: React.FC<ServicesProps> = ({patientId, onNotPatientFound})
         }
     };
 
-
-    const activeBill = pendingBills.find((bill) => bill.id === activeBillId);
-
     return (
         <div className="bg-gray-900 text-white">
             <form>
-                {/* Add New Service Section */}
                 <div className="mt-6">
-                    <h3 className="font-bold text-xl mb-4">Services</h3>
                     <div className="grid gap-4 grid-cols-4 items-center ">
                         <div className="col-span-2">
                             <SearchableSelect
@@ -191,7 +192,7 @@ const ServicesPortal: React.FC<ServicesProps> = ({patientId, onNotPatientFound})
                             className="mt-1 px-2 py-1 border rounded dark:border-gray-600 bg-gray-800"
                             value={item.bill_amount}
                             onChange={(e) =>
-                                handleInputChange(activeBill.id, item.id, e.target.value)
+                                handleInputChange(item.id, e.target.value)
                             }
                         />
                         <button
@@ -209,7 +210,8 @@ const ServicesPortal: React.FC<ServicesProps> = ({patientId, onNotPatientFound})
                         <div className="font-bold text-lg mt-4">
                             Total: LKR {finalBillAmount}
                         </div>
-                    </div>)}
+                    </div>
+                )}
             </form>
         </div>
     );

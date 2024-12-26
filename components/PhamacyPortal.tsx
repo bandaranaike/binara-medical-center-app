@@ -132,7 +132,6 @@ const PendingBillsPortal: React.FC = () => {
     const updateBillItemAmount = async (itemId: number, amount: string) => {
         try {
             await axios.put(`bill-items/${itemId}`, {bill_amount: amount});
-            console.log("Bill item updated successfully");
         } catch (error) {
             console.error("Error updating bill item:", error);
         }

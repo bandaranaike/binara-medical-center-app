@@ -36,11 +36,6 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, patientNam
     const clearDataFlag = useRef(false);
 
     useEffect(() => {
-        console.log("isNew : ", isNew);
-    }, [isNew]);
-
-    useEffect(() => {
-        console.log("patientId : ", patientId);
         if (patientId)
             fetchUserData(patientId);
     }, [patientId]);

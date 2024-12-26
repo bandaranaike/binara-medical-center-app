@@ -1,4 +1,4 @@
-import { useState, FormEvent, FocusEvent } from 'react';
+import {useState, FormEvent, FocusEvent} from 'react';
 import axios from '../lib/axios';
 import Cookies from 'js-cookie';
 
@@ -16,14 +16,12 @@ export default function LoginPage() {
             await axios.get(apiUrl + 'sanctum/csrf-cookie');
             const token = Cookies.get('XSRF-TOKEN');
 
-            const response = await axios.post(apiUrl + url, { email, password }, {
+            const response = await axios.post(apiUrl + url, {email, password}, {
                 headers: {
                     'X-XSRF-TOKEN': token
                 },
                 withCredentials: true
             });
-
-            console.log(response);
             // Handle successful login (e.g., redirect or store user data)
         } catch (error) {
             // Handle login error
@@ -33,7 +31,7 @@ export default function LoginPage() {
 
     const handleEmailBlur = async (e: FocusEvent<HTMLInputElement>) => {
         try {
-            const response = await axios.post(apiUrl + 'check-email', { email: e.target.value });
+            const response = await axios.post(apiUrl + 'check-email', {email: e.target.value});
             setEmailExists(response.data.exists);
         } catch (error) {
             // Handle error

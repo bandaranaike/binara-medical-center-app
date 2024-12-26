@@ -127,4 +127,12 @@ export interface Service {
 export interface ServicesProps {
     patientId: number;
     onNotPatientFound: () => void;
+    onServiceStatusChange: (serviceCount: ServicesStatus) => void;
+    resetBillItems: boolean;
+}
+
+export interface ServicesStatus {
+    bill_id: number;
+    count: number;
+    total: number;
 }
