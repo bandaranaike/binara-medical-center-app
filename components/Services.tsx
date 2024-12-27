@@ -4,9 +4,9 @@ import {Bill, Option, ServicesProps} from "@/types/interfaces";
 import axios from "@/lib/axios";
 import Loader from "@/components/form/Loader";
 
-const ServicesPortal: React.FC<ServicesProps> = ({patientId, onNotPatientFound, onServiceStatusChange, resetBillItems}) => {
+const ServicesPortal: React.FC<ServicesProps> = ({patientId, onNotPatientFound, onServiceStatusChange, resetBillItems, initialBill}) => {
 
-    const initialBill = {
+    const defaultBill = {
         id: -1,
         patient_id: 0,
         status: '',
@@ -18,7 +18,7 @@ const ServicesPortal: React.FC<ServicesProps> = ({patientId, onNotPatientFound, 
     }
 
     const [selectedService, setSelectedService] = useState<Option>();
-    const [activeBill, setActiveBill] = useState<Bill | null>(initialBill);
+    const [activeBill, setActiveBill] = useState<Bill | null>(defaultBill);
     const [servicePrice, setServicePrice] = useState<string>("");
     const [finalBillAmount, setFinalBillAmount] = useState<number>(0);
     const [typingTimeout, setTypingTimeout] = useState<NodeJS.Timeout | null>(null);
@@ -29,7 +29,11 @@ const ServicesPortal: React.FC<ServicesProps> = ({patientId, onNotPatientFound, 
     }, [activeBill]);
 
     useEffect(() => {
-        setActiveBill(initialBill)
+        if (initialBill) setActiveBill(initialBill);
+    }, [initialBill]);
+
+    useEffect(() => {
+        setActiveBill(defaultBill)
     }, [resetBillItems]);
 
     useEffect(() => {
@@ -38,10 +42,10 @@ const ServicesPortal: React.FC<ServicesProps> = ({patientId, onNotPatientFound, 
             count: activeBill?.bill_items.length || 0,
             total: finalBillAmount,
         });
-    }, [activeBill]);
+    }, [finalBillAmount]);
 
     const handleAddService = () => {
-        if (!patientId) {
+        if (!patientId && onNotPatientFound) {
             onNotPatientFound();
             return;
         }
@@ -147,7 +151,7 @@ const ServicesPortal: React.FC<ServicesProps> = ({patientId, onNotPatientFound, 
     };
 
     return (
-        <div className="bg-gray-900 text-white">
+        <div className="bg-gray-900">
             <form>
                 <div className="mt-6">
                     <div className="grid gap-4 grid-cols-4 items-center ">

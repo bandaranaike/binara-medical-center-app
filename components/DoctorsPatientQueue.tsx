@@ -146,7 +146,7 @@ const PatientHistories: React.FC = () => {
     }
 
     return (
-        <div className="text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-700">
+        <div className="font-medium dark:text-gray-400 dark:border-gray-700">
             <div className="absolute border border-gray-600 bg-gray-800 rounded-lg mt-4 mr-4 top-0 right-0">
                 <div className="p-2 text-xl">Next</div>
                 <div className="text-6xl px-6 py-3 border-t border-gray-600">12</div>
@@ -169,7 +169,12 @@ const PatientHistories: React.FC = () => {
                 ))}
             </ul>
 
-            {!patientsBills.length && (<div className="text-center my-6">There are currently no bills available for you</div>)}
+            {!patientsBills.length && (
+                <>
+                    <h2 className="text-2xl font-bold mb-4 text-left">Doctor Patient Queue</h2>
+                    <div className="">There are currently no bills available for you</div>
+                </>
+            )}
 
             {/* Tabs for Adding New History and Patient Histories */}
             {(activePatientBill && patientsBills.length > 0 &&
