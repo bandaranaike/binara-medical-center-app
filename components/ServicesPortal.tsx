@@ -12,13 +12,13 @@ import Loader from "@/components/form/Loader";
 const ServicesPortal = () => {
     const [billNumber, setBillNumber] = useState<number>(0);
     const [patientNotFound, setPatientNotFound] = useState<boolean>(false);
-    const [isNewRecord, setIsNewRecord] = useState(true);
     const [isBooking, setIsBooking] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [doctorId, setDoctorId] = useState(0);
     const [patientPhone, setPatientPhone] = useState("");
     const [patientName, setPatientName] = useState("");
     const [patientId, setPatientId] = useState(0);
+    const [patient, setPatient] = useState<Patient | null>();
 
     const [billAmount, setBillAmount] = useState(0);
     const [numberOfServices, setNumberOfServices] = useState(0);
@@ -28,7 +28,6 @@ const ServicesPortal = () => {
 
 
     const handleOnPatientCreateOrSelect = (patientData: Patient) => {
-        setPatientPhone(patientData.telephone);
         setPatientNotFound(false)
         setPatientId(patientData.id);
     };
@@ -38,7 +37,6 @@ const ServicesPortal = () => {
         setPatientPhone("");
         setPatientId(0);
         setBillAmount(0);
-        setIsNewRecord(true);
         setErrors({});
         setPatientName('');
         setPatientNotFound(false);
@@ -103,9 +101,8 @@ const ServicesPortal = () => {
     }
 
     const handlePatientSelect = (patient: Patient) => {
-        setPatientPhone(patient.telephone);
-        setIsNewRecord(false);
         setPatientId(patient.id);
+        setPatient(patient);
     };
 
     const handlePatientOnCreate = (searchedKey: string) => {
@@ -117,7 +114,6 @@ const ServicesPortal = () => {
             setPatientPhone("")
         }
         setPatientId(0);
-        setIsNewRecord(true);
     }
 
     const handleCheckboxChange = (checked: boolean) => {
@@ -159,9 +155,8 @@ const ServicesPortal = () => {
                         onPatientCreatedOrSelected={handleOnPatientCreateOrSelect}
                         patientPhone={patientPhone}
                         patientName={patientName}
-                        patientId={patientId}
-                        isNew={isNewRecord}
                         patientNotFound={patientNotFound}
+                        patient={patient ? patient : undefined}
                     ></PatientDetails>
                 </div>
             </div>

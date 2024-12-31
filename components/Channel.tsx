@@ -11,12 +11,12 @@ import CustomCheckbox from "@/components/form/CustomCheckbox";
 const Channel = () => {
     const [billNumber, setBillNumber] = useState<number>(0);
     const [patientNotFound, setPatientNotFound] = useState<boolean>(false);
-    const [isNewRecord, setIsNewRecord] = useState(true);
     const [isBooking, setIsBooking] = useState(false);
     const [doctor, setDoctor] = useState<Option>();
     const [patientPhone, setPatientPhone] = useState("");
-    const [patientName, setPatientName] = useState("");
+    const [patientName, setPatientName] = useState("")
     const [patientId, setPatientId] = useState(0);
+    const [patient, setPatient] = useState<Patient | null>();
 
     const [channelingFee, setChannelingFee] = useState("");
     const [otherFee, setOtherFee] = useState("");
@@ -25,22 +25,9 @@ const Channel = () => {
 
     const [isCreateDoctorOpen, setIsCreateDoctorOpen] = useState(false);
 
-    const handleSelectChange = (selectedOption: any) => {
-        setPatientPhone(selectedOption.label);
-        setIsNewRecord(false);
-        setErrors((prevErrors: any) => ({...prevErrors, telephone: null}));
-    };
-
     const handleOnPatientCreateOrSelect = (patientData: Patient) => {
-        setPatientPhone(patientData.telephone);
         setPatientNotFound(false)
         setPatientId(patientData.id);
-    };
-
-    const handleOnCreateOption = (selectedOption: any) => {
-        setPatientPhone(selectedOption);
-        setIsNewRecord(true);
-        setErrors((prevErrors: any) => ({...prevErrors, telephone: null}));
     };
 
     const handleDoctorChangeOption = (selectedOption: any) => {
@@ -61,7 +48,7 @@ const Channel = () => {
         setPatientId(0);
         setChannelingFee("500");
         setOtherFee("100");
-        setIsNewRecord(true);
+        setPatient(null);
         setErrors({});
         setPatientName('');
         setPatientNotFound(false);
@@ -128,11 +115,6 @@ const Channel = () => {
         setErrors((prevErrors: any) => ({...prevErrors, channelingFee: null}));
     };
 
-    const handleOtherFeeChange = (value: string) => {
-        setOtherFee(value);
-        setErrors((prevErrors: any) => ({...prevErrors, otherFee: null}));
-    };
-
     const handleOpenCreateDoctor = (doctorsName: any) => {
         setDoctor({label: doctorsName, value: '0'});
         setIsCreateDoctorOpen(true);
@@ -147,8 +129,8 @@ const Channel = () => {
     };
 
     const handlePatientSelect = (patient: Patient) => {
-        setPatientPhone(patient.telephone);
-        setIsNewRecord(false);
+        setPatientId(patient.id);
+        setPatient(patient);
     };
 
     const handlePatientOnCreate = (searchedKey: string) => {
@@ -159,7 +141,7 @@ const Channel = () => {
             setPatientName(searchedKey);
             setPatientPhone("")
         }
-        setIsNewRecord(true);
+        setPatient(null);
     }
 
     const handleCheckboxChange = (checked: boolean) => {
@@ -203,7 +185,7 @@ const Channel = () => {
                         onPatientCreatedOrSelected={handleOnPatientCreateOrSelect}
                         patientPhone={patientPhone}
                         patientName={patientName}
-                        isNew={isNewRecord}
+                        patient={patient ? patient : undefined}
                         patientNotFound={patientNotFound}
                     ></PatientDetails>
                 </div>

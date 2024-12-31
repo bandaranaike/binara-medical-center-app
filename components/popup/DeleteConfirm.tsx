@@ -20,7 +20,6 @@ const DeleteConfirm: React.FC<DeleteConfirmProps> = ({deleteApiUrl, onClose, onD
             await axios.delete(`${deleteApiUrl}/${deleteId}`);
             setIsLoading(false);
             if (onDeleteSuccess) onDeleteSuccess();
-            if (onDeleteSuccess) console.log("Deleted successfully");
             onClose(); // Close the modal after successful deletion.
         } catch (error) {
             setIsLoading(false);

@@ -45,11 +45,6 @@ const BookingList: React.FC = () => {
     };
 
     const handleConvertBill = async (booking: Booking) => {
-        if (booking.bill_id) {
-            alert("Bill already created for this patient.");
-            return;
-        }
-
         try {
             setIsConverting(true);
             const response = await axios.patch("/bookings/convert-to-bill", {
@@ -83,7 +78,6 @@ const BookingList: React.FC = () => {
     };
 
     const handleDeleteBooking = () => {
-        console.log("delete", selectedBooking!.id);
         setBookings((prevQueues) => ({
             ...prevQueues,
             [activeTab]: prevQueues[activeTab].filter((b) => b.id !== selectedBooking!.id),
@@ -141,7 +135,7 @@ const BookingList: React.FC = () => {
     return (
         <div className="rounded-lg shadow-md">
             <h2 className="text-2xl font-bold mb-4">Patient Bookings</h2>
-            <div className="flex mb-4 border-b border-gray-700">
+            <div className="flex mb-6 border-b border-gray-700">
                 <button
                     className={`px-4 py-2 ${
                         activeTab === TAB_TODAY ? "bg-transparent text-blue-500 border-b-2 border-blue-700" : "bg-transparent text-gray-400"

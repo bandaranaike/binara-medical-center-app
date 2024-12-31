@@ -71,8 +71,9 @@ export interface Patient {
     name: string
     gender: string
     telephone: string
-    allergies: Allergy[]
-    diseases: Disease[]
+    birthday?: string
+    allergies?: Allergy[]
+    diseases?: Disease[]
 }
 
 export interface PatientBill {
@@ -88,8 +89,7 @@ export interface PatientBill {
 export interface PatientDetailsProps {
     patientPhone: string;
     patientName: string;
-    patientId?: number;
-    isNew: boolean;
+    patient?: Patient;
     patientNotFound: boolean;
     onPatientCreatedOrSelected: (patientData: Patient) => void;
 }

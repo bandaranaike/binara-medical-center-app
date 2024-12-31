@@ -152,24 +152,25 @@ const PatientHistories: React.FC = () => {
                 <div className="text-6xl px-6 py-3 border-t border-gray-600">12</div>
             </div>
             {/* Outer Tab for Patients */}
-            <ul className="flex flex-wrap -mb-px border-b border-gray-800">
-                {patientsBills.map((patientBill) => (
-                    <li key={patientBill.id} className="me-2">
-                        <button
-                            className={`inline-block p-4 border-b-2 ${
-                                activePatientBill === patientBill.id
-                                    ? 'text-blue-600 border-blue-600 dark:text-blue-500 dark:border-blue-500'
-                                    : 'border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300'
-                            } rounded-t-lg`}
-                            onClick={() => setActiveItems(patientBill)}
-                        >
-                            #{patientBill.queue_number} : {patientBill.patient.name}
-                        </button>
-                    </li>
-                ))}
-            </ul>
 
-            {!patientsBills.length && (
+            {patientsBills.length > 0 && (
+                <ul className="flex flex-wrap -mb-px border-b border-gray-800">
+                    {patientsBills.map((patientBill) => (
+                        <li key={patientBill.id} className="me-2">
+                            <button
+                                className={`inline-block p-4 border-b-2 ${
+                                    activePatientBill === patientBill.id
+                                        ? 'text-blue-600 border-blue-600 dark:text-blue-500 dark:border-blue-500'
+                                        : 'border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300'
+                                } rounded-t-lg`}
+                                onClick={() => setActiveItems(patientBill)}
+                            >
+                                #{patientBill.queue_number} : {patientBill.patient.name}
+                            </button>
+                        </li>
+                    ))}
+                </ul>
+            ) || (
                 <>
                     <h2 className="text-2xl font-bold mb-4 text-left">Doctor Patient Queue</h2>
                     <div className="">There are currently no bills available for you</div>

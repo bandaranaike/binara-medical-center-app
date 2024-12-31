@@ -1,16 +1,16 @@
-import React, {useEffect, useRef} from "react";
+import React, {EffectCallback, useEffect} from "react";
 import TextInput from "@/components/form/TextInput";
 import axios from "@/lib/axios";
 import {isEmpty} from "lodash";
-import {Option, PatientDetailsProps} from "@/types/interfaces";
+import {Option, Patient, PatientDetailsProps} from "@/types/interfaces";
 import Select from "react-select";
 import customStyles from "@/lib/custom-styles";
 import Loader from "@/components/form/Loader";
 
-const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, patientName, isNew: initialIsNew, onPatientCreatedOrSelected, patientNotFound, patientId,}) => {
-    const [id, setId] = React.useState("");
+const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, patientName, onPatientCreatedOrSelected, patientNotFound, patient}) => {
+    const [id, setId] = React.useState(0);
     const [name, setName] = React.useState(patientName);
-    const [age, setAge] = React.useState("");
+    const [age, setAge] = React.useState(0);
     const [telephone, setTelephone] = React.useState(patientPhone);
     const [email, setEmail] = React.useState("");
     const [address, setAddress] = React.useState("");
@@ -18,9 +18,10 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, patientNam
     const [month, setMonth] = React.useState("");
     const [day, setDay] = React.useState("");
     const [gender, setGender] = React.useState<Option | null>(null);
-    const [isNew, setIsNew] = React.useState(initialIsNew);
+    const [isNew, setIsNew] = React.useState(true);
     const [isLoading, setIsLoading] = React.useState(false);
     const [savedMessage, setSavedMessage] = React.useState({isSuccess: true, message: ""});
+    const [currentPatient, setCurrentPatient] = React.useState(patient);
 
     const [errors, setErrors] = React.useState({
         name: "",
@@ -33,43 +34,41 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, patientNam
         day: "",
     });
 
-    const clearDataFlag = useRef(false);
-
     useEffect(() => {
-        if (patientId)
-            fetchUserData(patientId);
-    }, [patientId]);
+        clearUserData();
+        setName(patientName);
+        setTelephone(patientPhone);
+        setIsNew(true)
+        setCurrentPatient(undefined);
+    }, [patientName, patientPhone]);
+
 
     useEffect(() => {
         clearUserData();
-        setIsNew(true);
-        if (patientName) setName(patientName);
-        if (patientPhone) setTelephone(patientPhone);
-    }, [patientName, patientPhone]);
+        if (patient) {
+            populateFields(patient);
+            setIsNew(false);
+            setCurrentPatient(patient);
+        }
+    }, [patient])
 
     useEffect(() => {
-        setIsNew(initialIsNew);
-    }, [initialIsNew]);
+        if (onPatientCreatedOrSelected && currentPatient) {
+            onPatientCreatedOrSelected(currentPatient);
+        }
+    }, [onPatientCreatedOrSelected, currentPatient]);
 
     useEffect(() => {
         if (patientNotFound) {
-            setSavedMessage({
-                message: "Please save the patient first!",
-                isSuccess: false,
-            });
+            setSavedMessage({message: "Please save the patient first!", isSuccess: false,});
         } else {
-            setSavedMessage({
-                message: "",
-                isSuccess: true,
-            });
+            setSavedMessage({message: "", isSuccess: true,});
         }
     }, [patientNotFound]);
 
     const clearUserData = () => {
-        setId("");
-        setName("");
-        setAge("");
-        setTelephone("");
+        setId(0);
+        setAge(0);
         setEmail("");
         setAddress("");
         setYear("");
@@ -86,26 +85,14 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, patientNam
             month: "",
             day: "",
         });
+        setSavedMessage({message: "", isSuccess: true,});
     };
 
-    const fetchUserData = async (patientId: number) => {
-        try {
-            setIsLoading(true);
-            const response = await axios.get(`/patients/${patientId}`);
-            const {id, name, age, telephone, email, address, birthday, gender} = response.data;
-            populateFields({id, name, age, address, telephone, email, birthday, gender});
-            setIsNew(false); // Allow updating the patient's details
-            onPatientCreatedOrSelected(response.data);
-            setIsLoading(false);
-        } catch (error) {
-            console.error("Error fetching patient data:", error);
-        }
-    };
-
-    const populateFields = ({id, name, age, address, telephone, email, birthday, gender}: any) => {
+    const populateFields = ({id, name, age, address, telephone, email, birthday, gender}: Patient) => {
+        setIsLoading(true);
         setId(id);
         setName(name);
-        setAge(age ?? "");
+        setAge(age);
         setTelephone(telephone);
         setEmail(email ?? "");
         setAddress(address ?? "");
@@ -118,6 +105,7 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, patientNam
         }
 
         setGender({label: gender, value: gender} ?? null);
+        setIsLoading(false);
     };
 
     const validateInputs = () => {
@@ -144,6 +132,7 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, patientNam
     };
 
     const savePatientData = () => {
+        setIsLoading(true);
         setSavedMessage({message: "", isSuccess: false});
         if (!validateInputs()) return;
 
@@ -164,7 +153,7 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, patientNam
             .catch((error) => {
                 const message = error.response?.data?.message ?? "Error saving patient.";
                 setSavedMessage({message, isSuccess: false});
-            });
+            }).finally(() => setIsLoading(false));
     };
 
     const resetToNewPatient = () => {
@@ -183,7 +172,7 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, patientNam
             <div className="grid grid-cols-3 gap-4">
                 <TextInput required name={"Name"} value={name} onChange={setName} error={errors.name}/>
                 <TextInput required name={"Telephone"} value={telephone} onChange={setTelephone} error={errors.telephone}/>
-                <TextInput name={"Age"} required value={age} onChange={setAge} error={errors.age}/>
+                <TextInput name={"Age"} required value={age.toString()} onChange={(e) => setAge(Number(e))} error={errors.age}/>
                 <div className="flex space-x-4">
                     <TextInput name={"Birth Year"} value={year} onChange={setYear} error={errors.year}/>
                     <TextInput name={"Month"} value={month} onChange={setMonth} error={errors.month}/>
