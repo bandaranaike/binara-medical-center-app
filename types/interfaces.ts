@@ -1,4 +1,5 @@
 import {SingleValue} from "react-select";
+import React from "react";
 
 export interface Allergy {
     name: string;
@@ -90,8 +91,19 @@ export interface PatientDetailsProps {
     patientPhone: string;
     patientName: string;
     patient?: Patient;
+    resetForm: boolean;
     patientNotFound: boolean;
     onPatientCreatedOrSelected: (patientData: Patient) => void;
+}
+
+export interface BillComponentProps {
+    children?: React.ReactNode;
+    form?: any,
+    errors?: any,
+    onCreateInvoiceBill?: () => void;
+    onValidating?: () => void;
+    setForm: (form: any) => void;
+    setErrors?: (errors: any) => void;
 }
 
 export interface PatientHistory {

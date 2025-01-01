@@ -7,7 +7,7 @@ import Select from "react-select";
 import customStyles from "@/lib/custom-styles";
 import Loader from "@/components/form/Loader";
 
-const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, patientName, onPatientCreatedOrSelected, patientNotFound, patient}) => {
+const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, patientName, onPatientCreatedOrSelected, patientNotFound, patient, resetForm}) => {
     const [id, setId] = React.useState(0);
     const [name, setName] = React.useState(patientName);
     const [age, setAge] = React.useState(0);
@@ -33,6 +33,16 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, patientNam
         month: "",
         day: "",
     });
+
+
+    useEffect(() => {
+        if (resetForm) {
+            clearUserData();
+            setName("");
+            setTelephone("")
+            setIsNew(true);
+        }
+    }, [resetForm]);
 
     useEffect(() => {
         clearUserData();

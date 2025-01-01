@@ -12,7 +12,7 @@ const CustomCheckbox: React.FC<CustomCheckboxProps> = ({ label, onChange }) => {
         const newCheckedState = !checked;
         setChecked(newCheckedState);
         if (onChange) {
-            onChange(newCheckedState); // Notify parent component of state change
+            onChange(newCheckedState);
         }
     };
 

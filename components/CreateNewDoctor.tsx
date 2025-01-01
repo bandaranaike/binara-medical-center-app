@@ -5,6 +5,8 @@ import CreateHospitalModal from '@/components/CreateHospitalModal';
 import CreateSpecialtyModal from '@/components/CreateSpecialtyModal'; // Import the new specialty modal
 import {Option} from "@/types/interfaces";
 import TextInput from "@/components/form/TextInput";
+import {Checkbox} from "flowbite-react";
+import CustomCheckbox from "@/components/form/CustomCheckbox";
 
 interface CreateNewDoctorProps {
     isOpen: boolean;
@@ -14,7 +16,7 @@ interface CreateNewDoctorProps {
     onDoctorCreated: (doctor: Option) => void;
 }
 
-const CreateNewDoctor: React.FC<CreateNewDoctorProps> = ({isOpen, isOPD, doctorsName, onClose, onDoctorCreated}) => {
+const CreateNewDoctor: React.FC<CreateNewDoctorProps> = ({isOpen, isOPD: initialIsOpd, doctorsName, onClose, onDoctorCreated}) => {
     const [name, setName] = useState(doctorsName);
     const [hospital, setHospital] = useState<Option>();
     const [specialty, setSpecialty] = useState<Option>();
@@ -22,6 +24,7 @@ const CreateNewDoctor: React.FC<CreateNewDoctorProps> = ({isOpen, isOPD, doctors
     const [email, setEmail] = useState('');
     const [isHospitalModalOpen, setIsHospitalModalOpen] = useState(false);
     const [isSpecialtyModalOpen, setIsSpecialtyModalOpen] = useState(false);
+    const [isOPD, setIsOPD] = useState<boolean>(initialIsOpd)
 
     useEffect(() => {
         setName(doctorsName);
@@ -96,6 +99,9 @@ const CreateNewDoctor: React.FC<CreateNewDoctorProps> = ({isOpen, isOPD, doctors
                             onCreateOption={handleOpenCreateHospital}
                             id={'HospitalNameSelect'}
                         />
+                    </div>
+                    <div className="mb-4">
+                        <CustomCheckbox onChange={setIsOPD} label="Is OPD Doctor"/>
                     </div>
                     <div className="mb-4">
                         <SearchableSelect

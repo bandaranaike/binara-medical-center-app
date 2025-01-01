@@ -170,7 +170,7 @@ const Channel = () => {
                         onCreateOption={handleOpenCreateDoctor}
                         id={'DoctorNameSelect'}
                     />
-                    {errors.doctor && <span className="text-red-500">{errors.doctor}</span>}
+                    {errors.doctor && <span className="text-red-500 mb-3 block">{errors.doctor}</span>}
 
                     <TextInput
                         name="Channeling Fee"

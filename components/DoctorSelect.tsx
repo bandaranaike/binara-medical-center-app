@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import SearchableSelect from "@/components/form/SearchableSelect";
 import {Option} from "@/types/interfaces";
 import axiosLocal from "@/lib/axios";
@@ -19,7 +19,6 @@ const DoctorSelect: React.FC<DoctorSelectProps> = ({onDoctorSelect}) => {
         onDoctorSelect(selectedOption.value);
         setErrors((prevErrors: any) => ({...prevErrors, doctor: null}));
     };
-
 
     const handleOpenCreateDoctor = (doctorsName: any) => {
         setDoctor({label: doctorsName, value: '0'});
