@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import PatientDetails from "@/components/PatientDetails";
 import {BillComponentProps, Patient} from "@/types/interfaces";
 import axiosLocal from "@/lib/axios";
@@ -6,30 +6,25 @@ import SearchablePatientSelect from "@/components/form/SearchablePatientSelect";
 import Loader from "@/components/form/Loader";
 import CustomCheckbox from "@/components/form/CustomCheckbox";
 
-const BillComponent: React.FC<BillComponentProps> = ({children, form, onCreateInvoiceBill, onValidating, errors: iE, setForm}) => {
+const BillComponent: React.FC<BillComponentProps> = ({children, form, setForm, onCreateInvoiceBill, doctorRequired}) => {
         const [billNumber, setBillNumber] = useState<number>(0);
-        // const [form, setForm] = useState<any>({...initialFrom, is_booking: false});
         const [patientPhone, setPatientPhone] = useState("");
         const [patientId, setPatientId] = useState(0);
         const [patient, setPatient] = useState<Patient | null>();
         const [patientName, setPatientName] = useState("")
         const [patientNotFound, setPatientNotFound] = useState<boolean>(false);
 
-        const [errors, setErrors] = useState<any>(iE);
+        const [errors, setErrors] = useState<any>();
         const [successMessage, setSuccessMessage] = useState<string>(""); // State for success message
 
         const [isBooking, setIsBooking] = useState(false);
         const [isLoading, setIsLoading] = useState(false);
 
-        useEffect(() => {
-            setErrors({...iE, ...errors})
-            console.log("8989", iE)
-        }, [iE]);
         const handleOnPatientCreateOrSelect = (patientData: Patient) => {
-            setPatientNotFound(false);
             setPatientId(patientData.id);
-            if (errors.patient && patientData.id !== patientId) {
+            if (errors && errors.patient && patientData.id !== patientId) {
                 removeError('patient');
+                setPatientNotFound(false);
             }
         };
 
@@ -38,36 +33,40 @@ const BillComponent: React.FC<BillComponentProps> = ({children, form, onCreateIn
             if (updatedErrors[key]) {
                 delete updatedErrors[key];
             }
-            console.log("4444", updatedErrors, errors)
             setErrors(updatedErrors);
         };
 
+        const clearAllErrors = () => {
+            setErrors({});
+            setForm({is_booking: false});
+            setPatientNotFound(true)
+        }
 
         const validateFields = () => {
 
-            if (onValidating) onValidating();
+            let validationErrors: any = {};
 
-            let validationErrors: any = errors;
-
-            // if (!form.doctor_id) {
-            //     validationErrors.doctor = "Doctor is required.";
-            // } else {
-            //     delete validationErrors.doctor;
-            // }
+            if (doctorRequired && !form.doctor_id) {
+                validationErrors.doctor = "Doctor is required.";
+            } else {
+                delete validationErrors.doctor;
+            }
 
             if (!form.patient_id) {
                 setPatientNotFound(true);
-                validationErrors.patient = "Patient is required.";
+                validationErrors.patient = "";
             } else {
+                setPatientNotFound(false);
                 delete validationErrors.patient;
             }
+            setErrors(validationErrors);
 
             return validationErrors;
         };
         const handlePatientSelect = (patient: Patient) => {
             setPatientId(patient.id);
             setPatient(patient);
-            setForm({...form, patient_id: patient.id});
+            setForm({...form, patient_id: patient.id, is_booking: !!form.is_booking});
         };
 
         const handlePatientOnCreate = (searchedKey: string) => {
@@ -90,15 +89,11 @@ const BillComponent: React.FC<BillComponentProps> = ({children, form, onCreateIn
             const validationErrors = validateFields();
 
             if (Object.keys(validationErrors).length > 0) {
-                console.log("validation errors", validationErrors);
-                console.log("5555", validationErrors, errors)
-                setErrors(validationErrors);
+                // setErrors(validationErrors);
                 return;
             }
 
             setIsLoading(true)
-
-            console.log("6666", errors)
             setErrors({});
 
             if (onCreateInvoiceBill) {
@@ -108,11 +103,10 @@ const BillComponent: React.FC<BillComponentProps> = ({children, form, onCreateIn
                     const billSaveResponse = await axiosLocal.post('bills', form);
 
                     if (billSaveResponse.status === 200) {
-                        console.log("billSaveResponse", billSaveResponse);
                         setBillNumber(billSaveResponse.data.bill_number);
                         setSuccessMessage(`Invoice #${billSaveResponse.data} successfully generated!`);
-                        setForm({is_booking: false});
-                        setTimeout(() => setSuccessMessage(""), 10000); // Clear message after 10 seconds
+                        clearAllErrors()
+                        setTimeout(() => setSuccessMessage(""), 10000);
                     } else {
                         console.error("Error saving bill", billSaveResponse);
                     }
@@ -139,6 +133,9 @@ const BillComponent: React.FC<BillComponentProps> = ({children, form, onCreateIn
 
                         <div className="my-4">{children}</div>
 
+                        {errors && Object.keys(errors).map((errorKey) => (
+                            <span key={errorKey} className="text-red-500 mb-3 block">{errors[errorKey]}</span>
+                        ))}
                     </div>
                     <div className="p-8 pb-5 col-span-2">
                         <PatientDetails

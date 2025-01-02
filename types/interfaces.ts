@@ -98,12 +98,10 @@ export interface PatientDetailsProps {
 
 export interface BillComponentProps {
     children?: React.ReactNode;
-    form?: any,
-    errors?: any,
-    onCreateInvoiceBill?: () => void;
-    onValidating?: () => void;
+    form: any,
     setForm: (form: any) => void;
-    setErrors?: (errors: any) => void;
+    onCreateInvoiceBill?: () => void;
+    doctorRequired?: boolean;
 }
 
 export interface PatientHistory {

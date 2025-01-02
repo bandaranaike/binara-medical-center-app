@@ -158,6 +158,7 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, patientNam
                 populateFields(newPatientData);
                 setIsNew(false); // Update the state to reflect the saved patient
                 onPatientCreatedOrSelected(newPatientData);
+                setCurrentPatient(undefined);
                 setSavedMessage({message: "Patient saved successfully!", isSuccess: true});
             })
             .catch((error) => {
