@@ -8,7 +8,6 @@ import Services from "@/components/Services";
 const PendingBillsPortal: React.FC = () => {
     const [pendingBills, setPendingBills] = useState<Bill[]>([]);
     const [activeBillId, setActiveBillId] = useState<number | null>(null);
-    const [selectedService, setSelectedService] = useState<Option>();
     const [servicesCount, setServicesCount] = useState(0);
     const [finalBillAmount, setFinalBillAmount] = useState<number>(0);
     const [error, setError] = useState("Please add at least one service to finalize the bill");
@@ -31,7 +30,7 @@ const PendingBillsPortal: React.FC = () => {
             return;
         }
 
-        axios.put(`bills/${billId}/finalize`, {status: "done", "bill_amount": finalBillAmount})
+        axios.put(`bills/${billId}/finalize`, {status: "reception", "bill_amount": finalBillAmount})
             .then(() => {
                 // Remove the finalized bill from the state
                 setPendingBills((prevBills) =>
@@ -100,10 +99,12 @@ const PendingBillsPortal: React.FC = () => {
                         <div className="mb-6 w-1/2">
                             {activeBill && (
                                 <Services
+                                    key="pharmacy-portal"
                                     patientId={activeBill.patient_id}
                                     onServiceStatusChange={handleOnServiceStatusChange}
                                     resetBillItems={false}
                                     initialBill={activeBill}
+                                    showMedicineTable={true}
                                 ></Services>
                             )}
                         </div>

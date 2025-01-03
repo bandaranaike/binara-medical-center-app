@@ -34,10 +34,10 @@ const Page = () => {
         { id: "opd", label: "OPD", component: <OPD /> },
         { id: "bookings", label: "Bookings", component: <Bookings /> },
         { id: "services", label: "Services", component: <ServicesPortal /> },
-        { id: "day-summary", label: "Day Summary", component: <DaySummary /> },
         { id: "doctor-area", label: "Doctor Area", component: <DoctorsPatientQueue /> },
         { id: "pharmacy-area", label: "Pharmacy Area", component: <PharmacyPortal /> },
         { id: "reception", label: "Reception", component: <Reception /> },
+        { id: "day-summary", label: "Day Summary", component: <DaySummary /> },
     ];
 
     const renderTabContent = () => {

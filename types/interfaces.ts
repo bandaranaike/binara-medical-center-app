@@ -13,8 +13,17 @@ export interface Bill {
     patient: Patient;
     doctor: Doctor;
     bill_items: BillItem[];
+    patient_medicines: PatientMedicine[];
     created_at: string;
     updated_at: string;
+}
+
+export interface BillComponentProps {
+    children?: React.ReactNode;
+    form: any,
+    setForm: (form: any) => void;
+    onCreateInvoiceBill?: () => void;
+    doctorRequired?: boolean;
 }
 
 export interface BillItem {
@@ -96,14 +105,6 @@ export interface PatientDetailsProps {
     onPatientCreatedOrSelected: (patientData: Patient) => void;
 }
 
-export interface BillComponentProps {
-    children?: React.ReactNode;
-    form: any,
-    setForm: (form: any) => void;
-    onCreateInvoiceBill?: () => void;
-    doctorRequired?: boolean;
-}
-
 export interface PatientHistory {
     date: string;
     note: string;
@@ -111,9 +112,12 @@ export interface PatientHistory {
 
 export interface PatientMedicine {
     id: number;
-    bill_item_id: number;
+    bill_id: number;
     medicine_id: number;
     price: string;
+    dosage: string;
+    type: string;
+    duration: string;
     medicine: Medicine;
 }
 
@@ -139,6 +143,7 @@ export interface ServicesProps {
     onNotPatientFound?: () => void;
     onServiceStatusChange: (servicesStatus: ServicesStatus) => void;
     resetBillItems: boolean;
+    showMedicineTable?: boolean;
     initialBill?: Bill;
 }
 

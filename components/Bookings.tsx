@@ -92,13 +92,13 @@ const BookingList: React.FC = () => {
         <div className="relative overflow-x-auto sm:rounded-lg border border-gray-800">
             <table className="w-full text-sm text-left text-gray-400">
                 <thead className="font-bold">
-                <tr>
-                    <th className="px-4 py-4 bg-gray-800">Booking Number</th>
-                    <th className="px-4 py-4 bg-gray-800">Doctor Name</th>
-                    <th className="px-4 py-4 bg-gray-800">Patient</th>
-                    <th className="px-4 py-4 bg-gray-800">Amount</th>
-                    <th className="px-4 py-4 bg-gray-800">Date</th>
-                    <th className="px-4 py-4 bg-gray-800">Action</th>
+                <tr className="bg-gray-800">
+                    <th className="px-4 py-4">Booking Number</th>
+                    <th className="px-4 py-4">Doctor Name</th>
+                    <th className="px-4 py-4">Patient</th>
+                    <th className="px-4 py-4">Amount</th>
+                    <th className="px-4 py-4">Date</th>
+                    <th className="px-4 py-4">Action</th>
                 </tr>
                 </thead>
                 <tbody>

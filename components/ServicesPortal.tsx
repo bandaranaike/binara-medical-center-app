@@ -142,6 +142,7 @@ const ServicesPortal = () => {
                     <DoctorSelect onDoctorSelect={handleDoctorChangeOption}/>
 
                     <Services
+                        key="services-portal"
                         onServiceStatusChange={handleServiceStatusChange}
                         patientId={patientId}
                         onNotPatientFound={() => setPatientNotFound(true)}
@@ -152,6 +153,7 @@ const ServicesPortal = () => {
                 </div>
                 <div className="p-8 pb-5 col-span-2">
                     <PatientDetails
+                        resetForm
                         onPatientCreatedOrSelected={handleOnPatientCreateOrSelect}
                         patientPhone={patientPhone}
                         patientName={patientName}
