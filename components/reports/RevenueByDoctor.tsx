@@ -2,29 +2,30 @@ import React, {useEffect, useState} from "react";
 import BaseChart from "./BaseChart";
 import axios from "@/lib/axios";
 import {ApexOptions} from "apexcharts";
+import Loader from "@/components/form/Loader";
+import {RevenueByDoctorProps} from "@/types/report-interfaces";
 
-const RevenueByDoctor: React.FC = () => {
-    const [data, setData] = useState<{ doctorName: string; revenue: number }[]>([]);
 
-    useEffect(() => {
-        axios.get("/reports/revenue-by-doctor").then((response) => {
-            setData(response.data);
-        });
-    }, []);
+const RevenueByDoctor: React.FC<RevenueByDoctorProps> = ({data}) => {
 
-    const chartOptions: ApexOptions = {
-        chart: {type: "bar"},
-        xaxis: {categories: data.map((d) => d.doctorName)},
-        plotOptions: {
-            bar: {
-                distributed: true, // Distributes colors to each bar
+    let chartOptions: ApexOptions = {};
+    let chartSeries: any = [];
+
+    if (data) {
+        chartOptions = {
+            chart: {type: "bar"},
+            xaxis: {categories: data.map((d) => d.doctorName)},
+            plotOptions: {
+                bar: {
+                    distributed: true, // Distributes colors to each bar
+                },
             },
-        },
-    };
+        };
 
-    const chartSeries = [{name: "Revenue", data: data.map((d) => d.revenue)}];
+        chartSeries = [{name: "Revenue", data: data.map((d) => d.revenue)}];
+    }
 
-    return <BaseChart options={chartOptions} series={chartSeries} type="bar"/>;
+    return data && <BaseChart options={chartOptions} series={chartSeries} type="bar"/> || <Loader/>;
 };
 
 export default RevenueByDoctor;

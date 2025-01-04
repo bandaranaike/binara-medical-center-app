@@ -30,7 +30,7 @@ const PendingBillsPortal: React.FC = () => {
             return;
         }
 
-        axios.put(`bills/${billId}/finalize`, {status: "reception", "bill_amount": finalBillAmount})
+        axios.put(`bills/${billId}/send-to-reception`, {status: "reception", "bill_amount": finalBillAmount})
             .then(() => {
                 // Remove the finalized bill from the state
                 setPendingBills((prevBills) =>
