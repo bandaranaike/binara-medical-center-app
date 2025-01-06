@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, {useState, useEffect} from "react";
 import Channel from "../components/Channel";
 import OPD from "../components/OPD";
-import DaySummary from "../components/DaySummary";
+import StatSummary from "../components/StatSummary";
 import LoginWindow from "@/components/LoginWindow";
 import Cookies from "js-cookie";
-import DoctorsPatientQueue from "@/components/DoctorsPatientQueue";
+import DoctorsPatientQueue from "@/components/DoctorPortal";
 import PharmacyPortal from "@/components/PhamacyPortal";
 import Reception from "@/components/Reception";
 import Bookings from "@/components/Bookings";
@@ -30,14 +30,14 @@ const Page = () => {
         "border-transparent hover:text-gray-200 hover:border-gray-300 dark:hover:text-gray-300";
 
     const tabs = [
-        { id: "channel", label: "Channel", component: <Channel /> },
-        { id: "opd", label: "OPD", component: <OPD /> },
-        { id: "bookings", label: "Bookings", component: <Bookings /> },
-        { id: "services", label: "Services", component: <ServicesPortal /> },
-        { id: "doctor-area", label: "Doctor Area", component: <DoctorsPatientQueue /> },
-        { id: "pharmacy-area", label: "Pharmacy Area", component: <PharmacyPortal /> },
-        { id: "reception", label: "Reception", component: <Reception /> },
-        { id: "day-summary", label: "Day Summary", component: <DaySummary /> },
+        {id: "channel", label: "Channel", component: <Channel/>},
+        {id: "opd", label: "OPD", component: <OPD/>},
+        {id: "bookings", label: "Bookings", component: <Bookings/>},
+        {id: "services", label: "Treatments", component: <ServicesPortal/>},
+        {id: "doctor-portal", label: "Doctor Portal", component: <DoctorsPatientQueue/>},
+        {id: "pharmacy-portal", label: "Pharmacy Portal", component: <PharmacyPortal/>},
+        {id: "reception", label: "Reception", component: <Reception/>},
+        {id: "stat-summary", label: "Stat Summary", component: <StatSummary/>},
     ];
 
     const renderTabContent = () => {
@@ -82,7 +82,7 @@ const Page = () => {
                     </p>
                 </footer>
             </div>
-            {!isLoggedIn && <LoginWindow loginStatus={setIsLoggedIn} />}
+            {!isLoggedIn && <LoginWindow loginStatus={setIsLoggedIn}/>}
         </div>
     );
 };

@@ -5,7 +5,7 @@ import {Bill, Option, ServicesStatus} from "@/types/interfaces";
 import {formatReadableDateTime} from "@/lib/readbale-date";
 import Services from "@/components/Services";
 
-const PendingBillsPortal: React.FC = () => {
+const PharmacyPortal: React.FC = () => {
     const [pendingBills, setPendingBills] = useState<Bill[]>([]);
     const [activeBillId, setActiveBillId] = useState<number | null>(null);
     const [servicesCount, setServicesCount] = useState(0);
@@ -122,7 +122,7 @@ const PendingBillsPortal: React.FC = () => {
                                 className="mt-4 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 mb-3"
                                 onClick={() => handleFinalizeBill(activeBill.id)}
                             >
-                                Finalize bill
+                                Finalize & send to reception
                             </button>
                         </div>
                     </div>
@@ -139,4 +139,4 @@ const PendingBillsPortal: React.FC = () => {
     );
 };
 
-export default PendingBillsPortal;
+export default PharmacyPortal;

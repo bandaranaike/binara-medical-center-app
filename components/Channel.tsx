@@ -7,6 +7,8 @@ import axiosLocal from "@/lib/axios";
 import CreateNewDoctor from "@/components/CreateNewDoctor";
 import SearchablePatientSelect from "@/components/form/SearchablePatientSelect";
 import CustomCheckbox from "@/components/form/CustomCheckbox";
+import Loader from "@/components/form/Loader";
+import printService from "@/lib/printService";
 
 const Channel = () => {
     const [billNumber, setBillNumber] = useState<number>(0);
@@ -19,11 +21,12 @@ const Channel = () => {
     const [patient, setPatient] = useState<Patient | null>();
 
     const [channelingFee, setChannelingFee] = useState("");
-    const [otherFee, setOtherFee] = useState("");
+    const [institutionFee, setInstitutionFee] = useState("");
     const [errors, setErrors] = useState<any>({});
     const [successMessage, setSuccessMessage] = useState<string>("");
 
     const [isCreateDoctorOpen, setIsCreateDoctorOpen] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleOnPatientCreateOrSelect = (patientData: Patient) => {
         setPatientNotFound(false)
@@ -38,31 +41,22 @@ const Channel = () => {
 
     const getDoctorFees = (selectedOption: Option) => {
         axiosLocal.get(`doctor-channeling-fees/get-fee/${selectedOption.value}`).then(drFeeResponse => {
-            setChannelingFee(drFeeResponse.data);
+            setChannelingFee(drFeeResponse.data.bill_price.toString());
+            setInstitutionFee(drFeeResponse.data.system_price.toString());
+            resetErrors('channelingFee');
+            resetErrors('institutionFee');
         });
-    };
-
-    const resetForm = () => {
-        setDoctor({label: "", value: "0"});
-        setPatientPhone("");
-        setPatientId(0);
-        setChannelingFee("500");
-        setOtherFee("100");
-        setPatient(null);
-        setErrors({});
-        setPatientName('');
-        setPatientNotFound(false);
     };
 
     const validateFields = () => {
         let validationErrors: any = {};
 
-        if (channelingFee && isNaN(Number(channelingFee))) {
+        if (!channelingFee || isNaN(Number(channelingFee))) {
             validationErrors.channelingFee = "Channeling fee must be numeric.";
         }
 
-        if (otherFee && isNaN(Number(otherFee))) {
-            validationErrors.otherFee = "Other fee must be numeric.";
+        if (!institutionFee || isNaN(Number(institutionFee))) {
+            validationErrors.institutionFee = "Institution fee must be numeric.";
         }
 
         if (!doctor) {
@@ -89,19 +83,25 @@ const Channel = () => {
         setErrors({});
         setPatientNotFound(false); // Clear patient not found state if all is valid
         try {
+            setIsLoading(true);
             const billSaveResponse = await axiosLocal.post('bills', {
                 bill_amount: parseFloat(channelingFee),
+                system_amount: parseFloat(institutionFee),
                 patient_id: patientId,
                 doctor_id: doctor?.value,
                 is_booking: isBooking,
-                is_opd: false,
+                bill_items: {
+                    channeling_fee: channelingFee,
+                    institution_fee: institutionFee
+                }
             });
 
-            if (billSaveResponse.status === 200) {
+            if (billSaveResponse.status === 201) {
                 setBillNumber(billSaveResponse.data.bill_number); // Assume bill_number is returned
-                setSuccessMessage(`Invoice #${billSaveResponse.data} was successfully generated!`);
-                setTimeout(() => setSuccessMessage(""), 10000);
-                resetForm();
+                setSuccessMessage(`Invoice #${billSaveResponse.data.bill_id} successfully generated! Queue number is ${billSaveResponse.data.queue_id}`);
+                await handlePrint(billSaveResponse.data.bill_id, billSaveResponse.data.bill_items);
+                setTimeout(() => setSuccessMessage(""), 15000);
+                setIsLoading(false);
             } else {
                 console.error("Error saving bill", billSaveResponse);
             }
@@ -112,7 +112,16 @@ const Channel = () => {
 
     const handleChannelingFeeChange = (value: string) => {
         setChannelingFee(value);
-        setErrors((prevErrors: any) => ({...prevErrors, channelingFee: null}));
+        resetErrors('channelingFee');
+    };
+
+    const resetErrors = (key: string) => {
+        setErrors((prevErrors: any) => ({...prevErrors, [key]: null}));
+    }
+
+    const handleInstitutionFeeChange = (value: string) => {
+        setInstitutionFee(value);
+        resetErrors('institutionFee');
     };
 
     const handleOpenCreateDoctor = (doctorsName: any) => {
@@ -148,6 +157,26 @@ const Channel = () => {
         setIsBooking(checked)
     };
 
+    const handlePrint = async (billId: number, billItems: any) => {
+        const printData = {
+            bill_id: billId,
+            customer_name: patientName,
+            // items: [
+            //     {name: "Item A", price: 10.0},
+            //     {name: "Item B", price: 15.5},
+            // ],
+            items: billItems,
+            total: 25.5,
+        };
+
+        try {
+            await printService.sendPrintRequest(printData);
+            alert("Print request sent successfully!");
+        } catch (error) {
+            alert("Failed to send print request. Check the console for details.");
+        }
+    };
+
     return (
         <div className="bg-gray-900 text-white">
             <div className="flex justify-between items-center mb-6 pb-4">
@@ -179,6 +208,13 @@ const Channel = () => {
                     />
                     {errors.channelingFee && <span className="text-red-500">{errors.channelingFee}</span>}
 
+                    <TextInput
+                        name="Institution Fee"
+                        value={institutionFee}
+                        onChange={handleInstitutionFeeChange}
+                    />
+                    {errors.institutionFee && <span className="text-red-500">{errors.institutionFee}</span>}
+
                 </div>
                 <div className="p-8 pb-5 col-span-2">
                     <PatientDetails
@@ -187,7 +223,8 @@ const Channel = () => {
                         patientName={patientName}
                         patient={patient ? patient : undefined}
                         patientNotFound={patientNotFound}
-                    ></PatientDetails>
+                        resetForm={isLoading}
+                    />
                 </div>
             </div>
 
@@ -201,10 +238,10 @@ const Channel = () => {
 
             <div className="flex justify-between mt-4">
                 <div className="flex items-center">
-                    {successMessage && <span className="text-green-500 mr-4">{successMessage}</span>}
+                    {successMessage && <span className="text-green-500 text-xl mr-4">{successMessage}</span>}
                 </div>
                 <div className="flex items-center">
-
+                    {isLoading && (<div className="mr-4 mt-1"><Loader/></div>)}
                     <span className="mr-4"><CustomCheckbox label="Booking" onChange={handleCheckboxChange}/></span>
                     <button className={`text-white px-5 py-2 rounded-md w-60 ${isBooking ? 'bg-blue-700' : 'bg-green-700'}`} onClick={createInvoiceBill}>
                         {isBooking ? 'Create a booking' : 'Create invoice and print'}

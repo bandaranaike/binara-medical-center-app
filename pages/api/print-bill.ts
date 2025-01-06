@@ -40,6 +40,6 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         res.send(pdfBuffer);
     } catch (error) {
         console.error('Failed to generate PDF', error);
-        res.status(500).json({ error: 'Failed to generate PDF', details: error.message });
+        res.status(500).json({ error: 'Failed to generate PDF', details: error instanceof Error ? error.message : 'Unknown error' });
     }
 };

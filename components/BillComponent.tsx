@@ -102,9 +102,9 @@ const BillComponent: React.FC<BillComponentProps> = ({children, form, setForm, o
                 try {
                     const billSaveResponse = await axiosLocal.post('bills', form);
 
-                    if (billSaveResponse.status === 200) {
+                    if (billSaveResponse.status === 201) {
                         setBillNumber(billSaveResponse.data.bill_number);
-                        setSuccessMessage(`Invoice #${billSaveResponse.data} successfully generated!`);
+                        setSuccessMessage(`Invoice #${billSaveResponse.data.bill_id} successfully generated! Queue id: ${billSaveResponse.data.queue_id}`);
                         clearAllErrors()
                         setTimeout(() => setSuccessMessage(""), 10000);
                     } else {

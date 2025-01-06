@@ -2,6 +2,7 @@ import React, {useEffect, useState} from "react";
 import axios from "@/lib/axios";
 import Loader from "@/components/form/Loader";
 import DeleteConfirm from "@/components/popup/DeleteConfirm";
+import BookingsTable from "@/components/BookingsTable";
 
 interface Booking {
     bill_amount: number;
@@ -24,6 +25,7 @@ const BookingList: React.FC = () => {
     const [activeTab, setActiveTab] = useState<"today" | "old">(TAB_TODAY);
     const [showBooking, setShowBooking] = useState(false);
     const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
 
     const fetchBookingsByType = async (type: "today" | "old") => {
         setLoading(true);
@@ -88,49 +90,6 @@ const BookingList: React.FC = () => {
         setSelectedBooking(booking);
         setShowDeleteModal(true)
     };
-    const BookingsTable: React.FC<{ bookings: Booking[]; isTodayTab: boolean }> = ({bookings, isTodayTab}) => (
-        <div className="relative overflow-x-auto sm:rounded-lg border border-gray-800">
-            <table className="w-full text-sm text-left text-gray-400">
-                <thead className="font-bold">
-                <tr className="bg-gray-800">
-                    <th className="px-4 py-4">Booking Number</th>
-                    <th className="px-4 py-4">Doctor Name</th>
-                    <th className="px-4 py-4">Patient</th>
-                    <th className="px-4 py-4">Amount</th>
-                    <th className="px-4 py-4">Date</th>
-                    <th className="px-4 py-4">Action</th>
-                </tr>
-                </thead>
-                <tbody>
-                {bookings.map((booking) => (
-                    <tr key={booking.id} className="border-t border-gray-800">
-                        <td className="px-4 py-2 border-r border-gray-800">{booking.queue_number}</td>
-                        <td className="px-4 py-2 border-r border-gray-800">{booking.doctor_name ?? 'No doctor assigned'}</td>
-                        <td className="px-4 py-2 border-r border-gray-800">{booking.patient_name}</td>
-                        <td className="px-4 py-2 border-r border-gray-800">{booking.bill_amount}</td>
-                        <td className="px-4 py-2 border-r border-gray-800">{booking.queue_date}</td>
-                        <td className="px-4 py-2">
-                            {isTodayTab && (
-                                <button
-                                    className="px-4 py-1 rounded bg-blue-800 text-white"
-                                    onClick={() => handleShowBooking(booking)}
-                                    disabled={!!booking.bill_id}
-                                > Create Bill </button>
-                            ) || (<button
-                                className="px-4 py-1 rounded bg-red-800 text-white"
-                                onClick={() => showDeleteConfirmation(booking)}
-                                disabled={!!booking.bill_id}
-                            > Delete </button>)}
-                        </td>
-                    </tr>
-                ))}
-                </tbody>
-
-            </table>
-        </div>
-    );
-
-    const [showDeleteModal, setShowDeleteModal] = useState(false);
 
     return (
         <div className="rounded-lg shadow-md">
@@ -158,7 +117,7 @@ const BookingList: React.FC = () => {
             ) : error ? (
                 <p className="text-red-500">{error}</p>
             ) : bookings[activeTab].length > 0 ? (
-                <BookingsTable bookings={bookings[activeTab]} isTodayTab={activeTab === TAB_TODAY}/>
+                <BookingsTable bookings={bookings[activeTab]} isTodayTab={activeTab === TAB_TODAY} handleShowBooking={handleShowBooking} showDeleteConfirmation={showDeleteConfirmation}/>
             ) : (
                 <p>No bookings available.</p>
             )}

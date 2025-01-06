@@ -164,7 +164,7 @@ const ReceptionList: React.FC = () => {
                                             className="px-4 py-1 rounded bg-blue-800 text-white px-3 py-2 mr-3"
                                             onClick={() => handleMarkAsDone(selectedBill)}
                                         >
-                                            Confirm and Mark as Done
+                                            Confirm the payment & Done
                                         </button>
                                         <button
                                             className="px-4 py-1 rounded bg-gray-600 text-white px-3 py-2"

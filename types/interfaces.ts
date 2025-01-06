@@ -35,6 +35,16 @@ export interface BillItem {
     patient_medicines: PatientMedicine[];
 }
 
+export interface Booking {
+    bill_amount: number;
+    id: number;
+    queue_number: number;
+    patient_name: string;
+    doctor_name: string;
+    queue_date: string;
+    bill_id: number | null; // Null indicates the bill is not yet created
+}
+
 export interface Disease {
     name: string;
     id: number;

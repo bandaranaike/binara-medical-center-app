@@ -1,11 +1,11 @@
-import React, {useState, useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import axios from '../lib/axios';
 import SearchableSelect from '../components/form/SearchableSelect';
 import {Option, PatientBill} from "@/types/interfaces";
 import PatientMedicine from "@/components/PatientMedicine";
 import DoctorPatientHistory from "@/components/DoctorPatientHistory"; // Assuming SearchableSelect is in the same folder
 
-const PatientHistories: React.FC = () => {
+const DoctorPortal: React.FC = () => {
 
     const [activePatient, setActivePatient] = useState<number>(-1);
     const [activePatientBill, setActivePatientBill] = useState<number>(-1);
@@ -14,6 +14,8 @@ const PatientHistories: React.FC = () => {
     const [patientBillsChanged, setPatientBillsChanged] = useState<boolean>(false);
     const [allergy] = useState<Option>();
     const [disease] = useState<Option>();
+    const [diseaseAlreadyHaveMessage, setDiseaseAlreadyHaveMessage] = useState<string>("");
+    const [allergyAlreadyHaveMessage, setAllergyAlreadyHaveMessage] = useState<string>("");
 
     // Fetch the patientsBill data from the API
     useEffect(() => {
@@ -45,23 +47,27 @@ const PatientHistories: React.FC = () => {
 
     // Handle adding new allergy and saving to DB
     const handleAddAllergy = async (newAllergy: string) => {
+        setAllergyAlreadyHaveMessage("")
         try {
             // Make an API request to add the new allergy to the patient's record in the database
             const response = await axios.post('/patients/add-allergy', {
                 patient_id: activePatient,
                 allergy_name: newAllergy, // Send the allergy name
             });
-
-            // Update local state with the added allergy if the request was successful
-            setPatientsBills(prev => prev.map(patientBill =>
-                patientBill.id === activePatientBill ? {
-                    ...patientBill,
-                    patient: {
-                        ...patientBill.patient,
-                        allergies: [...patientBill.patient.allergies, {id: response.data.id, name: newAllergy}]
-                    },
-                } : patientBill
-            ));
+            if (response.status === 201) {
+                // Update local state with the added allergy if the request was successful
+                setPatientsBills(prev => prev.map(patientBill =>
+                    patientBill.id === activePatientBill ? {
+                        ...patientBill,
+                        patient: {
+                            ...patientBill.patient,
+                            allergies: [...(patientBill.patient.allergies || []), {id: response.data.id, name: newAllergy}]
+                        },
+                    } : patientBill
+                ));
+            } else if (response.status === 208) {
+                setAllergyAlreadyHaveMessage(`The patient already has the allergy: ${newAllergy}`);
+            }
         } catch (error) {
             console.error("Error adding allergy: ", error);
         }
@@ -69,6 +75,7 @@ const PatientHistories: React.FC = () => {
 
     // Handle removing allergy
     const handleRemoveAllergy = async (allergyId: number) => {
+        setAllergyAlreadyHaveMessage("")
         try {
             // Make an API request to remove the allergy from the patient's record in the database
             await axios.delete(`/patients/remove-allergy/${allergyId}`, {
@@ -81,7 +88,7 @@ const PatientHistories: React.FC = () => {
                     ...patientBill,
                     patient: {
                         ...patientBill.patient,
-                        allergies: patientBill.patient.allergies.filter(allergy => allergy.id !== allergyId)
+                        allergies: (patientBill.patient.allergies || []).filter(allergy => allergy.id !== allergyId)
                     },
                 } : patientBill
             ));
@@ -92,6 +99,7 @@ const PatientHistories: React.FC = () => {
 
     // Handle adding new disease and saving to DB
     const handleAddDisease = async (newDisease: string) => {
+        setDiseaseAlreadyHaveMessage("")
         try {
             // Make an API request to add the new disease to the patient's record in the database
             const response = await axios.post('/patients/add-disease', {
@@ -99,16 +107,21 @@ const PatientHistories: React.FC = () => {
                 disease_name: newDisease, // Send the disease name
             });
 
-            // Update local state with the added disease if the request was successful
-            setPatientsBills(prev => prev.map(patientBill =>
-                patientBill.id === activePatientBill ? {
-                    ...patientBill,
-                    patient: {
-                        ...patientBill.patient,
-                        diseases: [...patientBill.patient.diseases, {id: response.data.id, name: newDisease}]
-                    },
-                } : patientBill
-            ));
+            if (response.status === 201) {
+                // Update local state with the added disease if the request was successful
+                setPatientsBills(prev => prev.map(patientBill =>
+                    patientBill.id === activePatientBill ? {
+                        ...patientBill,
+                        patient: {
+                            ...patientBill.patient,
+                            diseases: [...(patientBill.patient.diseases || []), {id: response.data.id, name: newDisease}]
+                        },
+                    } : patientBill
+                ));
+            } else if (response.status === 208) {
+                setDiseaseAlreadyHaveMessage(`The patient already has the disease: ${newDisease}`);
+            }
+
         } catch (error) {
             console.error("Error adding disease: ", error);
         }
@@ -116,6 +129,7 @@ const PatientHistories: React.FC = () => {
 
     // Handle removing disease
     const handleRemoveDisease = async (diseaseId: number) => {
+        setDiseaseAlreadyHaveMessage("")
         try {
             // Make an API request to remove the disease from the patient's record in the database
             await axios.delete(`/patients/remove-disease/${diseaseId}`, {
@@ -128,7 +142,7 @@ const PatientHistories: React.FC = () => {
                     ...patientBill,
                     patient: {
                         ...patientBill.patient,
-                        diseases: patientBill.patient.diseases.filter(disease => disease.id !== diseaseId)
+                        diseases: (patientBill.patient.diseases || []).filter(disease => disease.id !== diseaseId)
                     },
                 } : patientBill
             ));
@@ -172,7 +186,7 @@ const PatientHistories: React.FC = () => {
                 </ul>
             ) || (
                 <>
-                    <h2 className="text-2xl font-bold mb-4 text-left">Doctor Patient Queue</h2>
+                    <h2 className="text-2xl font-bold mb-4 text-left">Doctor Portal</h2>
                     <div className="">There are currently no bills available for you</div>
                 </>
             )}
@@ -198,9 +212,9 @@ const PatientHistories: React.FC = () => {
                             {patientsBills
                                 .filter((patientBill) => patientBill.id === activePatientBill)
                                 .map((patientBill) =>
-                                    patientBill.patient.allergies.length > 0 ? (
+                                    (patientBill.patient.allergies?.length || 0) > 0 ? (
                                         <ul key={patientBill.id} className="px-2 pb-2 ml-2">
-                                            {patientBill.patient.allergies.map((allergy, index) => (
+                                            {patientBill.patient.allergies?.map((allergy, index) => (
                                                 <li className="mb-1" key={index}>
                                                     {allergy.name}
                                                     <button
@@ -216,6 +230,7 @@ const PatientHistories: React.FC = () => {
                                         <p className="p-3" key={patientBill.id}>No allergies listed.</p>
                                     )
                                 )}
+                            {allergyAlreadyHaveMessage && <div className="text-yellow-400 text-sm px-3 pb-3">{allergyAlreadyHaveMessage}</div>}
                         </div>
                         <div className="border border-gray-800 rounded-lg">
                             <h3 className="font-bold text-lg border-b border-gray-800 px-4 py-2 flex justify-between items-center">
@@ -234,9 +249,9 @@ const PatientHistories: React.FC = () => {
                             {patientsBills
                                 .filter((patientBill) => patientBill.id === activePatientBill)
                                 .map((patientBill) =>
-                                    patientBill.patient.diseases.length > 0 ? (
+                                    (patientBill.patient.diseases?.length || 0) > 0 ? (
                                         <ul key={patientBill.id} className="px-2 pb-2 ml-2">
-                                            {patientBill.patient.diseases.map((disease, index) => (
+                                            {patientBill.patient.diseases?.map((disease, index) => (
                                                 <li className="mb-1" key={index}>
                                                     {disease.name}
                                                     <button
@@ -253,6 +268,7 @@ const PatientHistories: React.FC = () => {
                                     )
                                 )}
 
+                            {diseaseAlreadyHaveMessage && <div className="text-yellow-400 text-sm px-3 pb-3">{diseaseAlreadyHaveMessage}</div>}
                         </div>
                     </div>
 
@@ -273,4 +289,4 @@ const PatientHistories: React.FC = () => {
     );
 };
 
-export default PatientHistories;
+export default DoctorPortal;
