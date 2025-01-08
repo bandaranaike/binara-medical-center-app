@@ -6,7 +6,7 @@ import SearchablePatientSelect from "@/components/form/SearchablePatientSelect";
 import Loader from "@/components/form/Loader";
 import CustomCheckbox from "@/components/form/CustomCheckbox";
 
-const BillComponent: React.FC<BillComponentProps> = ({children, form, setForm, onCreateInvoiceBill, doctorRequired}) => {
+const BillComponent: React.FC<BillComponentProps> = ({children, form, setForm, onCreateInvoiceBill, doctorRequired, onClearData}) => {
         const [billNumber, setBillNumber] = useState<number>(0);
         const [patientPhone, setPatientPhone] = useState("");
         const [patientId, setPatientId] = useState(0);
@@ -19,6 +19,7 @@ const BillComponent: React.FC<BillComponentProps> = ({children, form, setForm, o
 
         const [isBooking, setIsBooking] = useState(false);
         const [isLoading, setIsLoading] = useState(false);
+        const [resetForm, setResetForm] = useState(false);
 
         const handleOnPatientCreateOrSelect = (patientData: Patient) => {
             setPatientId(patientData.id);
@@ -39,7 +40,7 @@ const BillComponent: React.FC<BillComponentProps> = ({children, form, setForm, o
         const clearAllErrors = () => {
             setErrors({});
             setForm({is_booking: false});
-            setPatientNotFound(true)
+            setPatientNotFound(false)
         }
 
         const validateFields = () => {
@@ -107,6 +108,8 @@ const BillComponent: React.FC<BillComponentProps> = ({children, form, setForm, o
                         setSuccessMessage(`Invoice #${billSaveResponse.data.bill_id} successfully generated! Queue id: ${billSaveResponse.data.queue_id}`);
                         clearAllErrors()
                         setTimeout(() => setSuccessMessage(""), 10000);
+                        setResetForm(true);
+                        if (onClearData) onClearData();
                     } else {
                         console.error("Error saving bill", billSaveResponse);
                     }
@@ -144,7 +147,7 @@ const BillComponent: React.FC<BillComponentProps> = ({children, form, setForm, o
                             patientName={patientName}
                             patient={patient ? patient : undefined}
                             patientNotFound={patientNotFound}
-                            resetForm={isLoading}
+                            resetForm={resetForm}
                         ></PatientDetails>
                     </div>
                 </div>

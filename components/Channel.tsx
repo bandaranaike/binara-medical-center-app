@@ -90,10 +90,7 @@ const Channel = () => {
                 patient_id: patientId,
                 doctor_id: doctor?.value,
                 is_booking: isBooking,
-                bill_items: {
-                    channeling_fee: channelingFee,
-                    institution_fee: institutionFee
-                }
+                service_type: 'channeling',
             });
 
             if (billSaveResponse.status === 201) {

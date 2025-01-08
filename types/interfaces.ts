@@ -23,6 +23,7 @@ export interface BillComponentProps {
     form: any,
     setForm: (form: any) => void;
     onCreateInvoiceBill?: () => void;
+    onClearData?: () => void;
     doctorRequired?: boolean;
 }
 

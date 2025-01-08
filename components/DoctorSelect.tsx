@@ -5,14 +5,20 @@ import axiosLocal from "@/lib/axios";
 import CreateNewDoctor from "@/components/CreateNewDoctor";
 
 interface DoctorSelectProps {
+    resetSelection: boolean
     onDoctorSelect: (selectedDoctorId: number) => void;
 }
 
-const DoctorSelect: React.FC<DoctorSelectProps> = ({onDoctorSelect}) => {
+const DoctorSelect: React.FC<DoctorSelectProps> = ({onDoctorSelect, resetSelection}) => {
 
     const [doctor, setDoctor] = useState<Option>();
     const [errors, setErrors] = useState<any>({});
     const [isCreateDoctorOpen, setIsCreateDoctorOpen] = useState(false);
+
+    useEffect(() => {
+        console.log('resetSelection', resetSelection);
+        setDoctor(undefined);
+    }, [resetSelection]);
 
     const handleDoctorChangeOption = (selectedOption: any) => {
         setDoctor(selectedOption);

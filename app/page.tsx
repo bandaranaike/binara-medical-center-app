@@ -11,6 +11,7 @@ import PharmacyPortal from "@/components/PhamacyPortal";
 import Reception from "@/components/Reception";
 import Bookings from "@/components/Bookings";
 import ServicesPortal from "@/components/ServicesPortal";
+import Admin from "@/components/admin/Admin";
 
 const Page = () => {
     const [activeTab, setActiveTab] = useState("channel");
@@ -38,6 +39,7 @@ const Page = () => {
         {id: "pharmacy-portal", label: "Pharmacy Portal", component: <PharmacyPortal/>},
         {id: "reception", label: "Reception", component: <Reception/>},
         {id: "stat-summary", label: "Stat Summary", component: <StatSummary/>},
+        {id: "admin", label: "Admin", component: <Admin/>},
     ];
 
     const renderTabContent = () => {
