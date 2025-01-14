@@ -1,4 +1,4 @@
-import axios, { AxiosInstance } from "axios";
+import axios, {AxiosInstance} from "axios";
 
 interface PrintItem {
     name: string;
@@ -41,6 +41,6 @@ class PrintService {
 }
 
 // Export a singleton instance of PrintService
-const printService = new PrintService("http://localhost:5000");
+const printService = new PrintService(process.env.NEXT_PUBLIC_PRINTING_URL || "http://localhost:5000");
 
 export default printService;

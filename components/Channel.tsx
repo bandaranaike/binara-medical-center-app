@@ -96,7 +96,7 @@ const Channel = () => {
             if (billSaveResponse.status === 201) {
                 setBillNumber(billSaveResponse.data.bill_number); // Assume bill_number is returned
                 setSuccessMessage(`Invoice #${billSaveResponse.data.bill_id} successfully generated! Queue number is ${billSaveResponse.data.queue_id}`);
-                await handlePrint(billSaveResponse.data.bill_id, billSaveResponse.data.bill_items);
+                await handlePrint(billSaveResponse.data.bill_id, billSaveResponse.data.bill_items, billSaveResponse.data.total);
                 setTimeout(() => setSuccessMessage(""), 15000);
                 setIsLoading(false);
             } else {
@@ -154,16 +154,12 @@ const Channel = () => {
         setIsBooking(checked)
     };
 
-    const handlePrint = async (billId: number, billItems: any) => {
+    const handlePrint = async (billId: number, billItems: any, total:number) => {
         const printData = {
             bill_id: billId,
             customer_name: patientName,
-            // items: [
-            //     {name: "Item A", price: 10.0},
-            //     {name: "Item B", price: 15.5},
-            // ],
             items: billItems,
-            total: 25.5,
+            total: total,
         };
 
         try {

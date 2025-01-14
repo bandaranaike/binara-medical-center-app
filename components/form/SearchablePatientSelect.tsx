@@ -43,7 +43,7 @@ const SearchablePatientSelect: React.FC<SearchablePatientSelectProps> = ({onPati
             }
         };
 
-        const debounceFetch = setTimeout(fetchPatients, 600); // Debounce API calls
+        const debounceFetch = setTimeout(fetchPatients, 400); // Debounce API calls
         return () => clearTimeout(debounceFetch);
     }, [query]);
 

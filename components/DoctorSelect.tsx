@@ -16,7 +16,6 @@ const DoctorSelect: React.FC<DoctorSelectProps> = ({onDoctorSelect, resetSelecti
     const [isCreateDoctorOpen, setIsCreateDoctorOpen] = useState(false);
 
     useEffect(() => {
-        console.log('resetSelection', resetSelection);
         setDoctor(undefined);
     }, [resetSelection]);
 
