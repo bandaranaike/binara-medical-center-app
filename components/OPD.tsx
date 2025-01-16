@@ -4,7 +4,6 @@ import BillComponent from "@/components/BillComponent";
 import withExtension from "@/components/withExtension";
 import DoctorSelect from "@/components/DoctorSelect";
 import TextInput from "@/components/form/TextInput";
-import {Option} from "@/types/interfaces";
 import axiosLocal from "@/lib/axios";
 
 const OPDPage = withExtension(BillComponent)
@@ -37,7 +36,8 @@ const OPD = () => {
     };
 
     const handleClearFormData = () => {
-
+        setResetDoctor(true)
+        setBillAmount("")
     };
     return (
         <OPDPage
@@ -46,8 +46,8 @@ const OPD = () => {
             doctorRequired={true}
             onClearData={handleClearFormData}
         >
-            <DoctorSelect resetSelection={resetDoctor} onDoctorSelect={handleDoctorChangeOption}/>
-            <TextInput name="Bill amount" value={billAmount} onChange={handleBillAmountChange}/>
+            <DoctorSelect doctorType="opd" resetSelection={resetDoctor} onDoctorSelect={handleDoctorChangeOption}/>
+            <TextInput name="Doctor fee" value={billAmount} onChange={handleBillAmountChange}/>
         </OPDPage>
     );
 };

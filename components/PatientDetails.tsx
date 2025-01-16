@@ -66,7 +66,7 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, patientNam
         if (onPatientCreatedOrSelected && currentPatient) {
             onPatientCreatedOrSelected(currentPatient);
         }
-    }, [onPatientCreatedOrSelected, currentPatient]);
+    }, [currentPatient]);
 
     useEffect(() => {
         if (patientNotFound) {

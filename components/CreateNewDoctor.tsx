@@ -7,16 +7,17 @@ import {Option} from "@/types/interfaces";
 import TextInput from "@/components/form/TextInput";
 import {Checkbox} from "flowbite-react";
 import CustomCheckbox from "@/components/form/CustomCheckbox";
+import CustomRadio from "@/components/form/CustomRadio";
 
 interface CreateNewDoctorProps {
     isOpen: boolean;
-    isOPD: boolean;
+    doctorType: string;
     doctorsName: string;
     onClose: () => void;
     onDoctorCreated: (doctor: Option) => void;
 }
 
-const CreateNewDoctor: React.FC<CreateNewDoctorProps> = ({isOpen, isOPD: initialIsOpd, doctorsName, onClose, onDoctorCreated}) => {
+const CreateNewDoctor: React.FC<CreateNewDoctorProps> = ({isOpen, doctorType: initialDoctorType, doctorsName, onClose, onDoctorCreated}) => {
     const [name, setName] = useState(doctorsName);
     const [hospital, setHospital] = useState<Option>();
     const [specialty, setSpecialty] = useState<Option>();
@@ -24,7 +25,7 @@ const CreateNewDoctor: React.FC<CreateNewDoctorProps> = ({isOpen, isOPD: initial
     const [email, setEmail] = useState('');
     const [isHospitalModalOpen, setIsHospitalModalOpen] = useState(false);
     const [isSpecialtyModalOpen, setIsSpecialtyModalOpen] = useState(false);
-    const [isOPD, setIsOPD] = useState<boolean>(initialIsOpd)
+    const [doctorType, setDoctorType] = useState(initialDoctorType)
 
     useEffect(() => {
         setName(doctorsName);
@@ -39,7 +40,7 @@ const CreateNewDoctor: React.FC<CreateNewDoctorProps> = ({isOpen, isOPD: initial
                 specialty_id: specialty?.value,
                 telephone,
                 email,
-                is_opd: isOPD
+                doctor_type: doctorType
             });
             onDoctorCreated({value: response.data.id, label: response.data.name});
             onClose();
@@ -101,7 +102,27 @@ const CreateNewDoctor: React.FC<CreateNewDoctorProps> = ({isOpen, isOPD: initial
                         />
                     </div>
                     <div className="mb-4">
-                        <CustomCheckbox onChange={setIsOPD} label="Is OPD Doctor"/>
+                        <div className="flex">
+                            <CustomRadio
+                                label="Dental"
+                                value="dental"
+                                groupValue={doctorType}
+                                onChange={setDoctorType}
+                            />
+                            <CustomRadio
+                                label="OPD"
+                                value="opd"
+                                groupValue={doctorType}
+                                onChange={setDoctorType}
+                            />
+                            <CustomRadio
+                                label="Specialist"
+                                value="specialist"
+                                groupValue={doctorType}
+                                onChange={setDoctorType}
+                            />
+                        </div>
+
                     </div>
                     <div className="mb-4">
                         <SearchableSelect

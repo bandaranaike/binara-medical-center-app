@@ -12,6 +12,7 @@ import Reception from "@/components/Reception";
 import Bookings from "@/components/Bookings";
 import ServicesPortal from "@/components/ServicesPortal";
 import Admin from "@/components/admin/Admin";
+import DentalPortal from "@/components/DentalPortal";
 
 const Page = () => {
     const [activeTab, setActiveTab] = useState("channel");
@@ -35,6 +36,7 @@ const Page = () => {
         {id: "opd", label: "OPD", component: <OPD/>},
         {id: "bookings", label: "Bookings", component: <Bookings/>},
         {id: "services", label: "Treatments", component: <ServicesPortal/>},
+        {id: "dental", label: "Dental Portal", component: <DentalPortal/>},
         {id: "doctor-portal", label: "Doctor Portal", component: <DoctorsPatientQueue/>},
         {id: "pharmacy-portal", label: "Pharmacy Portal", component: <PharmacyPortal/>},
         {id: "reception", label: "Reception", component: <Reception/>},
@@ -49,41 +51,44 @@ const Page = () => {
 
     return (
         <div>
-            <div className={`min-h-screen ${!isLoggedIn ? "blur" : ""}`}>
-                <header className="flex items-center justify-between w-25">
-                    <h1 className="text-3xl mx-6 mt-6 text-gray-400">
-                        Binara Management System
-                    </h1>
-                </header>
-                <div className="mx-4 my-6 p-4 border border-gray-800 rounded-lg bg-gray-900 text-gray-400">
-                    <nav className="text-sm font-medium text-center text-gray-400 border-b border-gray-800 dark:text-gray-400 dark:border-gray-700">
-                        <ul className="flex flex-wrap -mb-px">
-                            {tabs.map((tab) => (
-                                <li className="me-2" key={tab.id}>
-                                    <a
-                                        href="#"
-                                        onClick={() => setActiveTab(tab.id)}
-                                        className={`inline-block p-4 border-b-2 rounded-t-lg ${
-                                            activeTab === tab.id
-                                                ? activeTabClass
-                                                : inactiveTabClass
-                                        }`}
-                                    >
-                                        {tab.label}
-                                    </a>
-                                </li>
-                            ))}
-                        </ul>
-                    </nav>
-                    <div className="p-4 pt-8">{renderTabContent()}</div>
+            {isLoggedIn && (<div className={`min-h-screen ${!isLoggedIn ? "blur" : ""}`}>
+                    <header className="flex items-center justify-between w-25">
+                        <h1 className="text-3xl mx-6 mt-6 text-gray-400">
+                            {process.env.NEXT_PUBLIC_APP_TITLE}
+                        </h1>
+                    </header>
+                    <div className="mx-4 my-6 p-4 border border-gray-800 rounded-lg bg-gray-900 text-gray-400">
+                        <nav className="text-sm font-medium text-center text-gray-400 border-b border-gray-800 dark:text-gray-400 dark:border-gray-700">
+                            <ul className="flex flex-wrap -mb-px">
+                                {tabs.map((tab) => (
+                                    <li className="me-2" key={tab.id}>
+                                        <a
+                                            href="#"
+                                            onClick={() => setActiveTab(tab.id)}
+                                            className={`inline-block p-4 border-b-2 rounded-t-lg ${
+                                                activeTab === tab.id
+                                                    ? activeTabClass
+                                                    : inactiveTabClass
+                                            }`}
+                                        >
+                                            {tab.label}
+                                        </a>
+                                    </li>
+                                ))}
+                            </ul>
+                        </nav>
+                        <div className="p-4 pt-8">{renderTabContent()}</div>
+                    </div>
+                    <footer className="text-center mt-4">
+                        <div className="text-gray-500 pt-3 pb-9">
+                            <span className="mr-3">{process.env.NEXT_PUBLIC_APP_ADDRESS}</span>
+                            <span className="mr-3">Telephone: {process.env.NEXT_PUBLIC_APP_TELEPHONE}</span>
+                            <span className="mr-3">Fax: {process.env.NEXT_PUBLIC_APP_FAX}</span>
+                            <span className="mr-3">Email: {process.env.NEXT_PUBLIC_APP_EMAIL}</span>
+                        </div>
+                    </footer>
                 </div>
-                <footer className="text-center mt-4">
-                    <p>
-                        No82. New Town, Kundasale. Tel: 0817213239 / 0812421942, Fax:
-                        0812421942, Email: binara82@gmail.com
-                    </p>
-                </footer>
-            </div>
+            )}
             {!isLoggedIn && <LoginWindow loginStatus={setIsLoggedIn}/>}
         </div>
     );

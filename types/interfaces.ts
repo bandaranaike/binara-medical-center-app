@@ -135,12 +135,14 @@ export interface PatientMedicine {
 export interface SearchableSelectProps {
     placeholder?: string;
     apiUri?: string;
+    type?: string;
     onChange?: (selectedOption: SingleValue<Option> | string | undefined) => void;
     onOptionChange?: (selectedOption: Option | null) => void;
     onCreateOption?: (newValue: string) => void;
     value: Option | undefined;
     id: string;
     options?: Option[];
+    resetValue?: boolean
 }
 
 export interface Service {

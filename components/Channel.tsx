@@ -226,7 +226,7 @@ const Channel = () => {
                 onClose={handleCloseCreateDoctor}
                 onDoctorCreated={refreshDoctorList}
                 doctorsName={doctor ? doctor.label : ''}
-                isOPD={false}
+                doctorType="specialist"
             />
 
             <div className="flex justify-between mt-4">

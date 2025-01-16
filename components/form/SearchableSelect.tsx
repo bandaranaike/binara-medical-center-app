@@ -1,4 +1,4 @@
-import React, {useState, useCallback} from 'react';
+import React, {useState, useCallback, useEffect} from 'react';
 import AsyncCreatableSelect from 'react-select/async-creatable';
 import {SingleValue} from 'react-select';
 import axios from "@/lib/axios";
@@ -11,17 +11,24 @@ const SearchableSelect: React.FC<SearchableSelectProps> = (
         placeholder,
         onCreateOption,
         apiUri,
+        type,
         id,
         onChange,
         value,
+        resetValue
     }) => {
     const [selectedValue, setSelectedValue] = useState<Option | undefined>(value);
 
-    // Function to fetch options from the API
+    useEffect(() => {
+        if (resetValue === true) {
+            setSelectedValue({value: "0", label: ""})
+        }
+    }, [resetValue]);
+
     const fetchOptions = async (inputValue: string) => {
-        // if (!inputValue.trim()) return []; // Avoid API call for empty input
         try {
-            const response = await axios.get(`/dropdown/${apiUri}?search=${inputValue}`);
+            const typeUri = type ? `&type=${type}` : "";
+            const response = await axios.get(`/dropdown/${apiUri}?search=${inputValue}${typeUri}`);
             return response.data?.map((item: any) => ({
                 value: item.value,
                 label: item.label,
