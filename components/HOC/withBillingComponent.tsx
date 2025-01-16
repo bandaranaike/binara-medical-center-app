@@ -25,7 +25,7 @@ const withBillingComponent = <P extends object>(
             doctor_id: null
         })
 
-        const [validation, setValidation] = useState({
+        const [validation] = useState({
             patient_id: 'required',
             doctor_id: null,
             ...props.validation
@@ -93,21 +93,6 @@ const withBillingComponent = <P extends object>(
             handleFormChange('is_booking', false);
             setPatientNotFound(false)
         }
-
-        const validateFields = () => {
-
-            let validationErrors: any = {};
-
-            if (!formData.doctor_id) {
-                validationErrors.doctor = "Doctor is required.";
-            } else {
-                delete validationErrors.doctor;
-            }
-
-            setErrors(validationErrors);
-
-            return validationErrors;
-        };
 
         const handlePatientSelect = (patient: Patient) => {
             setPatientId(patient.id);

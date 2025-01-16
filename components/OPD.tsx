@@ -16,28 +16,27 @@ const OPD = () => {
         system_amount: 0,
     })
 
-    const [billAmount, setBillAmount] = useState<string>("");
+    const [registrationFee, setRegistrationFee] = useState<string>("");
     const [resetDoctor, setResetDoctor] = useState<boolean>(false)
 
-    const handleDoctorChangeOption = async (doctorId: number) => {
-        await getDoctorFees(doctorId);
-        setForm({...form, doctor_id: doctorId});
+    const handleDoctorChangeOption = (data: { id: number, fee: number }) => {
+        setForm({...form, doctor_id: data.id});
     };
 
     const handleBillAmountChange = (value: string) => {
-        setBillAmount(value);
+        setRegistrationFee(value);
         setForm({...form, bill_amount: value});
     }
 
     const getDoctorFees = async (doctorId: number) => {
-        axiosLocal.get(`doctor-channeling-fees/get-fee/${doctorId}/true`).then(drFeeResponse => {
-            setBillAmount(drFeeResponse.data.bill_price.toString());
+        axiosLocal.get(`doctor-channeling-fees/get-fee/${doctorId}`).then(drFeeResponse => {
+            setRegistrationFee(drFeeResponse.data.bill_price.toString());
         });
     };
 
     const handleClearFormData = () => {
         setResetDoctor(true)
-        setBillAmount("")
+        setRegistrationFee("")
     };
     return (
         <OPDPage
@@ -47,7 +46,7 @@ const OPD = () => {
             onClearData={handleClearFormData}
         >
             <DoctorSelect doctorType="opd" resetSelection={resetDoctor} onDoctorSelect={handleDoctorChangeOption}/>
-            <TextInput name="Doctor fee" value={billAmount} onChange={handleBillAmountChange}/>
+            <TextInput name="Doctor fee" value={registrationFee} onChange={handleBillAmountChange}/>
         </OPDPage>
     );
 };

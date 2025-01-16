@@ -8,37 +8,43 @@ interface DentalProps {
     validation: any
 }
 
+const Dental: React.FC<DentalProps> = ({handleFormChange}) => {
+    const [resetInputs] = useState(false)
+    const [registrationFee, setRegistrationFee] = useState("0")
+    const handleRegistrationFeeChange = (value: number) => {
+        handleFormChange('registration_fee', value)
+        setRegistrationFee(value.toString())
+    };
+    const handleOnDoctorChange = (drData: { id: number, fee: number }) => {
+        handleFormChange('doctor_id', drData.id)
+        handleFormChange('registration_fee', drData.fee)
+        setRegistrationFee(drData.fee.toString())
+    };
+
+    return (
+        <div>
+            <DoctorSelect doctorType="dental" resetSelection={resetInputs} onDoctorSelect={handleOnDoctorChange}/>
+            <TextInput name="Registration fee" value={registrationFee} onChange={handleRegistrationFeeChange}/>
+        </div>
+    )
+}
+
 const DentalPortal: React.FC = () => {
-    const [restInputs, setResetInputs] = useState(false)
 
     const validationRules: any = {
         registration_fee: 'required',
         doctor_id: 'required',
     };
 
-    const handleChanges = (item: any) => {
+    const handleChanges = () => {
+        console.log("handleChanges triggered")
     };
 
-    const Dental: React.FC<DentalProps> = ({handleFormChange}) => {
-        const handleRegistrationFeeChange = (value: number) => {
-            handleFormChange('registration_fee', value)
-        };
-        const handleOnDoctorChange = (doctorId: number) => {
-            handleFormChange('doctor_id', doctorId)
-        };
-
-        return (
-            <div>
-                <DoctorSelect doctorType="dental" resetSelection={restInputs} onDoctorSelect={handleOnDoctorChange}/>
-                <TextInput name="Registration fee" onChange={handleRegistrationFeeChange}/>
-            </div>
-        )
-    }
+    const handleFormChange = (name: string, value: string | number | boolean) => {
+        console.log(`Form field ${name} changed to`, value);
+    };
 
     const DentalComponent = withBillingComponent(Dental);
-
-    const handleFormChange = () => {
-    };
 
     return (<DentalComponent onSubmit={handleChanges} validation={validationRules} handleFormChange={handleFormChange}/>)
 }
