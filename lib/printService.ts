@@ -8,6 +8,7 @@ interface PrintItem {
 interface PrintRequest {
     bill_id: number;
     customer_name: string;
+    doctor_name: string;
     items: PrintItem[];
     total: number;
 }

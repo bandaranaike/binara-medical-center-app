@@ -5,6 +5,7 @@ import Loader from "@/components/form/Loader";
 import CustomCheckbox from "@/components/form/CustomCheckbox";
 import axiosLocal from "@/lib/axios";
 import {Patient} from "@/types/interfaces";
+import printService from "@/lib/printService";
 
 interface WithBillingComponentProps {
     onSubmit: (data: any) => void;
@@ -19,7 +20,7 @@ const withBillingComponent = <P extends object>(
 ) => {
     const ComponentWithBilling: React.FC<WithBillingComponentProps & P> = ({onSubmit, ...props}) => {
 
-        const [formData, setFormData] = useState({
+        const [formData, setFormData] = useState<object>({
             is_booking: false,
             patient_id: null,
             doctor_id: null
@@ -30,6 +31,25 @@ const withBillingComponent = <P extends object>(
             doctor_id: null,
             ...props.validation
         })
+
+        const [billNumber, setBillNumber] = useState<number>(0);
+        const [patientPhone, setPatientPhone] = useState("");
+        const [patientId, setPatientId] = useState(0);
+        const [patient, setPatient] = useState<Patient | null>();
+        const [patientName, setPatientName] = useState("")
+        const [doctorName, setDoctorName] = useState("")
+        const [patientNotFound, setPatientNotFound] = useState<boolean>(false);
+
+        const [errors, setErrors] = useState<any>();
+        const [successMessage, setSuccessMessage] = useState<string>(""); // State for success message
+
+        const [isBooking, setIsBooking] = useState(false);
+        const [isLoading, setIsLoading] = useState(false);
+        const [resetForm, setResetForm] = useState(false);
+
+        const handleFormChange = (name: string, value: string | number | boolean) => {
+            setFormData((prevState) => ({...prevState, [name]: value}));
+        };
 
         const validateFormData = (formData: any, validation: any) => {
             const errors: any = {};
@@ -51,24 +71,6 @@ const withBillingComponent = <P extends object>(
             }
 
             return errors;
-        };
-
-        const [billNumber, setBillNumber] = useState<number>(0);
-        const [patientPhone, setPatientPhone] = useState("");
-        const [patientId, setPatientId] = useState(0);
-        const [patient, setPatient] = useState<Patient | null>();
-        const [patientName, setPatientName] = useState("")
-        const [patientNotFound, setPatientNotFound] = useState<boolean>(false);
-
-        const [errors, setErrors] = useState<any>();
-        const [successMessage, setSuccessMessage] = useState<string>(""); // State for success message
-
-        const [isBooking, setIsBooking] = useState(false);
-        const [isLoading, setIsLoading] = useState(false);
-        const [resetForm, setResetForm] = useState(false);
-
-        const handleFormChange = (name: string, value: string | number | boolean) => {
-            setFormData((prevState) => ({...prevState, [name]: value}));
         };
 
         const handleOnPatientCreateOrSelect = (patientData: Patient) => {
@@ -97,7 +99,7 @@ const withBillingComponent = <P extends object>(
         const handlePatientSelect = (patient: Patient) => {
             setPatientId(patient.id);
             setPatient(patient);
-            handleFormChange('is_booking', formData.is_booking);
+            // handleFormChange('is_booking', formData.is_booking);
             handleFormChange('patient_id', patient.id);
         };
 
@@ -129,13 +131,18 @@ const withBillingComponent = <P extends object>(
             setErrors({});
 
             try {
-                const billSaveResponse = await axiosLocal.post('bills', formData);
+
+                const billSaveResponse = await axiosLocal.post('bills', {...formData, bill_amount, system_amount});
 
                 if (billSaveResponse.status === 201) {
                     setBillNumber(billSaveResponse.data.bill_number);
                     setSuccessMessage(`Invoice #${billSaveResponse.data.bill_id} successfully generated! Queue id: ${billSaveResponse.data.queue_id}`);
                     clearAllErrors()
-                    setTimeout(() => setSuccessMessage(""), 10000);
+
+                    if (!isBooking)
+                        await handlePrint(billSaveResponse.data.bill_id, billSaveResponse.data.bill_items, billSaveResponse.data.total);
+
+                    setTimeout(() => setSuccessMessage(""), 20000);
                     setResetForm(true);
                 } else {
                     console.error("Error saving bill", billSaveResponse);
@@ -147,6 +154,34 @@ const withBillingComponent = <P extends object>(
             }
 
         };
+
+        const handlePrint = async (billId: number, billItems: any, total: number) => {
+            const printData = {
+                bill_id: billId,
+                customer_name: patient ? patient.name : "Customer 001",
+                doctor_name: doctorName,
+                items: billItems,
+                total: total,
+            };
+
+            try {
+                await printService.sendPrintRequest(printData);
+            } catch (error) {
+                console.log("Failed to send print request. Check the console for details." + error);
+            }
+        };
+
+
+        const getTotalAmount = (flag: string) => {
+            return Object.entries(formData)
+                .filter(([key, value]) => key.endsWith(flag) && typeof value === 'number')
+                .reduce((sum, [, value]) => sum + value, 0)
+        }
+
+        const bill_amount = getTotalAmount('_fee');
+        const system_amount = getTotalAmount('_charge');
+
+        const total = bill_amount + system_amount;
 
         return (<>
             <div className="bg-gray-900 text-white">
@@ -162,7 +197,7 @@ const withBillingComponent = <P extends object>(
                         </div>
 
                         <div className="my-4">
-                            <WrappedComponent {...(props as P)} formData={formData} handleFormChange={handleFormChange}/>
+                            <WrappedComponent {...(props as P)} formData={formData} onDoctorNameChange={setDoctorName} handleFormChange={handleFormChange}/>
                         </div>
 
                         {errors && Object.keys(errors).map((errorKey) => (
@@ -181,10 +216,10 @@ const withBillingComponent = <P extends object>(
                     </div>
                 </div>
 
-
                 <div className="flex justify-between mt-4">
                     <div className="flex items-center">
-                        {successMessage && <span className="text-green-500 mr-4">{successMessage}</span>}
+                        <div className="text-lg mr-12">Total : {total}</div>
+                        {successMessage && <span className="text-xl text-green-500 mr-4">{successMessage}</span>}
                     </div>
                     <div className="flex items-center">
                         {isLoading && (<div className="mr-4 mt-1"><Loader/></div>)}

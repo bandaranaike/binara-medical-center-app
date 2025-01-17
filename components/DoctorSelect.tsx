@@ -7,7 +7,7 @@ import axiosLocal from "@/lib/axios";
 interface DoctorSelectProps {
     resetSelection: boolean
     doctorType: string
-    onDoctorSelect: (data: { id: number, fee: number }) => void;
+    onDoctorSelect: (data: { id: number, fee: number, name:string }) => void;
 }
 
 const DoctorSelect: React.FC<DoctorSelectProps> = ({onDoctorSelect, resetSelection, doctorType}) => {
@@ -27,7 +27,8 @@ const DoctorSelect: React.FC<DoctorSelectProps> = ({onDoctorSelect, resetSelecti
     const handleDoctorChangeOption = async (selectedOption: any) => {
         setDoctor(selectedOption);
         getDoctorFee(selectedOption.value).then(result => {
-            onDoctorSelect({id: selectedOption.value, fee: result.data.system_price});
+            const data = result.data;
+            onDoctorSelect({id: selectedOption.value, fee: data.system_price, name:data.name});
         });
 
         setErrors((prevErrors: any) => ({...prevErrors, doctor: null}));
