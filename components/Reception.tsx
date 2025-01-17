@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from "react";
 import axios from "@/lib/axios";
 import Loader from "@/components/form/Loader";
+import StatusLabel from "@/components/form/StatusLabel";
 
 interface Bill {
     bill_amount: number;
@@ -68,7 +69,7 @@ const ReceptionList: React.FC = () => {
 
     return (
         <div className="rounded-lg shadow-md">
-            <h2 className="text-2xl font-bold mb-4">Pending Bills</h2>
+            <h2 className="text-2xl font-bold mb-4">Ongoing Bills</h2>
             {loading ? (
                 <p>Loading bills...</p>
             ) : error ? (
@@ -78,7 +79,9 @@ const ReceptionList: React.FC = () => {
                     <table className="w-full text-sm text-left text-gray-400">
                         <thead className="font-bold">
                         <tr>
+                            <th className="px-4 py-4 bg-gray-800">Bill No.</th>
                             <th className="px-4 py-4 bg-gray-800">Queue Number</th>
+                            <th className="px-4 py-4 bg-gray-800">Status</th>
                             <th className="px-4 py-4 bg-gray-800">Doctor Name</th>
                             <th className="px-4 py-4 bg-gray-800">Patient</th>
                             <th className="px-4 py-4 bg-gray-800">Amount</th>
@@ -89,7 +92,9 @@ const ReceptionList: React.FC = () => {
                         <tbody>
                         {bills.map((bill) => (
                             <tr key={bill.id} className="border-t border-gray-800">
+                                <td className="px-4 py-2 border-r border-gray-800">{bill.id}</td>
                                 <td className="px-4 py-2 border-r border-gray-800">{bill.queue_number}</td>
+                                <td className="px-4 py-2 border-r border-gray-800"><StatusLabel status={bill.status}/></td>
                                 <td className="px-4 py-2 border-r border-gray-800">{bill.doctor_name}</td>
                                 <td className="px-4 py-2 border-r border-gray-800">{bill.patient_name}</td>
                                 <td className="px-4 py-2 border-r border-gray-800">{bill.bill_amount}</td>
@@ -157,7 +162,7 @@ const ReceptionList: React.FC = () => {
                                     </p>
                                     <p>
                                         <span className="font-semibold">Status: </span>
-                                        {selectedBill.status}
+                                        <StatusLabel status={selectedBill.status}/>
                                     </p>
                                     <div className="flex mt-4">
                                         <button

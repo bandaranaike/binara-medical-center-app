@@ -3,6 +3,7 @@ import axios from "@/lib/axios";
 import Loader from "@/components/form/Loader";
 import DeleteConfirm from "@/components/popup/DeleteConfirm";
 import BookingsTable from "@/components/BookingsTable";
+import printService from "@/lib/printService";
 
 interface Booking {
     bill_amount: number;
@@ -59,11 +60,23 @@ const BookingList: React.FC = () => {
                     ...prevQueues,
                     [activeTab]: prevQueues[activeTab].filter((q) => q.id !== booking.id),
                 }));
+
+                const data = response.data;
+
+                const printData = {
+                    bill_id: booking.id,
+                    customer_name: data.patient_name,
+                    doctor_name: data.doctor_name,
+                    items: data.bill_items,
+                    total: data.total,
+                };
+
+                await printService.sendPrintRequest(printData);
+
                 setSelectedBooking(null);
                 setShowBooking(false);
                 setIsConverting(false);
             }
-
 
         } catch (err) {
             alert("Failed to create bill. Please try again.");
@@ -112,15 +125,10 @@ const BookingList: React.FC = () => {
                     Old Bookings
                 </button>
             </div>
-            {loading ? (
-                <p>Loading bookings...</p>
-            ) : error ? (
-                <p className="text-red-500">{error}</p>
-            ) : bookings[activeTab].length > 0 ? (
-                <BookingsTable bookings={bookings[activeTab]} isTodayTab={activeTab === TAB_TODAY} handleShowBooking={handleShowBooking} showDeleteConfirmation={showDeleteConfirmation}/>
-            ) : (
-                <p>No bookings available.</p>
-            )}
+            {loading ? (<p>Loading bookings...</p>) : error ? (<p className="text-red-500">{error}</p>) : bookings[activeTab].length > 0 ? (
+                <BookingsTable bookings={bookings[activeTab]} isTodayTab={activeTab === TAB_TODAY} handleShowBooking={handleShowBooking}
+                               showDeleteConfirmation={showDeleteConfirmation}/>
+            ) : (<p>No bookings available.</p>)}
 
             {showBooking && (
 
@@ -170,10 +178,11 @@ const BookingList: React.FC = () => {
                                         {selectedBooking.bill_id ? "Created" : "Not Created"}
                                     </p>
                                     <div className="flex mt-4">
-                                        <button className="px-4 py-1 rounded bg-blue-800 text-white px-3 py-2 mr-3"
-                                                onClick={() => handleConvertBill(selectedBooking)}>
+                                        <button
+                                            className="px-4 py-1 rounded bg-blue-800 text-white px-3 py-2 mr-3"
+                                            onClick={() => handleConvertBill(selectedBooking)}
+                                        >
                                             Confirm the payment and create bill
-
                                         </button>
                                         <button className="px-4 py-1 rounded bg-gray-600 text-white px-3 py-2" onClick={() => setShowBooking(false)}>
                                             Cancel
