@@ -1,5 +1,5 @@
-import { LoggedUser } from "@/types/interfaces";
-import React, { createContext, useContext, useState } from "react";
+import {LoggedUser} from "@/types/interfaces";
+import React, {createContext, useContext, useState, useEffect} from "react";
 
 
 // Define the context type
@@ -22,12 +22,15 @@ export const useUserContext = () => {
 };
 
 // Create the Provider component
-const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [user, setUser] = useState<LoggedUser | null>(() => {
-        // Load initial user data from localStorage if available
+const UserProvider: React.FC<{ children: React.ReactNode }> = ({children}) => {
+    const [user, setUser] = useState<LoggedUser | null>(null);
+
+    useEffect(() => {
         const storedUser = localStorage.getItem("user");
-        return storedUser ? JSON.parse(storedUser) : null;
-    });
+        if (storedUser) {
+            setUser(JSON.parse(storedUser));
+        }
+    }, []);
 
     // Function to set user data and persist to localStorage
     const setUserWithStorage = (user: LoggedUser | null) => {
@@ -45,7 +48,7 @@ const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     };
 
     return (
-        <UserContext.Provider value={{ user, setUser: setUserWithStorage, logout }}>
+        <UserContext.Provider value={{user, setUser: setUserWithStorage, logout}}>
             {children}
         </UserContext.Provider>
     );

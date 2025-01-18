@@ -1,6 +1,6 @@
 "use client";
 
-import React, {useState} from "react";
+import React, {ReactElement, useEffect, useState} from "react";
 import Channel from "../components/Channel";
 import OPD from "../components/OPD";
 import StatSummary from "../components/StatSummary";
@@ -14,36 +14,48 @@ import DentalPortal from "@/components/DentalPortal";
 import Authenticate from "@/components/authentication/Authenticate";
 import {useUserContext} from "@/context/UserContext";
 
+interface Tab {
+    id: string;
+    label: string;
+    component: ReactElement<any, any>;
+    roles: string[];
+}
+
 const Main = () => {
 
     const {setUser, user, logout} = useUserContext()
 
-    const tabs = [
-        {id: "channel", label: "Channel", component: <Channel/>, roles: ["doctor"]},
-        {id: "opd", label: "OPD", component: <OPD/>, roles: ["doctor"]},
-        {id: "dental", label: "Dental Portal", component: <DentalPortal/>, roles: ["doctor"]},
-        {id: "services", label: "Treatments", component: <TreatmentsPortal/>, roles: ["doctor"]},
+    const tabs: Tab[] = [
+        {id: "channel", label: "Channel", component: <Channel/>, roles: ["reception"]},
+        {id: "opd", label: "OPD", component: <OPD/>, roles: ["reception"]},
+        {id: "dental", label: "Dental Portal", component: <DentalPortal/>, roles: ["reception"]},
+        {id: "services", label: "Treatments", component: <TreatmentsPortal/>, roles: ["reception"]},
         {id: "doctor-portal", label: "Doctor Portal", component: <DoctorsPatientQueue/>, roles: ["doctor"]},
-        {id: "pharmacy-portal", label: "Pharmacy Portal", component: <PharmacyPortal/>, roles: ["doctor"]},
-        {id: "bookings", label: "Bookings", component: <Bookings/>, roles: ["doctor"]},
-        {id: "reception", label: "Reception", component: <Reception/>, roles: ["doctor"]},
-        {id: "stat-summary", label: "Stat Summary", component: <StatSummary/>, roles: ["doctor"]},
-        {id: "admin", label: "Admin", component: <Admin/>, roles: ["doctor"]},
+        {id: "pharmacy-portal", label: "Pharmacy Portal", component: <PharmacyPortal/>, roles: ["pharmacy"]},
+        {id: "bookings", label: "Bookings", component: <Bookings/>, roles: ["reception"]},
+        {id: "reception", label: "Reception", component: <Reception/>, roles: ["reception"]},
+        {id: "stat-summary", label: "Stat Summary", component: <StatSummary/>, roles: ["admin"]},
+        {id: "admin", label: "Admin", component: <Admin/>, roles: ["admin"]},
     ];
 
-    const initialTab = tabs.find((tab) => {
-        user && tab.roles.includes(user.role)
-    })?.label
+    const [activeTab, setActiveTab] = useState("");
+    const [filteredTabs, setFilteredTabs] = useState<Tab[]>([]);
 
-    const [activeTab, setActiveTab] = useState(initialTab);
+    useEffect(() => {
+        const filteredTabs = tabs.filter((tab) => {
+            return user && tab.roles.includes(user.role)
+        })
+        if (filteredTabs[0]) {
+            setActiveTab(filteredTabs[0].id)
+            setFilteredTabs(filteredTabs)
+        }
+    }, [user]);
 
-    const activeTabClass =
-        "text-fuchsia-600 border-fuchsia-600 active dark:text-blue-500 dark:border-fuchsia-500";
-    const inactiveTabClass =
-        "border-transparent hover:text-gray-200 hover:border-gray-300 dark:hover:text-gray-300";
+    const activeTabClass = "text-fuchsia-600 border-fuchsia-600 active dark:text-blue-500 dark:border-fuchsia-500";
+    const inactiveTabClass = "border-transparent hover:text-gray-200 hover:border-gray-300 dark:hover:text-gray-300";
 
     const renderTabContent = () => {
-        const activeTabData = tabs.find((tab) => tab.id === activeTab);
+        const activeTabData = filteredTabs.find((tab) => tab.id === activeTab);
         return activeTabData ? activeTabData.component : null;
     };
 
@@ -66,9 +78,7 @@ const Main = () => {
                     <div className="mx-4 my-6 p-4 border border-gray-800 rounded-lg bg-gray-900 text-gray-400">
                         <nav className="text-sm font-medium text-center text-gray-400 border-b border-gray-800 dark:text-gray-400 dark:border-gray-700">
                             <ul className="flex flex-wrap -mb-px">
-                                {tabs.filter((tab) => {
-                                    user && tab.roles.includes(user.role)
-                                }).map((tab) => (
+                                {filteredTabs && filteredTabs.map((tab) => (
                                     <li className="me-2" key={tab.id}>
                                         <a
                                             href="#"
