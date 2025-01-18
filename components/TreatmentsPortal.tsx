@@ -9,7 +9,7 @@ import SearchableSelect from "@/components/form/SearchableSelect";
 import DoctorSelect from "@/components/DoctorSelect";
 import Loader from "@/components/form/Loader";
 
-const ServicesPortal = () => {
+const TreatmentsPortal = () => {
     const [billNumber, setBillNumber] = useState<number>(0);
     const [patientNotFound, setPatientNotFound] = useState<boolean>(false);
     const [isBooking, setIsBooking] = useState(false);
@@ -120,8 +120,8 @@ const ServicesPortal = () => {
         setIsBooking(checked)
     };
 
-    const handleDoctorChangeOption = (doctorId: number) => {
-        setDoctorId(doctorId);
+    const handleDoctorChangeOption = (drData: { id: number, fee: number, name: string }) => {
+        setDoctorId(drData.id);
     };
 
     return (
@@ -139,7 +139,7 @@ const ServicesPortal = () => {
                         <SearchablePatientSelect onCreateNew={handlePatientOnCreate} onPatientSelect={handlePatientSelect}/>
                     </div>
 
-                    <DoctorSelect onDoctorSelect={handleDoctorChangeOption}/>
+                    <DoctorSelect doctorType="opd" resetSelection={false} onDoctorSelect={handleDoctorChangeOption}/>
 
                     <Services
                         key="services-portal"
@@ -180,4 +180,4 @@ const ServicesPortal = () => {
     );
 };
 
-export default ServicesPortal;
+export default TreatmentsPortal;

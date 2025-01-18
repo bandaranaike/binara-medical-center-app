@@ -4,16 +4,7 @@ import Loader from "@/components/form/Loader";
 import DeleteConfirm from "@/components/popup/DeleteConfirm";
 import BookingsTable from "@/components/BookingsTable";
 import printService from "@/lib/printService";
-
-interface Booking {
-    bill_amount: number;
-    id: number;
-    queue_number: number;
-    patient_name: string;
-    doctor_name: string;
-    queue_date: string;
-    bill_id: number | null; // Null indicates the bill is not yet created
-}
+import {Booking} from "@/types/interfaces";
 
 const TAB_TODAY = "today";
 const TAB_OLD = "old";
@@ -167,7 +158,7 @@ const BookingList: React.FC = () => {
                                     </p>
                                     <p>
                                         <span className="font-semibold">Amount: </span>
-                                        {selectedBooking.bill_amount}
+                                        {Number(selectedBooking.bill_amount) + Number(selectedBooking.system_amount)}
                                     </p>
                                     <p>
                                         <span className="font-semibold">Date: </span>

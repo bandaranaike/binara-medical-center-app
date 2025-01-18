@@ -38,6 +38,7 @@ export interface BillItem {
 
 export interface Booking {
     bill_amount: number;
+    system_amount: number;
     id: number;
     queue_number: number;
     patient_name: string;

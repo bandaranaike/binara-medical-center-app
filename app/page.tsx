@@ -10,7 +10,7 @@ import DoctorsPatientQueue from "@/components/DoctorPortal";
 import PharmacyPortal from "@/components/PhamacyPortal";
 import Reception from "@/components/Reception";
 import Bookings from "@/components/Bookings";
-import ServicesPortal from "@/components/ServicesPortal";
+import TreatmentsPortal from "@/components/TreatmentsPortal";
 import Admin from "@/components/admin/Admin";
 import DentalPortal from "@/components/DentalPortal";
 
@@ -34,11 +34,11 @@ const Page = () => {
     const tabs = [
         {id: "channel", label: "Channel", component: <Channel/>},
         {id: "opd", label: "OPD", component: <OPD/>},
-        {id: "bookings", label: "Bookings", component: <Bookings/>},
-        {id: "services", label: "Treatments", component: <ServicesPortal/>},
         {id: "dental", label: "Dental Portal", component: <DentalPortal/>},
+        {id: "services", label: "Treatments", component: <TreatmentsPortal/>},
         {id: "doctor-portal", label: "Doctor Portal", component: <DoctorsPatientQueue/>},
         {id: "pharmacy-portal", label: "Pharmacy Portal", component: <PharmacyPortal/>},
+        {id: "bookings", label: "Bookings", component: <Bookings/>},
         {id: "reception", label: "Reception", component: <Reception/>},
         {id: "stat-summary", label: "Stat Summary", component: <StatSummary/>},
         {id: "admin", label: "Admin", component: <Admin/>},

@@ -12,7 +12,7 @@ const StatusLabel: React.FC<StatusLabelProps> = ({status}) => {
         done: "bg-green-800",
         pharmacy: "bg-cyan-800",
         reception: "bg-red-800",
-        temporary: "bg-yellow-500",
+        treatment: "bg-yellow-500",
     };
 
     const getStatusStyle = (status: string) => {

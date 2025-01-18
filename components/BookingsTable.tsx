@@ -1,15 +1,6 @@
 // BookingsTable.tsx
 import React from "react";
-
-interface Booking {
-    bill_amount: number;
-    id: number;
-    queue_number: number;
-    patient_name: string;
-    doctor_name: string;
-    queue_date: string;
-    bill_id: number | null; // Null indicates the bill is not yet created
-}
+import {Booking} from "@/types/interfaces";
 
 const BookingsTable: React.FC<{
     bookings: Booking[]; isTodayTab: boolean;
@@ -34,7 +25,7 @@ const BookingsTable: React.FC<{
                     <td className="px-4 py-2 border-r border-gray-800">{booking.queue_number}</td>
                     <td className="px-4 py-2 border-r border-gray-800">{booking.doctor_name ?? 'No doctor assigned'}</td>
                     <td className="px-4 py-2 border-r border-gray-800">{booking.patient_name}</td>
-                    <td className="px-4 py-2 border-r border-gray-800">{booking.bill_amount}</td>
+                    <td className="px-4 py-2 border-r border-gray-800">{Number(booking.bill_amount) + Number(booking.system_amount)}</td>
                     <td className="px-4 py-2 border-r border-gray-800">{booking.queue_date}</td>
                     <td className="px-4 py-2">
                         {isTodayTab ? (
