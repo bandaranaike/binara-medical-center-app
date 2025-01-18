@@ -154,9 +154,10 @@ const Channel = () => {
         setIsBooking(checked)
     };
 
-    const handlePrint = async (billId: number, billItems: any, total:number) => {
+    const handlePrint = async (billId: number, billItems: any, total: number) => {
         const printData = {
             bill_id: billId,
+            doctor_name: doctor ? doctor.label : "",
             customer_name: patientName,
             items: billItems,
             total: total,

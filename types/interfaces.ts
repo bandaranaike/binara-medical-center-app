@@ -63,6 +63,12 @@ export interface History {
     note: string;
 }
 
+export interface LoggedUser {
+    role: string;
+    name: string;
+    token: string;
+}
+
 export interface Medicine {
     id: number;
     name: string;

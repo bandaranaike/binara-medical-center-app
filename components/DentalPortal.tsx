@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import withBillingComponent from "@/components/HOC/withBillingComponent";
+import withBillingComponent from "@/components/high-order-components/withBillingComponent";
 import TextInput from "@/components/form/TextInput";
 import DoctorSelect from "@/components/DoctorSelect";
 
