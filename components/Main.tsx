@@ -13,6 +13,7 @@ import Admin from "@/components/admin/Admin";
 import DentalPortal from "@/components/DentalPortal";
 import Authenticate from "@/components/authentication/Authenticate";
 import {useUserContext} from "@/context/UserContext";
+import {setAxiosToken} from "@/lib/axios";
 
 interface Tab {
     id: string;
@@ -24,6 +25,11 @@ interface Tab {
 const Main = () => {
 
     const {setUser, user, logout} = useUserContext()
+
+    useEffect(() => {
+        // Dynamically set token for Axios
+        setAxiosToken(user?.token || null);
+    }, [user]);
 
     const tabs: Tab[] = [
         {id: "channel", label: "Channel", component: <Channel/>, roles: ["reception"]},
@@ -68,8 +74,8 @@ const Main = () => {
                         </h1>
                         <div className="mx-6">
                             {user && (
-                                <div>
-                                    <span className="mr-4">Welcome {user?.name}</span>
+                                <div className="mt-4">
+                                    <span className="mr-3">Welcome {user?.name}</span>
                                     <button className="text-blue-400 hover:text-blue-500" onClick={() => logout()}>Logout</button>
                                 </div>
                             )}

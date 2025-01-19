@@ -8,7 +8,7 @@ import {Patient} from "@/types/interfaces";
 import printService from "@/lib/printService";
 
 interface WithBillingComponentProps {
-    onSubmit: (data: any) => void;
+    onSubmit: () => void;
     validation: any
 }
 
@@ -16,6 +16,7 @@ const withBillingComponent = <P extends object>(
     WrappedComponent: React.ComponentType<P & {
         formData: any,
         handleFormChange: (name: string, value: string | number | boolean) => void,
+        resetData: boolean
     }>
 ) => {
     const ComponentWithBilling: React.FC<WithBillingComponentProps & P> = ({onSubmit, ...props}) => {
@@ -143,6 +144,7 @@ const withBillingComponent = <P extends object>(
                         await handlePrint(billSaveResponse.data.bill_id, billSaveResponse.data.bill_items, billSaveResponse.data.total);
 
                     setTimeout(() => setSuccessMessage(""), 20000);
+                    onSubmit()
                     setResetForm(true);
                 } else {
                     console.error("Error saving bill", billSaveResponse);
@@ -197,7 +199,13 @@ const withBillingComponent = <P extends object>(
                         </div>
 
                         <div className="my-4">
-                            <WrappedComponent {...(props as P)} formData={formData} onDoctorNameChange={setDoctorName} handleFormChange={handleFormChange}/>
+                            <WrappedComponent
+                                {...(props as P)}
+                                formData={formData}
+                                onDoctorNameChange={setDoctorName}
+                                handleFormChange={handleFormChange}
+                                resetData={resetForm}
+                            />
                         </div>
 
                         {errors && Object.keys(errors).map((errorKey) => (

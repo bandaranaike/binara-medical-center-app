@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
-import axios from '../lib/axios';
-import SearchableSelect from '../components/form/SearchableSelect';
+import axios from '@/lib/axios';
+import SearchableSelect from '@/components/form/SearchableSelect';
 import {Option, PatientBill} from "@/types/interfaces";
 import PatientMedicine from "@/components/PatientMedicine";
 import DoctorPatientHistory from "@/components/DoctorPatientHistory"; // Assuming SearchableSelect is in the same folder

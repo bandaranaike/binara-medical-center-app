@@ -1,7 +1,6 @@
 import {LoggedUser} from "@/types/interfaces";
 import React, {createContext, useContext, useState, useEffect} from "react";
 
-
 // Define the context type
 interface UserContextType {
     user: LoggedUser | null;
