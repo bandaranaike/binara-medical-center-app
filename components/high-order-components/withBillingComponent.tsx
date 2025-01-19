@@ -121,6 +121,12 @@ const withBillingComponent = <P extends object>(
             handleFormChange('is_booking', checked);
         };
 
+        const resetFormData = () => {
+            setFormData({})
+            onSubmit()
+            setResetForm(true);
+        }
+
         const createInvoiceBill = async () => {
             const validationErrors = validateFormData(formData, validation);
 
@@ -136,16 +142,16 @@ const withBillingComponent = <P extends object>(
                 const billSaveResponse = await axiosLocal.post('bills', {...formData, bill_amount, system_amount});
 
                 if (billSaveResponse.status === 201) {
+                    clearAllErrors()
                     setBillNumber(billSaveResponse.data.bill_number);
                     setSuccessMessage(`Invoice #${billSaveResponse.data.bill_id} successfully generated! Queue id: ${billSaveResponse.data.queue_id}`);
-                    clearAllErrors()
 
-                    if (!isBooking)
+                    if (!isBooking) {
                         await handlePrint(billSaveResponse.data.bill_id, billSaveResponse.data.bill_items, billSaveResponse.data.total);
+                    }
 
                     setTimeout(() => setSuccessMessage(""), 20000);
-                    onSubmit()
-                    setResetForm(true);
+                    resetFormData()
                 } else {
                     console.error("Error saving bill", billSaveResponse);
                 }
