@@ -14,6 +14,7 @@ import Authenticate from "@/components/authentication/Authenticate";
 import {useUserContext} from "@/context/UserContext";
 import {setAxiosToken} from "@/lib/axios";
 import OPDPortal from "@/components/OPDPortal";
+import PharmacyAdminPortal from "@/components/pharmacy-admin/PharmacyAdminPortal";
 
 interface Tab {
     id: string;
@@ -37,7 +38,8 @@ const Main = () => {
         {id: "dental", label: "Dental Portal", component: <DentalPortal/>, roles: ["reception"]},
         {id: "services", label: "Treatments", component: <TreatmentsPortal/>, roles: ["reception"]},
         {id: "doctor-portal", label: "Doctor Portal", component: <DoctorsPatientQueue/>, roles: ["doctor"]},
-        {id: "pharmacy-portal", label: "Pharmacy Portal", component: <PharmacyPortal/>, roles: ["pharmacy"]},
+        {id: "pharmacy-portal", label: "Pharmacy Portal", component: <PharmacyPortal/>, roles: ["pharmacy", "pharmacy_admin"]},
+        {id: "pharmacy-admin", label: "Pharmacy Admin", component: <PharmacyAdminPortal/>, roles: ["pharmacy_admin"]},
         {id: "bookings", label: "Bookings", component: <Bookings/>, roles: ["reception"]},
         {id: "reception", label: "Reception", component: <Reception/>, roles: ["reception"]},
         {id: "stat-summary", label: "Stat Summary", component: <StatSummary/>, roles: ["admin"]},
