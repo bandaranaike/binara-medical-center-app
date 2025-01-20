@@ -2,7 +2,6 @@
 
 import React, {ReactElement, useEffect, useState} from "react";
 import Channel from "../components/Channel";
-import OPD from "../components/OPD";
 import StatSummary from "../components/StatSummary";
 import DoctorsPatientQueue from "@/components/DoctorPortal";
 import PharmacyPortal from "@/components/PhamacyPortal";
@@ -14,6 +13,7 @@ import DentalPortal from "@/components/DentalPortal";
 import Authenticate from "@/components/authentication/Authenticate";
 import {useUserContext} from "@/context/UserContext";
 import {setAxiosToken} from "@/lib/axios";
+import OPDPortal from "@/components/OPDPortal";
 
 interface Tab {
     id: string;
@@ -33,7 +33,7 @@ const Main = () => {
 
     const tabs: Tab[] = [
         {id: "channel", label: "Channel", component: <Channel/>, roles: ["reception"]},
-        {id: "opd", label: "OPD", component: <OPD/>, roles: ["reception"]},
+        {id: "opd", label: "OPD", component: <OPDPortal/>, roles: ["reception"]},
         {id: "dental", label: "Dental Portal", component: <DentalPortal/>, roles: ["reception"]},
         {id: "services", label: "Treatments", component: <TreatmentsPortal/>, roles: ["reception"]},
         {id: "doctor-portal", label: "Doctor Portal", component: <DoctorsPatientQueue/>, roles: ["doctor"]},

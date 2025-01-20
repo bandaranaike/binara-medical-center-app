@@ -1,13 +1,13 @@
 import React, {useEffect, useState} from "react";
 import SearchableSelect from "@/components/form/SearchableSelect";
-import {Option} from "@/types/interfaces";
+import {DoctorFee, Option} from "@/types/interfaces";
 import CreateNewDoctor from "@/components/CreateNewDoctor";
 import axiosLocal from "@/lib/axios";
 
 interface DoctorSelectProps {
     resetSelection: boolean
     doctorType: string
-    onDoctorSelect: (data: { id: number, fee: number, name:string }) => void;
+    onDoctorSelect: (data: DoctorFee) => void;
 }
 
 const DoctorSelect: React.FC<DoctorSelectProps> = ({onDoctorSelect, resetSelection, doctorType}) => {
@@ -28,7 +28,7 @@ const DoctorSelect: React.FC<DoctorSelectProps> = ({onDoctorSelect, resetSelecti
         setDoctor(selectedOption);
         getDoctorFee(selectedOption.value).then(result => {
             const data = result.data;
-            onDoctorSelect({id: selectedOption.value, fee: data.system_price, name:data.name});
+            onDoctorSelect({id: selectedOption.value, institution_charge: data.system_price, doctor_fee: data.bill_price, name: data.name});
         });
 
         setErrors((prevErrors: any) => ({...prevErrors, doctor: null}));

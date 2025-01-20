@@ -27,6 +27,12 @@ export interface BillComponentProps {
     doctorRequired?: boolean;
 }
 
+export interface BillingPageProps {
+    handleFormChange: (name: string, value: string | number | boolean) => void;
+    onDoctorNameChange: (name: string) => void
+    resetData: boolean
+}
+
 export interface BillItem {
     id: number;
     bill_id: number;
@@ -55,6 +61,13 @@ export interface Disease {
 export interface Doctor {
     id: number;
     name: string;
+}
+
+export interface DoctorFee {
+    id: number,
+    doctor_fee: number,
+    institution_charge: number,
+    name: string
 }
 
 export interface History {

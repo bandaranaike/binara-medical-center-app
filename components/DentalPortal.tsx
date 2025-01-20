@@ -2,15 +2,9 @@ import React, {useEffect, useState} from "react";
 import withBillingComponent from "@/components/high-order-components/withBillingComponent";
 import TextInput from "@/components/form/TextInput";
 import DoctorSelect from "@/components/DoctorSelect";
+import {BillingPageProps, DoctorFee} from "@/types/interfaces";
 
-interface DentalProps {
-    handleFormChange: (name: string, value: string | number | boolean) => void;
-    validation: any
-    onDoctorNameChange: (name: string) => void
-    resetData: boolean
-}
-
-const Dental: React.FC<DentalProps> = ({handleFormChange, onDoctorNameChange, resetData}) => {
+const Dental: React.FC<BillingPageProps> = ({handleFormChange, onDoctorNameChange, resetData}) => {
     const [registrationFee, setRegistrationFee] = useState("0")
 
     useEffect(() => {
@@ -23,12 +17,12 @@ const Dental: React.FC<DentalProps> = ({handleFormChange, onDoctorNameChange, re
         handleFormChange('registration_charge', Number(value))
         setRegistrationFee(value)
     };
-    const handleOnDoctorChange = (drData: { id: number, fee: number, name: string }) => {
+    const handleOnDoctorChange = (drData: DoctorFee) => {
         handleFormChange('doctor_id', drData.id)
-        handleFormChange('registration_charge', drData.fee)
+        handleFormChange('registration_charge', drData.institution_charge)
         handleFormChange('service_type', "dental")
         onDoctorNameChange(drData.name)
-        setRegistrationFee(drData.fee.toString())
+        setRegistrationFee(drData.institution_charge.toString())
     };
 
     return (
@@ -52,18 +46,9 @@ const DentalPortal: React.FC = () => {
         doctor_id: 'required',
     };
 
-    const handleChanges = () => {
-        console.log("handleChanges triggered")
-    };
-
-    const handleFormChange = (name: string, value: string | number | boolean) => {
-        console.log(`Form field ${name} changed to`, value);
-    };
-
     const DentalComponent = withBillingComponent(Dental);
 
     // @ts-ignore
-    return (<DentalComponent onSubmit={handleChanges} validation={validationRules}/>)
-}
-
+    return <DentalComponent validation={validationRules}/>;
+};
 export default DentalPortal;

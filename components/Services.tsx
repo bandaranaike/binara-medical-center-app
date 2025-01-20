@@ -48,10 +48,13 @@ const
         }, [finalBillAmount]);
 
         const handleAddService = () => {
+            console.log("patientId", patientId)
             if (!patientId && onNotPatientFound) {
                 onNotPatientFound();
                 return;
             }
+
+            console.log("selectedService", selectedService, "servicePrice", servicePrice)
 
             if (selectedService && servicePrice) {
                 setIsLoading(true);

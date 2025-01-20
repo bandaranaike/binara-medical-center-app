@@ -8,7 +8,6 @@ import {Patient} from "@/types/interfaces";
 import printService from "@/lib/printService";
 
 interface WithBillingComponentProps {
-    onSubmit: () => void;
     validation: any
 }
 
@@ -19,13 +18,20 @@ const withBillingComponent = <P extends object>(
         resetData: boolean
     }>
 ) => {
-    const ComponentWithBilling: React.FC<WithBillingComponentProps & P> = ({onSubmit, ...props}) => {
-
-        const [formData, setFormData] = useState<object>({
+    const ComponentWithBilling: React.FC<WithBillingComponentProps & P> = ({...props}) => {
+        const defaultFormData = {
             is_booking: false,
             patient_id: null,
-            doctor_id: null
-        })
+            doctor_id: null,
+            service_type: ""
+        }
+
+        const [formData, setFormData] = useState<{
+            is_booking: boolean,
+            patient_id: number | null,
+            doctor_id: number | null,
+            service_type: string
+        }>(defaultFormData)
 
         const [validation] = useState({
             patient_id: 'required',
@@ -122,8 +128,7 @@ const withBillingComponent = <P extends object>(
         };
 
         const resetFormData = () => {
-            setFormData({})
-            onSubmit()
+            setFormData(defaultFormData)
             setResetForm(true);
         }
 
@@ -146,7 +151,7 @@ const withBillingComponent = <P extends object>(
                     setBillNumber(billSaveResponse.data.bill_number);
                     setSuccessMessage(`Invoice #${billSaveResponse.data.bill_id} successfully generated! Queue id: ${billSaveResponse.data.queue_id}`);
 
-                    if (!isBooking) {
+                    if (formData.service_type == 'specialist' && !isBooking) {
                         await handlePrint(billSaveResponse.data.bill_id, billSaveResponse.data.bill_items, billSaveResponse.data.total);
                     }
 
@@ -179,11 +184,10 @@ const withBillingComponent = <P extends object>(
             }
         };
 
-
         const getTotalAmount = (flag: string) => {
             return Object.entries(formData)
                 .filter(([key, value]) => key.endsWith(flag) && typeof value === 'number')
-                .reduce((sum, [, value]) => sum + value, 0)
+                .reduce((sum, [, value]) => typeof value === 'number' ? (sum + value) : sum, 0)
         }
 
         const bill_amount = getTotalAmount('_fee');
@@ -215,7 +219,7 @@ const withBillingComponent = <P extends object>(
                         </div>
 
                         {errors && Object.keys(errors).map((errorKey) => (
-                            <span key={errorKey} className="text-red-500 mb-3 block">{errors[errorKey]}</span>
+                            <span key={errorKey} className="text-red-500 mb-3 block first-letter:uppercase">{errors[errorKey]}</span>
                         ))}
                     </div>
                     <div className="p-8 pb-5 col-span-2">
