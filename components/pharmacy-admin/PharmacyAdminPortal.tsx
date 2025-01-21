@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from "react";
 import axios from "@/lib/axios";
-import TableComponent from "@/components/TableComponent";
+import Loader from "@/components/form/Loader";
+import AdminTabs, {AdminTab} from "@/components/admin/AdminTabs";
 
 export interface DrugStockSaleData {
     id: number,
@@ -19,17 +20,22 @@ const PharmacyAdminPortal: React.FC = () => {
     const [drugStockSaleData, setDrugStockSaleData] = useState<DrugStockSaleData[]>([]);
     const [stockError, setStockError] = useState<string | null>(null);
 
-    const tabs: { id: string, fields: any }[] = [
+    const tabs: AdminTab[] = [
         {id: "summary", fields: []},
         {id: "drugs", fields: ["name", "minimum_quantity", "category_id"]},
+        {id: "brands", fields: ["name", "drug_id"]},
         {id: "sales", fields: ["brand_id", "quantity", "total_price"]},
+        {id: "stocks", fields: ["brand_id", "supplier_id", "unit_price", "batch_number", "quantity", "expire_date", "cost"]},
+        {id: "suppliers", fields: ["name", "address", "phone", "email"]},
     ];
 
-    const [activeTab, setActiveTab] = useState<{ id: string, fields: [string] }>(tabs[0]);
+    const [activeTab, setActiveTab] = useState<string>("");
 
     useEffect(() => {
-        fetchDrugStockSaleData()
-    }, []);
+        if (activeTab === "summary") {
+            fetchDrugStockSaleData()
+        }
+    }, [activeTab]);
 
     const fetchDrugStockSaleData = async () => {
 
@@ -45,32 +51,10 @@ const PharmacyAdminPortal: React.FC = () => {
         }
     };
 
-    console.log("Data", drugStockSaleData)
-
-    const activeTabClass = "active dark:text-blue-500 border-fuchsia-500";
-    const inactiveTabClass = "border-transparent hover:border-gray-300 hover:text-gray-300";
-
     return (
         <div>
-            <div className="bg-gray-900 text-gray-400">
-                <nav className="text-sm font-medium border-b border-gray-700">
-                    <ul className="flex flex-wrap -mb-px">
-                        {tabs.length > 0 && tabs.map((tab) => (
-                            <li className="me-2" key={tab.id}>
-                                <a
-                                    href="#"
-                                    onClick={() => setActiveTab(tab)}
-                                    className={`inline-block p-4 border-b-2 rounded-t-lg first-letter:uppercase ${
-                                        activeTab.id === tab.id ? activeTabClass : inactiveTabClass
-                                    }`}
-                                >{tab.id}</a>
-                            </li>
-                        ))}
-                    </ul>
-                </nav>
-                <div className="">{activeTab.id !== "summary" && activeTab.id !== "" && (<TableComponent apiUrl={activeTab.id} fields={activeTab.fields}/>)}</div>
-            </div>
-            {!loading && activeTab.id === "summary" && (
+            <AdminTabs tabs={tabs} onSelectActiveTab={setActiveTab}></AdminTabs>
+            {activeTab === "summary" && (
                 <div className="relative overflow-x-auto rounded-lg border border-gray-800 mt-8">
                     <table className="w-full text-sm text-left text-gray-400">
                         <thead className="font-bold">
@@ -98,12 +82,15 @@ const PharmacyAdminPortal: React.FC = () => {
                         ))}
                         </tbody>
                     </table>
-                    {
-                        !stockError && drugStockSaleData.length === 0 && <div className="p-6 text-center text-gray-500">No drug stock sales data found</div>
-                    }
-                    {
-                        stockError && <div className="p-6 text-center text-gray-500 text-red-500">{stockError}</div>
-                    }
+                    <div>
+                        {!loading && !stockError && drugStockSaleData.length === 0 &&
+                            <div className="p-6 text-center text-gray-500">No drug stock sales data found</div>
+                        }
+                        {!loading && stockError &&
+                            <div className="p-6 text-center text-red-500">{stockError}</div>
+                        }
+                        {loading && <div className="p-6 text-center"><Loader/></div>}
+                    </div>
                 </div>)
             }
         </div>)

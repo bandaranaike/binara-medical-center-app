@@ -1,12 +1,14 @@
 import React, {useState, useEffect, Fragment} from 'react';
-import {Dialog, Transition} from '@headlessui/react';
+import {Dialog, Transition, TransitionChild} from '@headlessui/react';
 import axios from "@/lib/axios";
 import Pagination from "@/components/table/Pagination";
 import Loader from "@/components/form/Loader";
+import SearchableSelect from "@/components/form/SearchableSelect";
 
 interface TableComponentProps {
     apiUrl: string;
     fields: string[];
+    dropdowns?: any;
 }
 
 interface FormData {
@@ -15,7 +17,7 @@ interface FormData {
     id?: number;
 }
 
-export default function TableComponent({apiUrl, fields}: TableComponentProps) {
+export default function TableComponent({apiUrl, fields, dropdowns}: TableComponentProps) {
     const [data, setData] = useState<FormData[]>([]);
     const [formData, setFormData] = useState<FormData>({});
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -24,8 +26,14 @@ export default function TableComponent({apiUrl, fields}: TableComponentProps) {
     const [currentRecordId, setCurrentRecordId] = useState<number | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
+    const [error, setError] = useState<string>("")
+    const [updateOrCreateError, setUpdateOrCreateError] = useState<string>("")
+    const [deleteError, setDeleteError] = useState<string>("")
 
     useEffect(() => {
+        setData([])
+        setTotalPages(0)
+        setError('');
         fetchData();
     }, [currentPage, apiUrl]);
 
@@ -36,7 +44,7 @@ export default function TableComponent({apiUrl, fields}: TableComponentProps) {
             setData(response.data.data);
             setTotalPages(response.data.last_page);
         } catch (error) {
-            console.error('Error fetching data', error);
+            setError('Error fetching data. ' + error);
         } finally {
             setLoading(false)
         }
@@ -52,7 +60,7 @@ export default function TableComponent({apiUrl, fields}: TableComponentProps) {
             fetchData();
             setIsCreateOrUpdateDialogOpen(false);
         } catch (error) {
-            console.error('Error creating/updating record', error);
+            setUpdateOrCreateError('Error saving record. ' + error);
         }
     };
 
@@ -66,7 +74,7 @@ export default function TableComponent({apiUrl, fields}: TableComponentProps) {
             fetchData();
             setIsDeleteDialogOpen(false);
         } catch (error) {
-            console.error('Error deleting record', error);
+            setDeleteError('Error deleting record' + error);
         }
     };
 
@@ -104,30 +112,30 @@ export default function TableComponent({apiUrl, fields}: TableComponentProps) {
                     <thead>
                     <tr className="bg-gray-800">
                         {fields.map((field) => (
-                            <th key={field} className="px-4 py-4">
+                            <th key={field} className="p-4 first-letter:uppercase">
                                 {field}
                             </th>
                         ))}
-                        <th className="py-2 px-4">Actions</th>
+                        <th className="p-4">Actions</th>
                     </tr>
                     </thead>
                     <tbody>
                     {data.map((record) => (
                         <tr key={record.id}>
                             {fields.map((field) => (
-                                <td key={field} className="border-t border-gray-800 border-r p-2">
+                                <td key={field} className="border-t border-gray-800 border-r py-2 px-4">
                                     {record[field]}
                                 </td>
                             ))}
                             <td className="border-t border-gray-800 p-1">
                                 <button
-                                    className="bg-gray-700 text-yellow-400 px-2 mr-4 py-0.5 rounded"
+                                    className="bg-gray-800 text-yellow-400 px-2 mr-4 py-0.5 rounded"
                                     onClick={() => openCreateOrUpdateDialog(record)}
                                 >
                                     Edit
                                 </button>
                                 <button
-                                    className="bg-gray-700 text-red-400 px-2 py-0.5 rounded"
+                                    className="bg-gray-800 text-red-400 px-2 py-0.5 rounded"
                                     onClick={() => openDeleteDialog(record.id as number)}
                                 >
                                     Delete
@@ -137,19 +145,34 @@ export default function TableComponent({apiUrl, fields}: TableComponentProps) {
                     ))}
                     </tbody>
                 </table>
-                <div className="p-4 border-t border-gray-800">
-                    {loading && <Loader/>}
-                    <Pagination
-                        currentPage={currentPage}
-                        totalPages={totalPages}
-                        onPageChange={handlePageChange}
-                    />
+                <div>
+                    {loading &&
+                        <div className="p-6 border-t border-gray-800"><Loader/></div>
+                    }
+
+                    {error &&
+                        <div className="p-6 border-t border-gray-800 text-center text-red-500">{error}</div>
+                    }
+
+                    {totalPages > 1 &&
+                        <div className="p-6 border-t border-gray-800">
+                            <Pagination
+                                currentPage={currentPage}
+                                totalPages={totalPages}
+                                onPageChange={handlePageChange}
+                            />
+                        </div>
+                    }
+
+                    {!error && !loading && data.length === 0 &&
+                        <div className="p-6 border-t border-gray-800 text-center p-1 text-gray-500">There are no records</div>
+                    }
                 </div>
             </div>
             {/* Delete Confirmation Dialog */}
             <Transition appear show={isDeleteDialogOpen} as={Fragment}>
                 <Dialog as="div" className="relative z-10" onClose={closeDialogs}>
-                    <Transition.Child
+                    <TransitionChild
                         as={Fragment}
                         enter="ease-out duration-300"
                         enterFrom="opacity-0"
@@ -159,11 +182,11 @@ export default function TableComponent({apiUrl, fields}: TableComponentProps) {
                         leaveTo="opacity-0"
                     >
                         <div className="fixed inset-0 bg-black bg-opacity-25"/>
-                    </Transition.Child>
+                    </TransitionChild>
 
                     <div className="fixed inset-0 overflow-y-auto">
                         <div className="flex items-center justify-center min-h-full p-4 text-center">
-                            <Transition.Child
+                            <TransitionChild
                                 as={Fragment}
                                 enter="ease-out duration-300"
                                 enterFrom="opacity-0 scale-95"
@@ -182,7 +205,7 @@ export default function TableComponent({apiUrl, fields}: TableComponentProps) {
                                             Are you sure you want to delete this record? This action cannot be undone.
                                         </p>
                                     </div>
-
+                                    {deleteError && <div className="mt-4 text-red-500">{deleteError}</div>}
                                     <div className="mt-4 flex justify-end space-x-2">
                                         <button
                                             type="button"
@@ -200,7 +223,7 @@ export default function TableComponent({apiUrl, fields}: TableComponentProps) {
                                         </button>
                                     </div>
                                 </Dialog.Panel>
-                            </Transition.Child>
+                            </TransitionChild>
                         </div>
                     </div>
                 </Dialog>
@@ -240,22 +263,37 @@ export default function TableComponent({apiUrl, fields}: TableComponentProps) {
                                     <div className="mt-2">
                                         {fields.map((field) => (
                                             <div key={field} className="mt-4">
-                                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                                    {field}
-                                                </label>
-                                                <input
-                                                    type="text"
-                                                    name={field}
-                                                    value={formData[field] || ''}
-                                                    onChange={(e) =>
-                                                        setFormData({...formData, [field]: e.target.value})
-                                                    }
-                                                    className="block w-full mt-1 border-gray-300 rounded-md shadow-sm dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300"
-                                                />
+                                                {dropdowns && dropdowns[field] &&
+                                                    <SearchableSelect
+                                                        placeholder={field}
+                                                        value={{value: dropdowns[`${field}_id`], label: formData[field]}}
+                                                        id={`Select-${field}`}
+                                                        onChange={(option) => {
+                                                            if (typeof option === 'object')
+                                                                setFormData({...formData, [`${field}_id`]: option?.value})
+                                                        }}
+                                                        apiUri={dropdowns[field]}
+                                                    />
+                                                    ||
+                                                    <>
+                                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                            {field}
+                                                        </label>
+                                                        <input
+                                                            type="text"
+                                                            name={field}
+                                                            value={formData[field] || ''}
+                                                            onChange={(e) =>
+                                                                setFormData({...formData, [field]: e.target.value})
+                                                            }
+                                                            className="block w-full mt-1 border-gray-300 rounded-md shadow-sm dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300"
+                                                        />
+                                                    </>
+                                                }
                                             </div>
                                         ))}
                                     </div>
-
+                                    {updateOrCreateError && <div className="mt-4 text-red-500">{updateOrCreateError}</div>}
                                     <div className="mt-4 flex justify-end space-x-2">
                                         <button
                                             type="button"

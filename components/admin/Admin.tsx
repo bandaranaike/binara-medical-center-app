@@ -1,13 +1,22 @@
-import ServicesList from "@/components/admin/ServicesList";
+import React from "react";
+import AdminTabs, {AdminTab} from "@/components/admin/AdminTabs";
 
 const Admin = () => {
-    return (
-        <div>
-            <h1>Admin</h1>
-            <p>This is the admin page</p>
-            <ServicesList/>
-        </div>
-    )
+
+    const tabs: AdminTab[] = [
+        {id: "allergies", fields: ["name"]},
+        {id: "diseases", fields: ["name"]},
+        {id: "hospitals", fields: ["name", "location"]},
+        {id: "specialties", fields: ["name"]},
+        {
+            id: "doctors",
+            fields: ["name", "hospital", "specialty", "user", "telephone", "type", "email"],
+            dropdowns: {hospital: 'hospitals', specialty: 'specialties', user: 'users'}
+        },
+        {id: "roles", fields: ["name", "key", "description"]}
+    ];
+
+    return (<AdminTabs tabs={tabs}/>)
 }
 
 export default Admin;

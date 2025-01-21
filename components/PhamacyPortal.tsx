@@ -55,7 +55,7 @@ const PharmacyPortal: React.FC = () => {
     const activeBill = pendingBills.find((bill) => bill.id === activeBillId);
 
     return (
-        <div className="font-medium text-center text-gray-500 border-gray-200 dark:text-gray-400 dark:border-gray-700 relative">
+        <div className="font-medium text-center text-gray-400 border-gray-700 relative">
             {/* Tabs for Bills */}
             {pendingBills.length > 0 && (
                 <ul className="flex flex-wrap -mb-px border-b border-gray-800">
@@ -64,8 +64,8 @@ const PharmacyPortal: React.FC = () => {
                             <button
                                 className={`inline-block p-4 border-b-2 ${
                                     activeBillId === bill.id
-                                        ? "text-blue-600 border-blue-600 dark:text-blue-500 dark:border-blue-500"
-                                        : "border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
+                                        ? "text-blue-500 hover:text-blue-400 border-blue-500"
+                                        : "border-transparent hover:border-gray-300 hover:text-gray-300"
                                 } rounded-t-lg`}
                                 onClick={() => setActiveBillId(bill.id)}
                             >

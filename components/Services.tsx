@@ -6,7 +6,7 @@ import Loader from "@/components/form/Loader";
 import ServiceMedicinesTable from "@/components/ServiceMedicinesTable";
 
 const
-    ServicesPortal: React.FC<ServicesProps> = ({patientId, onNotPatientFound, onServiceStatusChange, resetBillItems, initialBill, showMedicineTable = false}) => {
+    Services: React.FC<ServicesProps> = ({patientId, onNotPatientFound, onServiceStatusChange, resetBillItems, initialBill, showMedicineTable = false}) => {
 
         const defaultBill = {
             id: -1,
@@ -232,4 +232,4 @@ const
         );
     };
 
-export default ServicesPortal;
+export default Services;

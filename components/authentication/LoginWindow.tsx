@@ -10,8 +10,8 @@ interface LoginWindowProps {
 
 const LoginWindow: React.FC<LoginWindowProps> = ({onUserHasLoggedIn}) => {
 
-    const [email, setEmail] = useState("eranda@email.com");
-    const [password, setPassword] = useState("9,$wCD:Kf,3YwEu");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
     const [loginError, setLoginError] = useState<string[]>([]);
 
     const validateForm = (): boolean => {

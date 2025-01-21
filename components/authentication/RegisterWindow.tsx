@@ -22,7 +22,6 @@ const RegisterWindow: React.FC<LoginWindowProps> = ({onUserHasLoggedIn}) => {
     const restrictPassword = false;
 
     const userRoleOptions = [
-        {value: "admin", label: "Admin"},
         {value: "patient", label: "Patient"},
         {value: "pharmacy", label: "Pharmacist"},
         {value: "doctor", label: "Doctor"},
@@ -126,9 +125,6 @@ const RegisterWindow: React.FC<LoginWindowProps> = ({onUserHasLoggedIn}) => {
                         onChange={(option: Option | null) => setRole(option)}
                         options={userRoleOptions}
                     />
-                </div>
-                <div className="flex justify-between">
-                    <a href="#" className="text-sm text-blue-700 hover:underline dark:text-blue-500">Already an user?</a>
                 </div>
                 <button onClick={handleSubmit}
                         className="w-full text-white focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center bg-blue-600 hover:bg-blue-700 focus:ring-blue-800">
