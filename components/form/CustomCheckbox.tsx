@@ -1,19 +1,15 @@
-import React, { useState } from "react";
+import React from "react";
 
 interface CustomCheckboxProps {
     label?: string; // Optional label for the checkbox
-    onChange?: (checked: boolean) => void; // Optional callback when state changes
+    setChecked: (checked: boolean) => void; // Optional callback when state changes
+    checked: boolean
 }
 
-const CustomCheckbox: React.FC<CustomCheckboxProps> = ({ label, onChange }) => {
-    const [checked, setChecked] = useState<boolean>(false);
+const CustomCheckbox: React.FC<CustomCheckboxProps> = ({label, checked, setChecked}) => {
 
     const toggleChecked = () => {
-        const newCheckedState = !checked;
-        setChecked(newCheckedState);
-        if (onChange) {
-            onChange(newCheckedState);
-        }
+        setChecked(!checked);
     };
 
     return (

@@ -241,7 +241,7 @@ const withBillingComponent = <P extends object>(
                     </div>
                     <div className="flex items-center">
                         {isLoading && (<div className="mr-4 mt-1"><Loader/></div>)}
-                        <span className="mr-4"><CustomCheckbox label="Booking" onChange={handleCheckboxChange}/></span>
+                        <span className="mr-4"><CustomCheckbox label="Booking" checked={isBooking} setChecked={handleCheckboxChange}/></span>
                         <button className={`text-white px-5 py-2 rounded-md w-60 ${isBooking ? 'bg-blue-700' : 'bg-green-700'}`} onClick={createInvoiceBill}>
                             {isBooking ? 'Create a booking' : 'Create invoice and print'}
                         </button>

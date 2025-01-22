@@ -3,6 +3,8 @@ import TextInput from "@/components/form/TextInput";
 import axios from "@/lib/axios";
 import Cookies from "js-cookie";
 import {LoggedUser} from "@/types/interfaces";
+import CustomRadio from "@/components/form/CustomRadio";
+import CustomCheckbox from "@/components/form/CustomCheckbox";
 
 interface LoginWindowProps {
     onUserHasLoggedIn: (loggedUser: LoggedUser) => void;
@@ -12,6 +14,7 @@ const LoginWindow: React.FC<LoginWindowProps> = ({onUserHasLoggedIn}) => {
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [remember, setRemember] = useState(true);
     const [loginError, setLoginError] = useState<string[]>([]);
 
     const validateForm = (): boolean => {
@@ -42,7 +45,7 @@ const LoginWindow: React.FC<LoginWindowProps> = ({onUserHasLoggedIn}) => {
 
         if (validateForm()) {
             try {
-                axios.post('login', {email, password}).then(loginResponse => {
+                axios.post('login', {email, password, remember}).then(loginResponse => {
                     onUserHasLoggedIn(loginResponse.data);
                 }).catch(e => {
                     if (e.status == 401) {
@@ -66,6 +69,9 @@ const LoginWindow: React.FC<LoginWindowProps> = ({onUserHasLoggedIn}) => {
                 </div>
                 <div>
                     <TextInput name="Password" onChange={setPassword} value={password} type="password"></TextInput>
+                </div>
+                <div className="">
+                    <CustomCheckbox label="Remember me" setChecked={setRemember} checked={remember}/>
                 </div>
                 <div className="flex justify-between">
                     <a href="#" className="text-sm text-blue-700 hover:underline dark:text-blue-500">Lost Password?</a>
