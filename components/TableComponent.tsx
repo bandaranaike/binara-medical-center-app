@@ -4,11 +4,12 @@ import axios from "@/lib/axios";
 import Pagination from "@/components/table/Pagination";
 import Loader from "@/components/form/Loader";
 import SearchableSelect from "@/components/form/SearchableSelect";
+import Select from "react-select";
+import customStyles from "@/lib/custom-styles";
+import {AdminTab} from "@/components/admin/AdminTabs";
 
 interface TableComponentProps {
-    apiUrl: string;
-    fields: string[];
-    dropdowns?: any;
+    tab: AdminTab;
 }
 
 interface FormData {
@@ -17,7 +18,7 @@ interface FormData {
     id?: number;
 }
 
-export default function TableComponent({apiUrl, fields, dropdowns}: TableComponentProps) {
+export default function TableComponent({tab}: TableComponentProps) {
     const [data, setData] = useState<FormData[]>([]);
     const [formData, setFormData] = useState<FormData>({});
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -29,6 +30,8 @@ export default function TableComponent({apiUrl, fields, dropdowns}: TableCompone
     const [error, setError] = useState<string>("")
     const [updateOrCreateError, setUpdateOrCreateError] = useState<string>("")
     const [deleteError, setDeleteError] = useState<string>("")
+
+    const {id: apiUrl, fields, dropdowns, select} = tab;
 
     useEffect(() => {
         setData([])
@@ -79,6 +82,7 @@ export default function TableComponent({apiUrl, fields, dropdowns}: TableCompone
     };
 
     const openCreateOrUpdateDialog = (record: FormData = {}) => {
+        setUpdateOrCreateError("");
         setFormData(record);
         setCurrentRecordId(record.id || null);
         setIsCreateOrUpdateDialogOpen(true);
@@ -113,7 +117,7 @@ export default function TableComponent({apiUrl, fields, dropdowns}: TableCompone
                     <tr className="bg-gray-800">
                         {fields.map((field) => (
                             <th key={field} className="p-4 first-letter:uppercase">
-                                {field}
+                                {field.replace('_', ' ')}
                             </th>
                         ))}
                         <th className="p-4">Actions</th>
@@ -196,8 +200,8 @@ export default function TableComponent({apiUrl, fields, dropdowns}: TableCompone
                                 leaveTo="opacity-0 scale-95"
                             >
                                 <Dialog.Panel
-                                    className="w-full max-w-md p-6 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl dark:bg-gray-800 rounded-2xl">
-                                    <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900 dark:text-white">
+                                    className="w-full max-w-md p-6 overflow-hidden text-left align-middle transition-all transform shadow-xl bg-gray-800 rounded-2xl">
+                                    <Dialog.Title as="h3" className="text-lg font-medium leading-6 ">
                                         Confirm Deletion
                                     </Dialog.Title>
                                     <div className="mt-2">
@@ -209,14 +213,14 @@ export default function TableComponent({apiUrl, fields, dropdowns}: TableCompone
                                     <div className="mt-4 flex justify-end space-x-2">
                                         <button
                                             type="button"
-                                            className="bg-gray-500 text-white px-4 py-2 rounded"
+                                            className="bg-gray-600 text-white px-4 py-2 rounded"
                                             onClick={closeDialogs}
                                         >
                                             Cancel
                                         </button>
                                         <button
                                             type="button"
-                                            className="bg-red-500 text-white px-4 py-2 rounded"
+                                            className="bg-red-600 text-white px-4 py-2 rounded"
                                             onClick={() => handleDelete(currentRecordId as number)}
                                         >
                                             Delete
@@ -258,8 +262,9 @@ export default function TableComponent({apiUrl, fields, dropdowns}: TableCompone
                                 <Dialog.Panel
                                     className="w-full max-w-md p-6 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl dark:bg-gray-800 rounded-2xl">
                                     <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900 dark:text-white">
-                                        {currentRecordId ? 'Update Record' : 'Create New Record'}
+                                        {currentRecordId ? 'Update record ' : 'Create New record '}
                                     </Dialog.Title>
+                                    <div className='text-sm text-gray-400 first-letter:uppercase'>This action will update the list of {apiUrl}</div>
                                     <div className="mt-2">
                                         {fields.map((field) => (
                                             <div key={field} className="mt-4">
@@ -274,10 +279,25 @@ export default function TableComponent({apiUrl, fields, dropdowns}: TableCompone
                                                         }}
                                                         apiUri={dropdowns[field]}
                                                     />
-                                                    ||
-                                                    <>
-                                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                }
+
+                                                {(!dropdowns || !dropdowns[field]) && (select && select[field]) && (
+                                                    <div className="mb-4">
+                                                        <label className="block first-letter:uppercase mb-2">
                                                             {field}
+                                                        </label>
+                                                        <Select
+                                                            options={select[field].map((item: string) => {
+                                                                return {value: item, label: item}
+                                                            })}
+                                                            styles={customStyles}
+                                                        />
+                                                    </div>
+                                                )}
+                                                {((!dropdowns || (dropdowns && !dropdowns[field])) && (!select || (select && !select[field]))) && (
+                                                    <>
+                                                        <label className="block first-letter:uppercase">
+                                                            {field.replace('_', ' ')}
                                                         </label>
                                                         <input
                                                             type="text"
@@ -289,7 +309,7 @@ export default function TableComponent({apiUrl, fields, dropdowns}: TableCompone
                                                             className="block w-full mt-1 border-gray-300 rounded-md shadow-sm dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300"
                                                         />
                                                     </>
-                                                }
+                                                )}
                                             </div>
                                         ))}
                                     </div>
@@ -297,14 +317,14 @@ export default function TableComponent({apiUrl, fields, dropdowns}: TableCompone
                                     <div className="mt-4 flex justify-end space-x-2">
                                         <button
                                             type="button"
-                                            className="bg-gray-500 text-white px-4 py-2 rounded"
+                                            className="bg-gray-600 text-white px-4 py-2 rounded"
                                             onClick={closeDialogs}
                                         >
                                             Cancel
                                         </button>
                                         <button
                                             type="button"
-                                            className="bg-blue-500 text-white px-4 py-2 rounded"
+                                            className="bg-blue-700 text-white px-4 py-2 rounded"
                                             onClick={handleCreateOrUpdate}
                                         >
                                             {currentRecordId ? 'Update' : 'Create'}

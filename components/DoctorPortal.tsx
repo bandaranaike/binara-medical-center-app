@@ -16,6 +16,7 @@ const DoctorPortal: React.FC = () => {
     const [disease] = useState<Option>();
     const [diseaseAlreadyHaveMessage, setDiseaseAlreadyHaveMessage] = useState<string>("");
     const [allergyAlreadyHaveMessage, setAllergyAlreadyHaveMessage] = useState<string>("");
+    const [error, setError] = useState<string>("");
 
     // Fetch the patientsBill data from the API
     useEffect(() => {
@@ -32,7 +33,7 @@ const DoctorPortal: React.FC = () => {
                 setPatientsBills(bills);
                 setLoading(false);
             } catch (error) {
-                console.error("Error fetching patientsBill data: ", error);
+                setError("Error fetching patientsBill data. " + error);
                 setLoading(false);
             }
         };
@@ -187,7 +188,7 @@ const DoctorPortal: React.FC = () => {
             ) || (
                 <>
                     <h2 className="text-2xl font-bold mb-4 text-left">Doctor Portal</h2>
-                    <div className="">There are currently no bills available for you</div>
+                    {error && <div className="text-red-500 mt-2">{error}</div> || <div>There are currently no bills available for you</div>}
                 </>
             )}
 

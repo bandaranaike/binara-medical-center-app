@@ -139,15 +139,16 @@ const PatientMedicine: React.FC<PatientMedicineProps> = ({patientId, initialBill
                                 />
                             </div>
                             <div>
-                                <label className="block mb-2 text-left">Dosage:</label>
-                                <input
-                                    type="text"
-                                    className="block w-full px-2 py-1.5 border border-gray-600 rounded mb-4 bg-gray-700"
-                                    value={dosage}
-                                    onChange={(e) => setDosage(e.target.value)}
-                                    placeholder="Enter dosage (e.g., 1 tablet twice daily)"
+                                <SearchableSelect
+                                    id="selecteMedicationFrequency"
+                                    value={selectedMedicine}
+                                    onChange={(item: any) => setSelectedMedicine(item)}
+                                    onCreateOption={item => handleCreateNewMedicine(item)}
+                                    placeholder="Medication frequency"
+                                    apiUri="medication_frequencies"
                                 />
                             </div>
+
                             <div>
                                 <label className="block mb-2 text-left">Type:</label>
                                 <input

@@ -11,7 +11,8 @@ const Admin = () => {
         {
             id: "doctors",
             fields: ["name", "hospital", "specialty", "user", "telephone", "type", "email"],
-            dropdowns: {hospital: 'hospitals', specialty: 'specialties', user: 'users'}
+            dropdowns: {hospital: 'hospitals', specialty: 'specialties', user: 'users'},
+            select: {type: ['specialist', 'opd', 'dental']}
         },
         {id: "roles", fields: ["name", "key", "description"]}
     ];

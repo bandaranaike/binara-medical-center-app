@@ -3,8 +3,9 @@ import TableComponent from "@/components/TableComponent";
 
 export interface AdminTab {
     id: string,
-    fields: any
+    fields: string[]
     dropdowns?: any
+    select?: any
 }
 
 interface ActiveTabsProps {
@@ -44,7 +45,7 @@ const AdminTabs: React.FC<ActiveTabsProps> = ({tabs, onSelectActiveTab}) => {
                 </nav>
                 <div className="">{
                     activeTab.id !== "summary" && activeTab.id !== "" && (
-                        <TableComponent apiUrl={activeTab.id} fields={activeTab.fields} dropdowns={activeTab.dropdowns} />
+                        <TableComponent tab={activeTab}/>
                     )
                 }</div>
             </div>

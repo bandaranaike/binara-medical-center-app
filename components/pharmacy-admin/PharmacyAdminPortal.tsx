@@ -22,11 +22,34 @@ const PharmacyAdminPortal: React.FC = () => {
 
     const tabs: AdminTab[] = [
         {id: "summary", fields: []},
-        {id: "drugs", fields: ["name", "minimum_quantity", "category_id"]},
-        {id: "brands", fields: ["name", "drug_id"]},
-        {id: "sales", fields: ["brand_id", "quantity", "total_price"]},
-        {id: "stocks", fields: ["brand_id", "supplier_id", "unit_price", "batch_number", "quantity", "expire_date", "cost"]},
-        {id: "suppliers", fields: ["name", "address", "phone", "email"]},
+        {
+            id: "categories",
+            fields: ["name"],
+        },
+        {
+            id: "drugs",
+            fields: ["category", "name", "minimum_quantity"],
+            dropdowns: {category: 'categories'}
+        },
+        {
+            id: "brands",
+            fields: ["drug", "name"],
+            dropdowns: {drug: 'drugs'}
+        },
+        {
+            id: "sales",
+            fields: ["brand", "quantity", "total_price"],
+            dropdowns: {brand: 'brands'}
+        },
+        {
+            id: "stocks",
+            fields: ["brand", "supplier", "unit_price", "batch_number", "quantity", "expire_date", "cost"],
+            dropdowns: {supplier: 'suppliers', brand: "brands"}
+        },
+        {
+            id: "suppliers",
+            fields: ["name", "address", "phone", "email"]
+        },
     ];
 
     const [activeTab, setActiveTab] = useState<string>("");
