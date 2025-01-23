@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import SearchablePatientSelect from "@/components/form/SearchablePatientSelect";
 import PatientDetails from "@/components/PatientDetails";
 import Loader from "@/components/form/Loader";
@@ -53,6 +53,18 @@ const withBillingComponent = <P extends object>(
         const [isBooking, setIsBooking] = useState(false);
         const [isLoading, setIsLoading] = useState(false);
         const [resetForm, setResetForm] = useState(false);
+        const [billAmount, setBillAmount] = useState(0);
+        const [systemAmount, setSystemAmount] = useState(0);
+
+        useEffect(() => {
+            const getTotalAmount = (flag: string) => {
+                return Object.entries(formData)
+                    .filter(([key, value]) => key.endsWith(flag) && typeof value === 'number')
+                    .reduce((sum, [, value]) => typeof value === 'number' ? (sum + value) : sum, 0)
+            }
+            setBillAmount(getTotalAmount('_fee'));
+            setSystemAmount(getTotalAmount('_charge'));
+        }, [formData]);
 
         const handleFormChange = (name: string, value: string | number | boolean) => {
             setFormData((prevState) => ({...prevState, [name]: value}));
@@ -144,7 +156,7 @@ const withBillingComponent = <P extends object>(
 
             try {
 
-                const billSaveResponse = await axiosLocal.post('bills', {...formData, bill_amount, system_amount});
+                const billSaveResponse = await axiosLocal.post('bills', {...formData, bill_amount: billAmount, system_amount: systemAmount});
 
                 if (billSaveResponse.status === 201) {
                     clearAllErrors()
@@ -184,16 +196,6 @@ const withBillingComponent = <P extends object>(
             }
         };
 
-        const getTotalAmount = (flag: string) => {
-            return Object.entries(formData)
-                .filter(([key, value]) => key.endsWith(flag) && typeof value === 'number')
-                .reduce((sum, [, value]) => typeof value === 'number' ? (sum + value) : sum, 0)
-        }
-
-        const bill_amount = getTotalAmount('_fee');
-        const system_amount = getTotalAmount('_charge');
-
-        const total = bill_amount + system_amount;
 
         return (<>
             <div className="bg-gray-900 text-white">
@@ -236,7 +238,7 @@ const withBillingComponent = <P extends object>(
 
                 <div className="flex justify-between mt-4">
                     <div className="flex items-center">
-                        <div className="text-lg mr-12">Total : {total}</div>
+                        <div className="text-lg mr-12">Total : {systemAmount + billAmount}</div>
                         {successMessage && <span className="text-xl text-green-500 mr-4">{successMessage}</span>}
                     </div>
                     <div className="flex items-center">

@@ -39,11 +39,11 @@ const Main = () => {
         {id: "services", label: "Treatments", component: <TreatmentsPortal/>, roles: ["reception"]},
         {id: "doctor-portal", label: "Doctor Portal", component: <DoctorsPatientQueue/>, roles: ["doctor"]},
         {id: "pharmacy-portal", label: "Pharmacy Portal", component: <PharmacyPortal/>, roles: ["pharmacy", "pharmacy_admin"]},
-        {id: "pharmacy-admin", label: "Pharmacy Admin", component: <PharmacyAdminPortal/>, roles: ["pharmacy_admin", "admin"]},
         {id: "bookings", label: "Bookings", component: <Bookings/>, roles: ["reception", "admin"]},
         {id: "reception", label: "Reception", component: <Reception/>, roles: ["reception", "admin"]},
         {id: "stat-summary", label: "Stat Summary", component: <StatSummary/>, roles: ["admin"]},
         {id: "admin", label: "Admin", component: <Admin/>, roles: ["admin"]},
+        {id: "pharmacy-admin", label: "Pharmacy Admin", component: <PharmacyAdminPortal/>, roles: ["pharmacy_admin", "admin"]},
     ];
 
     const [activeTab, setActiveTab] = useState("");

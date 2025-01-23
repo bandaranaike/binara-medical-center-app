@@ -26,6 +26,7 @@ const CreateNewDoctor: React.FC<CreateNewDoctorProps> = ({isOpen, doctorType: in
     const [isHospitalModalOpen, setIsHospitalModalOpen] = useState(false);
     const [isSpecialtyModalOpen, setIsSpecialtyModalOpen] = useState(false);
     const [doctorType, setDoctorType] = useState(initialDoctorType)
+    const [error, setError] = useState("")
 
     useEffect(() => {
         setName(doctorsName);
@@ -45,7 +46,7 @@ const CreateNewDoctor: React.FC<CreateNewDoctorProps> = ({isOpen, doctorType: in
             onDoctorCreated({value: response.data.id, label: response.data.name});
             onClose();
         } catch (error) {
-            console.error("Error creating doctor:", error);
+            setError("Error creating doctor: " + error);
         }
     };
 
@@ -143,7 +144,7 @@ const CreateNewDoctor: React.FC<CreateNewDoctorProps> = ({isOpen, doctorType: in
                             required
                         />
                     </div>
-                    <div className="mb-4">
+                    <div className="mb-6">
                         <TextInput
                             name="Email"
                             type="email"
@@ -151,17 +152,18 @@ const CreateNewDoctor: React.FC<CreateNewDoctorProps> = ({isOpen, doctorType: in
                             onChange={setEmail}
                         />
                     </div>
+                    {error && <div className="my-4 text-red-500">{error}</div>}
                     <div className="flex justify-end">
                         <button
                             type="button"
-                            className="bg-gray-500 text-white px-4 py-2 rounded-md mr-2"
+                            className="bg-gray-600 text-white px-4 py-2 rounded-md mr-2"
                             onClick={onClose}
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
-                            className="bg-blue-500 text-white px-4 py-2 rounded-md"
+                            className="bg-blue-600 text-white px-4 py-2 rounded-md"
                         >
                             Create Doctor
                         </button>

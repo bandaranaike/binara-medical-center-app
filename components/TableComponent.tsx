@@ -40,32 +40,42 @@ export default function TableComponent({tab}: TableComponentProps) {
         fetchData();
     }, [currentPage, apiUrl]);
 
-    const fetchData = async () => {
+    const fetchData = () => {
         setLoading(true)
         try {
-            const response = await axios.get(`${apiUrl}?page=${currentPage}`);
-            setData(response.data.data);
-            setTotalPages(response.data.last_page);
+            axios.get(`${apiUrl}?page=${currentPage}`).then(response => {
+                setData(response.data.data);
+                setTotalPages(response.data.last_page);
+            }).catch(error => {
+                setError('Error fetching data. ' + (error.response?.data?.message ?? error.message));
+            });
         } catch (error) {
-            setError('Error fetching data. ' + error);
+            console.log(error)
         } finally {
             setLoading(false)
         }
     };
 
-    const handleCreateOrUpdate = async () => {
+    const handleCreateOrUpdate = () => {
         try {
             if (currentRecordId) {
-                await axios.put(`${apiUrl}/${currentRecordId}`, formData);
+                axios.put(`${apiUrl}/${currentRecordId}`, formData).then(dataSaveSucceed).catch(dataSaveFailed);
             } else {
-                await axios.post(apiUrl, formData);
+                axios.post(apiUrl, formData).then(dataSaveSucceed).catch(dataSaveFailed);
             }
-            fetchData();
-            setIsCreateOrUpdateDialogOpen(false);
         } catch (error) {
             setUpdateOrCreateError('Error saving record. ' + error);
         }
     };
+
+    const dataSaveSucceed = () => {
+        fetchData();
+        setIsCreateOrUpdateDialogOpen(false);
+    }
+
+    const dataSaveFailed = (error: any) => {
+        setUpdateOrCreateError('Error saving record. ' + (error.response?.data?.message ?? error.message));
+    }
 
     const handlePageChange = (page: number) => {
         setCurrentPage(page);
