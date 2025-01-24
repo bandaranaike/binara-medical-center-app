@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import axios from '@/lib/axios';
 import SearchableSelect from '@/components/form/SearchableSelect';
 import {Option, Patient, PatientBill} from "@/types/interfaces";
-import PatientMedicine from "@/components/PatientMedicine";
+import PatientMedicineManager from "@/components/PatientMedicineManager";
 import DoctorPatientHistory from "@/components/DoctorPatientHistory";
 import Loader from "@/components/form/Loader"; // Assuming SearchableSelect is in the same folder
 
@@ -159,6 +159,7 @@ const DoctorPortal: React.FC = () => {
     };
 
     const changeBillStatus = async () => {
+        setLoading(true)
         try {
             setStatusChangeError("")
             const response = await axios.put(`/bills/${activePatientBillId}/status`, {
@@ -167,7 +168,7 @@ const DoctorPortal: React.FC = () => {
                 setPatientBillsChanged((prev) => !prev);
             }).catch(error => {
                 setStatusChangeError("Failed to update the bill status : " + error.response.data.message)
-            });
+            }).finally(() => setLoading(false));
         } catch (error) {
             console.error('Error updating the bill status:', error);
         }
@@ -303,10 +304,10 @@ const DoctorPortal: React.FC = () => {
                         patientId={activePatientId}
                     />
                     {activePatientBillId > 0 && (
-                        <PatientMedicine
+                        <PatientMedicineManager
                             key={`${activePatientBillId}-${patientBillsChanged}`}
                             patientId={activePatientId}
-                            initialBillId={activePatientBillId.toString()}/>
+                            billId={activePatientBillId.toString()}/>
                     )}
 
                     <div className="flex justify-end">

@@ -13,7 +13,7 @@ export interface Bill {
     patient: Patient;
     doctor: Doctor;
     bill_items: BillItem[];
-    patient_medicines: PatientMedicine[];
+    patient_medicine_history: PatientMedicineHistory;
     created_at: string;
     updated_at: string;
 }
@@ -39,7 +39,7 @@ export interface BillItem {
     service_id: number;
     service: Service;
     bill_amount: string;
-    patient_medicines: PatientMedicine[];
+    patient_medicines: PatientMedicineHistory[];
 }
 
 export interface Booking {
@@ -76,20 +76,28 @@ export interface History {
     note: string;
 }
 
+export interface HistoryItem {
+    id: number;
+    duration: string;
+    medicine: Medicine;
+    medication_frequency: MedicationFrequency;
+}
+
 export interface LoggedUser {
     role: string;
     name: string;
     token: string;
 }
 
+export interface MedicationFrequency {
+    id: number;
+    name: string;
+    description: string;
+}
+
 export interface Medicine {
     id: number;
     name: string;
-    drug_name: string;
-    price: string;
-    dosage: string;
-    type: string;
-    duration: string;
 }
 
 export interface MedicineHistory {
@@ -141,15 +149,11 @@ export interface PatientHistory {
     note: string;
 }
 
-export interface PatientMedicine {
+export interface PatientMedicineHistory {
     id: number;
-    bill_id: number;
-    medicine_id: number;
-    price: string;
-    dosage: string;
-    type: string;
-    duration: string;
-    medicine: Medicine;
+    status: string;
+    created_at: string;
+    patient_medicines: HistoryItem[];
 }
 
 export interface SearchableSelectProps {

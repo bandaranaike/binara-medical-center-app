@@ -21,7 +21,7 @@ const
         }
 
         const [selectedService, setSelectedService] = useState<Option>();
-        const [activeBill, setActiveBill] = useState<Bill>(defaultBill);
+        const [activeBill, setActiveBill] = useState<Bill>();
         const [servicePrice, setServicePrice] = useState<string>("");
         const [finalBillAmount, setFinalBillAmount] = useState<number>(0);
         const [typingTimeout, setTypingTimeout] = useState<NodeJS.Timeout | null>(null);
@@ -36,7 +36,7 @@ const
         }, [initialBill]);
 
         useEffect(() => {
-            setActiveBill(defaultBill)
+            setActiveBill(undefined)
         }, [resetBillItems]);
 
         useEffect(() => {
@@ -142,12 +142,6 @@ const
                 const billAmount = activeBill.bill_items.reduce((total, item) => {
                     const serviceAmount = parseFloat(item.bill_amount) || 0;
                     let medicineAmount = 0;
-                    if (item.patient_medicines) {
-                        medicineAmount = item.patient_medicines.reduce(
-                            (medTotal, med) => medTotal + (parseFloat(med.price) || 0),
-                            0
-                        );
-                    }
                     return total + serviceAmount + medicineAmount;
                 }, 0);
                 setFinalBillAmount(parseFloat(billAmount.toFixed(2)));
@@ -214,8 +208,11 @@ const
                                     Remove
                                 </button>
                             </div>
-                            {showMedicineTable && item.service?.name == "Medicines" && activeBill.patient_medicines.length > 0 && (
-                                <ServiceMedicinesTable patientMedicines={activeBill.patient_medicines}/>
+                            {showMedicineTable && item.service?.name == "Medicines" && activeBill.patient_medicine_history.patient_medicines.length > 0 && (
+                                <div className="border border-dashed border-gray-600 rounded-lg p-4 my-4">
+                                    <h4 className="mb-2 text-lg font-bold">Medicines</h4>
+                                    <ServiceMedicinesTable patientMedicines={activeBill.patient_medicine_history.patient_medicines}/>
+                                </div>
                             )}
                         </React.Fragment>
                     ))}

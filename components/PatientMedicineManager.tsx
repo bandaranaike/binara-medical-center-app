@@ -1,32 +1,37 @@
 import React, {useState, useEffect} from 'react';
 import axios from '../lib/axios';
 import SearchableSelect from './form/SearchableSelect';
-import {MedicineHistory, Option} from '@/types/interfaces';
+import {HistoryItem, Option, PatientMedicineHistory} from '@/types/interfaces';
+import ServiceMedicinesTable from "@/components/ServiceMedicinesTable";
 
 interface PatientMedicineProps {
     patientId: number;
-    initialBillId: string;
+    billId: string;
 }
 
-const PatientMedicine: React.FC<PatientMedicineProps> = ({patientId, initialBillId}) => {
-    const [medicineHistories, setMedicineHistories] = useState<MedicineHistory[]>([]);
+const PatientMedicineManager: React.FC<PatientMedicineProps> = ({patientId, billId}) => {
+    const [medicineHistories, setMedicineHistories] = useState<PatientMedicineHistory[]>([]);
     const [activeTab, setActiveTab] = useState<number>(0);
     const [selectedMedicine, setSelectedMedicine] = useState<Option>();
     const [medicationFrequency, setMedicationFrequency] = useState<Option>();
-    const [type, setType] = useState<string>('');
     const [duration, setDuration] = useState<string>('');
+    const [medicineFetchError, setMedicineFetchError] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(true);
-    const [billId, setBillId] = useState<string>(initialBillId);
+    const [addMedicineError, setAddMedicineError] = useState<string | undefined>()
 
     useEffect(() => {
-        const fetchMedicineHistories = async () => {
+        const fetchMedicineHistories = () => {
             try {
-                const response = await axios.get(`/doctors/patient/${patientId}/medicine-histories`);
-                setMedicineHistories(response.data);
+                setMedicineFetchError("")
+                axios.get(`/doctors/patient/${patientId}/medicine-histories`).then(response => {
+                    setMedicineHistories(response.data);
+                }).catch(error => {
+                    setMedicineFetchError('Error fetching medicine histories: ' + error.response.data.message);
+                }).finally(() => {
+                    setLoading(false);
+                });
             } catch (error) {
-                console.error('Error fetching medicine histories:', error);
-            } finally {
-                setLoading(false);
+                console.log(error)
             }
         };
 
@@ -37,43 +42,48 @@ const PatientMedicine: React.FC<PatientMedicineProps> = ({patientId, initialBill
     const handleCreateNewMedicine = (item: any) => {
         setSelectedMedicine({label: item, value: "-1"})
     }
+
     const handleCreateNewMedicationFrequency = (item: any) => {
         setMedicationFrequency({label: item, value: "-1"})
     }
 
-    const setActiveTabAndBillId = (index: number, billId: string) => {
+    const setActiveTabAndBillId = (index: number) => {
         setActiveTab(index);
-        setBillId(billId);
     }
 
     const handleAddMedicine = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!selectedMedicine || !duration || !medicationFrequency) {
-            alert('Please fill out all fields before saving.');
+            setAddMedicineError('Please fill out all fields before saving.');
             return;
         }
 
         try {
-            const response = await axios.post('/patients/add-medicine', {
+            setAddMedicineError('');
+
+            axios.post('/patients/add-medicine', {
                 patient_id: patientId,
                 bill_id: billId,
                 medicine_id: selectedMedicine.value,
                 medicine_name: selectedMedicine.value === '-1' ? selectedMedicine.label : null,
-                medication_frequency_name: medicationFrequency.value === '-1' ? selectedMedicine.label : null,
+                medication_frequency_name: medicationFrequency.value === '-1' ? medicationFrequency.label : null,
                 medication_frequency_id: medicationFrequency.value,
                 duration,
+            }).then(response => {
+                // Update the medicine history for the current bill
+                setMedicineHistories(response.data.data);
+
+                // Clear the form fields
+                setSelectedMedicine(undefined);
+                setMedicationFrequency(undefined);
+                setDuration('');
+            }).catch(error => {
+                setAddMedicineError('Error adding medicine: ' + error.response.data.message)
             });
 
-            // Update the medicine history for the current bill
-            setMedicineHistories(response.data.data);
 
-            // Clear the form fields
-            setSelectedMedicine(undefined);
-            setMedicationFrequency(undefined);
-            setType('');
-            setDuration('');
         } catch (error) {
-            console.error('Error adding medicine:', error);
+            console.error();
         }
     };
 
@@ -99,15 +109,15 @@ const PatientMedicine: React.FC<PatientMedicineProps> = ({patientId, initialBill
                                     ? 'text-blue-500 border-blue-500'
                                     : 'border-transparent hover:text-gray-600 hover:border-gray-300'
                             } rounded-t-lg`}
-                            onClick={() => setActiveTabAndBillId(index, history.billId)}
+                            onClick={() => setActiveTabAndBillId(index)}
                         >
-                            {history.date}
+                            {history.created_at.substring(0, 10)}
                         </button>
                     </li>
                 ))}
             </ul>
             <div className="text-left p-4 border border-gray-800 rounded-md mb-8">
-                {(medicineHistories[activeTab]?.status === 'doctor' || medicineHistories.length === 0) && (
+                {((medicineHistories[activeTab]?.status === 'doctor') || medicineHistories.length === 0) && (
                     <form onSubmit={handleAddMedicine}>
                         <div className="grid grid-cols-1 lg:grid-cols-5 gap-3">
                             <div>
@@ -150,21 +160,21 @@ const PatientMedicine: React.FC<PatientMedicineProps> = ({patientId, initialBill
                                 </button>
                             </div>
                         </div>
+                        {addMedicineError && <div className="text-red-500 mb-4">{addMedicineError}</div>}
+                        {medicineFetchError && <div className="text-red-500">{medicineFetchError}</div>}
                     </form>
                 )}
-
-                <h3 className="font-bold">Medicines List for {medicineHistories[activeTab]?.date}</h3>
-                <ul>
-                    {medicineHistories[activeTab]?.medicines.map((medicine, idx) => (
-                        <li key={idx}>
-                            <strong>{medicine.name}</strong>: {medicine.dosage}, {medicine.type}, {medicine.duration}
-                        </li>
-                    ))}
-                </ul>
-
+                <div className="max-w-4xl">
+                    {(medicineHistories[activeTab]?.status !== 'doctor') && (medicineHistories[activeTab] && medicineHistories[activeTab].patient_medicines.length == 0) &&
+                        <div className="p-3 text-gray-500">There were no medicines</div>
+                    }
+                    {medicineHistories[activeTab] && medicineHistories[activeTab].patient_medicines.length > 0 &&
+                        <ServiceMedicinesTable patientMedicines={medicineHistories[activeTab].patient_medicines}/>
+                    }
+                </div>
             </div>
         </div>
     );
 };
 
-export default PatientMedicine;
+export default PatientMedicineManager;
