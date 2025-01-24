@@ -48,6 +48,7 @@ const withBillingComponent = <P extends object>(
         const [patientNotFound, setPatientNotFound] = useState<boolean>(false);
 
         const [errors, setErrors] = useState<any>();
+        const [billCreateError, setBillCreateError] = useState<string>("");
         const [successMessage, setSuccessMessage] = useState<string>(""); // State for success message
 
         const [isBooking, setIsBooking] = useState(false);
@@ -144,36 +145,34 @@ const withBillingComponent = <P extends object>(
             setResetForm(true);
         }
 
-        const createInvoiceBill = async () => {
+        const createInvoiceBill = () => {
             const validationErrors = validateFormData(formData, validation);
 
             if (Object.keys(validationErrors).length > 0) {
                 setErrors(validationErrors);
                 return;
             }
-            setIsLoading(true)
-            setErrors({});
 
             try {
-
-                const billSaveResponse = await axiosLocal.post('bills', {...formData, bill_amount: billAmount, system_amount: systemAmount});
-
-                if (billSaveResponse.status === 201) {
+                setIsLoading(true)
+                setBillCreateError("")
+                setErrors({});
+                axiosLocal.post('bills', {...formData, bill_amount: billAmount, system_amount: systemAmount}).then(async billSaveResponse => {
                     clearAllErrors()
                     setBillNumber(billSaveResponse.data.bill_number);
                     setSuccessMessage(`Invoice #${billSaveResponse.data.bill_id} successfully generated! Queue id: ${billSaveResponse.data.queue_id}`);
 
-                    if (formData.service_type == 'specialist' && !isBooking) {
+                    if (["specialist", "dental"].includes(formData.service_type) && !isBooking) {
                         await handlePrint(billSaveResponse.data.bill_id, billSaveResponse.data.bill_items, billSaveResponse.data.total);
                     }
 
                     setTimeout(() => setSuccessMessage(""), 20000);
                     resetFormData()
-                } else {
-                    console.error("Error saving bill", billSaveResponse);
-                }
+                }).catch(error => {
+                    setBillCreateError("Error saving bill. " + error.response.data.message);
+                });
             } catch (error) {
-                console.error("Error saving bill", error);
+                console.log(error)
             } finally {
                 setIsLoading(false)
             }
@@ -195,7 +194,6 @@ const withBillingComponent = <P extends object>(
                 console.log("Failed to send print request. Check the console for details." + error);
             }
         };
-
 
         return (<>
             <div className="bg-gray-900 text-white">
@@ -239,7 +237,10 @@ const withBillingComponent = <P extends object>(
                 <div className="flex justify-between mt-4">
                     <div className="flex items-center">
                         <div className="text-lg mr-12">Total : {systemAmount + billAmount}</div>
-                        {successMessage && <span className="text-xl text-green-500 mr-4">{successMessage}</span>}
+                    </div>
+                    <div className="mt-3">
+                        {billCreateError && <span className="text-red-500 mr-4">{billCreateError}</span>}
+                        {successMessage && <span className="text-green-500 mr-4">{successMessage}</span>}
                     </div>
                     <div className="flex items-center">
                         {isLoading && (<div className="mr-4 mt-1"><Loader/></div>)}

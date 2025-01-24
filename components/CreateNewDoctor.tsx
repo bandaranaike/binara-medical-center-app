@@ -14,7 +14,7 @@ interface CreateNewDoctorProps {
     doctorType: string;
     doctorsName: string;
     onClose: () => void;
-    onDoctorCreated: (doctor: Option) => void;
+    onDoctorCreated: (id: number) => void;
 }
 
 const CreateNewDoctor: React.FC<CreateNewDoctorProps> = ({isOpen, doctorType: initialDoctorType, doctorsName, onClose, onDoctorCreated}) => {
@@ -32,21 +32,25 @@ const CreateNewDoctor: React.FC<CreateNewDoctorProps> = ({isOpen, doctorType: in
         setName(doctorsName);
     }, [doctorsName]);
 
-    const handleSubmit = async (event: React.FormEvent) => {
+    const handleSubmit = (event: React.FormEvent) => {
         event.preventDefault();
         try {
-            let response = await axiosLocal.post('doctors', {
+            axiosLocal.post('doctors', {
                 name,
                 hospital_id: hospital?.value,
                 specialty_id: specialty?.value,
                 telephone,
                 email,
                 doctor_type: doctorType
+            }).then((response) => {
+                onDoctorCreated(response.data.item.id);
+                onClose();
+            }).catch(error => {
+                setError("Error creating doctor: " + error.response.data.message);
             });
-            onDoctorCreated({value: response.data.id, label: response.data.name});
-            onClose();
+
         } catch (error) {
-            setError("Error creating doctor: " + error);
+
         }
     };
 

@@ -30,7 +30,9 @@ const DoctorPatientHistory: React.FC<DoctorPatientHistoryProps> = ({patientId}) 
                 }
             };
 
-            fetchHistory();
+            const debounceFetch = setTimeout(fetchHistory, 400); // Debounce API calls
+            return () => clearTimeout(debounceFetch);
+
         }, [patientId]);
 
         // Handle Add History Submit
@@ -62,7 +64,7 @@ const DoctorPatientHistory: React.FC<DoctorPatientHistoryProps> = ({patientId}) 
             };
 
         return (
-            <div id="doctor-patient-history">
+            <div id="doctor-patient-history" className="mt-8">
                 {/* Loading or Error */}
                 {loading && <p>Loading patient history...</p>}
                 {error && <p className="text-red-500">{error}</p>}
@@ -74,7 +76,7 @@ const DoctorPatientHistory: React.FC<DoctorPatientHistoryProps> = ({patientId}) 
                             {/* Add New History Tab */}
                             <li className="me-2 ml-2">
                                 <button
-                                    className={`inline-block p-4 border-b-2 ${
+                                    className={`inline-block p-3 border-b-2 ${
                                         activeHistory === -1
                                             ? 'text-blue-600 border-blue-600 dark:text-blue-500 dark:border-blue-500'
                                             : 'border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300'
@@ -89,7 +91,7 @@ const DoctorPatientHistory: React.FC<DoctorPatientHistoryProps> = ({patientId}) 
                             {histories.map((history, index) => (
                                 <li key={history.id} className="me-2 ml-2">
                                     <button
-                                        className={`inline-block p-4 border-b-2 ${
+                                        className={`inline-block p-3 border-b-2 ${
                                             activeHistory === index
                                                 ? 'text-blue-600 border-blue-600 dark:text-blue-500 dark:border-blue-500'
                                                 : 'border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300'
@@ -108,14 +110,14 @@ const DoctorPatientHistory: React.FC<DoctorPatientHistoryProps> = ({patientId}) 
                                 <form onSubmit={handleAddHistorySubmit}>
                                     <label className="block mb-2 text-left">Note:</label>
                                     <textarea
-                                        className="block w-full p-2 border border-gray-600 rounded mb-4 bg-gray-700"
+                                        className="block w-full p-2 border border-gray-700 rounded mb-4 bg-gray-800"
                                         value={newNote}
                                         onChange={(e) => setNewNote(e.target.value)}
                                         placeholder="Enter note for patient history..."
                                     />
                                     <button
                                         type="submit"
-                                        className="px-4 py-2 bg-blue-500 text-white rounded"
+                                        className="px-4 py-2 bg-blue-800 text-white rounded"
                                     >
                                         Add History
                                     </button>
@@ -126,8 +128,8 @@ const DoctorPatientHistory: React.FC<DoctorPatientHistoryProps> = ({patientId}) 
                         {/* Display Selected Patient History */}
                         {activeHistory !== -1 && histories[activeHistory] && (
                             <div className="text-left p-4 border border-gray-800 rounded-md mb-8">
-                                <h3 className="font-bold">Note:</h3>
-                                <p>{histories[activeHistory].note || 'No notes available.'}</p>
+                                <h3 className="text-gray-500">Note:</h3>
+                                <p className="">{histories[activeHistory].note || 'No notes available.'}</p>
                             </div>
                         )}
                     </>

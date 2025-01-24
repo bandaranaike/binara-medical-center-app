@@ -21,16 +21,20 @@ const DoctorSelect: React.FC<DoctorSelectProps> = ({onDoctorSelect, resetSelecti
     }, [resetSelection]);
 
     const getDoctorFee = (doctorId: number) => {
-        return axiosLocal.get(`doctor-channeling-fees/get-fee/${doctorId}`);
+        axiosLocal.get(`doctor-channeling-fees/get-fee/${doctorId}`).then(result => {
+            const data = result.data;
+            onDoctorSelect({
+                id: doctorId,
+                institution_charge: data.system_price,
+                doctor_fee: data.bill_price,
+                name: data.name
+            });
+        });
     }
 
     const handleDoctorChangeOption = async (selectedOption: any) => {
         setDoctor(selectedOption);
-        getDoctorFee(selectedOption.value).then(result => {
-            const data = result.data;
-            onDoctorSelect({id: selectedOption.value, institution_charge: data.system_price, doctor_fee: data.bill_price, name: data.name});
-        });
-
+        getDoctorFee(selectedOption.value);
         setErrors((prevErrors: any) => ({...prevErrors, doctor: null}));
     };
 
@@ -43,8 +47,8 @@ const DoctorSelect: React.FC<DoctorSelectProps> = ({onDoctorSelect, resetSelecti
         setIsCreateDoctorOpen(false);
     };
 
-    const setTheCurrentDoctor = (doctor: Option) => {
-        setDoctor(doctor);
+    const setTheCurrentDoctor = (doctorId:number) => {
+        getDoctorFee(doctorId);
     };
 
     return (

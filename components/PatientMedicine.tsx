@@ -6,14 +6,13 @@ import {MedicineHistory, Option} from '@/types/interfaces';
 interface PatientMedicineProps {
     patientId: number;
     initialBillId: string;
-    onBillStatusChange: (billId: number) => void;
 }
 
-const PatientMedicine: React.FC<PatientMedicineProps> = ({patientId, initialBillId, onBillStatusChange}) => {
+const PatientMedicine: React.FC<PatientMedicineProps> = ({patientId, initialBillId}) => {
     const [medicineHistories, setMedicineHistories] = useState<MedicineHistory[]>([]);
     const [activeTab, setActiveTab] = useState<number>(0);
     const [selectedMedicine, setSelectedMedicine] = useState<Option>();
-    const [dosage, setDosage] = useState<string>('');
+    const [medicationFrequency, setMedicationFrequency] = useState<Option>();
     const [type, setType] = useState<string>('');
     const [duration, setDuration] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(true);
@@ -31,11 +30,15 @@ const PatientMedicine: React.FC<PatientMedicineProps> = ({patientId, initialBill
             }
         };
 
-        fetchMedicineHistories();
+        const debounceFetch = setTimeout(fetchMedicineHistories, 400); // Debounce API calls
+        return () => clearTimeout(debounceFetch);
     }, [patientId]);
 
     const handleCreateNewMedicine = (item: any) => {
         setSelectedMedicine({label: item, value: "-1"})
+    }
+    const handleCreateNewMedicationFrequency = (item: any) => {
+        setMedicationFrequency({label: item, value: "-1"})
     }
 
     const setActiveTabAndBillId = (index: number, billId: string) => {
@@ -43,30 +46,9 @@ const PatientMedicine: React.FC<PatientMedicineProps> = ({patientId, initialBill
         setBillId(billId);
     }
 
-    const changeBillStatus = async () => {
-        try {
-
-            const currentBillId = medicineHistories[activeTab] ? medicineHistories[activeTab].billId : billId;
-
-            const response = await axios.put(`/bills/${currentBillId}/status`, {
-                status: 'pharmacy',
-            });
-
-            if (response.status === 200) {
-                setMedicineHistories(medicineHistories.filter((item) => item.billId !== currentBillId));
-                onBillStatusChange(Number(currentBillId));
-                return response.data; // Handle the response data as needed
-            } else {
-                console.error('Failed to update the bill status:', response);
-            }
-        } catch (error) {
-            console.error('Error updating the bill status:', error);
-        }
-    }
-
     const handleAddMedicine = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!selectedMedicine || !dosage || !type || !duration) {
+        if (!selectedMedicine || !duration || !medicationFrequency) {
             alert('Please fill out all fields before saving.');
             return;
         }
@@ -74,11 +56,11 @@ const PatientMedicine: React.FC<PatientMedicineProps> = ({patientId, initialBill
         try {
             const response = await axios.post('/patients/add-medicine', {
                 patient_id: patientId,
-                bill_id: billId, // medicineHistories.find((history) => history.billId)?.billId, // Use the first bill's ID
+                bill_id: billId,
                 medicine_id: selectedMedicine.value,
                 medicine_name: selectedMedicine.value === '-1' ? selectedMedicine.label : null,
-                dosage,
-                type,
+                medication_frequency_name: medicationFrequency.value === '-1' ? selectedMedicine.label : null,
+                medication_frequency_id: medicationFrequency.value,
                 duration,
             });
 
@@ -87,7 +69,7 @@ const PatientMedicine: React.FC<PatientMedicineProps> = ({patientId, initialBill
 
             // Clear the form fields
             setSelectedMedicine(undefined);
-            setDosage('');
+            setMedicationFrequency(undefined);
             setType('');
             setDuration('');
         } catch (error) {
@@ -100,11 +82,11 @@ const PatientMedicine: React.FC<PatientMedicineProps> = ({patientId, initialBill
     }
 
     return (
-        <div className="mt-6">
+        <div className="mt-8">
             <ul className="flex flex-wrap -mb-px">
                 {medicineHistories.length === 0 && (
                     <li key="first" className="me-2 ml-2">
-                        <button className={`inline-block p-4 border-b-2 'text-blue-600 border-blue-600 dark:text-blue-500 dark:border-blue-500' rounded-t-lg`}>
+                        <button className={`inline-block p-3 border-b-2 text-blue-500 border-blue-500 rounded-t-lg`}>
                             Add new
                         </button>
                     </li>
@@ -114,8 +96,8 @@ const PatientMedicine: React.FC<PatientMedicineProps> = ({patientId, initialBill
                         <button
                             className={`inline-block p-4 border-b-2 ${
                                 activeTab === index
-                                    ? 'text-blue-600 border-blue-600 dark:text-blue-500 dark:border-blue-500'
-                                    : 'border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300'
+                                    ? 'text-blue-500 border-blue-500'
+                                    : 'border-transparent hover:text-gray-600 hover:border-gray-300'
                             } rounded-t-lg`}
                             onClick={() => setActiveTabAndBillId(index, history.billId)}
                         >
@@ -142,28 +124,17 @@ const PatientMedicine: React.FC<PatientMedicineProps> = ({patientId, initialBill
                                 <SearchableSelect
                                     id="selecteMedicationFrequency"
                                     value={selectedMedicine}
-                                    onChange={(item: any) => setSelectedMedicine(item)}
-                                    onCreateOption={item => handleCreateNewMedicine(item)}
+                                    onChange={(item: any) => setMedicationFrequency(item)}
+                                    onCreateOption={item => handleCreateNewMedicationFrequency(item)}
                                     placeholder="Medication frequency"
                                     apiUri="medication_frequencies"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block mb-2 text-left">Type:</label>
-                                <input
-                                    type="text"
-                                    className="block w-full px-2 py-1.5 border border-gray-600 rounded mb-4 bg-gray-700"
-                                    value={type}
-                                    onChange={(e) => setType(e.target.value)}
-                                    placeholder="Enter type (e.g., tablet, syrup)"
                                 />
                             </div>
                             <div>
                                 <label className="block mb-2 text-left">Duration:</label>
                                 <input
                                     type="text"
-                                    className="block w-full px-2 py-1.5 border border-gray-600 rounded mb-4 bg-gray-700"
+                                    className="block w-full px-2 py-1.5 border border-gray-700 rounded mb-4 bg-gray-800"
                                     value={duration}
                                     onChange={(e) => setDuration(e.target.value)}
                                     placeholder="Enter duration (e.g., 5 days)"
@@ -173,7 +144,7 @@ const PatientMedicine: React.FC<PatientMedicineProps> = ({patientId, initialBill
                                 <div className="py-3.5"></div>
                                 <button
                                     type="submit"
-                                    className="px-4 pt-2.5 pb-2 bg-blue-500 text-white rounded"
+                                    className="px-4 pt-2 mt-0.5 pb-2 bg-blue-800 text-white rounded"
                                 >
                                     Add Medicine
                                 </button>
@@ -190,10 +161,6 @@ const PatientMedicine: React.FC<PatientMedicineProps> = ({patientId, initialBill
                         </li>
                     ))}
                 </ul>
-
-                <div className="text-right">
-                    <button onClick={changeBillStatus} className="border-green-600 border rounded px-4 py-2 bg-green-700 text-gray-100">Send to pharmacy</button>
-                </div>
 
             </div>
         </div>

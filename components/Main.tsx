@@ -84,7 +84,7 @@ const Main = () => {
                         </div>
                     </header>
                     <div className="mx-4 my-6 p-4 border border-gray-800 rounded-lg bg-gray-900 text-gray-400">
-                        <nav className="text-sm font-medium text-center text-gray-400 border-b border-gray-800 dark:text-gray-400 dark:border-gray-700">
+                        <nav className="font-medium text-center text-gray-400 border-b border-gray-800 dark:text-gray-400 dark:border-gray-700">
                             <ul className="flex flex-wrap -mb-px">
                                 {filteredTabs && filteredTabs.map((tab) => (
                                     <li className="me-2" key={tab.id}>
@@ -103,7 +103,7 @@ const Main = () => {
                                 ))}
                             </ul>
                         </nav>
-                        <div className="p-4 pt-8">{renderTabContent()}</div>
+                        <div className="p-2 pt-4">{renderTabContent()}</div>
                     </div>
                     <footer className="text-center mt-4">
                         <div className="text-gray-500 pt-3 pb-9">
