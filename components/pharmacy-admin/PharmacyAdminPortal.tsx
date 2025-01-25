@@ -38,12 +38,12 @@ const PharmacyAdminPortal: React.FC = () => {
         },
         {
             id: "sales",
-            fields: ["brand", "quantity", "total_price"],
+            fields: ["brand", "bill_id", "quantity", "total_price", "brand_id"],
             dropdowns: {brand: 'brands'}
         },
         {
             id: "stocks",
-            fields: ["brand", "supplier", "unit_price", "batch_number", "quantity", "expire_date", "cost"],
+            fields: ["brand", "supplier", "unit_price", "batch_number", "initial_quantity", "quantity", "expire_date", "cost"],
             dropdowns: {supplier: 'suppliers', brand: "brands"}
         },
         {

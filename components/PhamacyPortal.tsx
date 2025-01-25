@@ -6,6 +6,7 @@ import {formatReadableDateTime} from "@/lib/readbale-date";
 import Services from "@/components/Services";
 import TextInput from "@/components/form/TextInput";
 import Loader from "@/components/form/Loader";
+import {DeleteIcon} from "@nextui-org/shared-icons";
 
 interface Drug {
     id: number;
@@ -20,11 +21,14 @@ const PharmacyPortal: React.FC = () => {
     const [activeBillId, setActiveBillId] = useState<number | null>(null);
     const [servicesCount, setServicesCount] = useState(0);
     const [finalBillAmount, setFinalBillAmount] = useState<number>(0);
+    const [medicineTotal, setMedicineTotal] = useState<number>(0);
     const [error, setError] = useState("");
+    const [deleteError, setDeleteError] = useState("");
     const [billsFetchError, setBillFetchErrors] = useState("");
     const [brand, setBrand] = useState<Option | undefined>()
     const [drugQuantity, setDrugQuantity] = useState<string>("")
     const [drugPrice, setDrugPrice] = useState<string>("")
+    const [drugUnitPrice, setDrugUnitPrice] = useState<string>("")
     const [drugListAddError, setDrugListAddError] = useState<string>("")
     const [drugLisFetchError, setDrugListFetchError] = useState<string>("")
     const [drugList, setDrugList] = useState<Drug [] | undefined>()
@@ -49,6 +53,17 @@ const PharmacyPortal: React.FC = () => {
         const debounceFetch = setTimeout(fetchDrugsSaleForBill, 400); // Debounce API calls
         return () => clearTimeout(debounceFetch);
     }, [activeBillId]);
+
+    useEffect(() => {
+        if (drugUnitPrice)
+            setDrugPrice((Number(drugUnitPrice) * Number(drugQuantity)).toFixed(2).toString())
+    }, [drugQuantity, drugUnitPrice])
+
+    useEffect(() => {
+        if (drugList)
+            setMedicineTotal(drugList.reduce((c: number, item: any) => c + Number(item.total_price), 0))
+        else setMedicineTotal(0)
+    }, [drugList]);
 
     const handleFinalizeBill = (billId: number) => {
         if (servicesCount === 0) {
@@ -76,7 +91,9 @@ const PharmacyPortal: React.FC = () => {
         setIsDrugListLoading(true)
         setDrugListFetchError("")
         axios.get(`bills/${activeBillId}/sales`)
-            .then(response => setDrugList(response.data))
+            .then(response => {
+                setDrugList(response.data)
+            })
             .catch(error => setDrugListFetchError(error.response.data.message))
             .finally(() => setIsDrugListLoading(false))
     }
@@ -94,19 +111,32 @@ const PharmacyPortal: React.FC = () => {
             setDrugListAddError("Please fill all the fields")
             return;
         }
-
         setDrugListAddError("")
 
         axios.post(`sales`, {
-            bill_id: activeBillId,
-            brand_id: brand?.value,
-            quantity: drugQuantity,
-            total_price: drugPrice
-        }).then(() => fetchDrugsSaleForBill())
-            .catch(error => setDrugListAddError(error.response.data.message))
+            bill_id: activeBillId, brand_id: brand?.value, quantity: drugQuantity, total_price: drugPrice
+        }).then(() => {
+            setDrugPrice("")
+            setDrugQuantity("")
+            setDrugUnitPrice("")
+            setBrand({value: "0", label: "Select.."})
+            fetchDrugsSaleForBill()
+        }).catch(error => setDrugListAddError(error.response.data.message))
 
     };
 
+    const handleExtraData = (item: string) => {
+        setDrugUnitPrice(item)
+    };
+
+
+    const removeDrug = (deletingDrug: Drug) => {
+        setDeleteError("")
+        axios.delete(`sales/${deletingDrug.id}`).then(() => {
+            if (drugList)
+                setDrugList(drugList.filter(drug => drug.id !== deletingDrug.id))
+        }).catch(error => setDeleteError(error.response.data.message));
+    };
     return (
         <div className="font-medium text-gray-400 border-gray-700 relative">
             {/* Tabs for Bills */}
@@ -148,7 +178,7 @@ const PharmacyPortal: React.FC = () => {
                         </div>
                     </div>
                     <div>
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-2 gap-12">
                             <div className="mb-6">
                                 {activeBill && (
                                     <Services
@@ -158,10 +188,11 @@ const PharmacyPortal: React.FC = () => {
                                         resetBillItems={false}
                                         initialBill={activeBill}
                                         showMedicineTable={true}
+                                        medicineTotal={medicineTotal}
                                     ></Services>
                                 )}
                             </div>
-                            <div className="p-4 border border-dashed rounded-lg border-gray-600">
+                            <div className="">
                                 <h3 className="text-xl font-semibold mb-4">Prepare the drug list</h3>
                                 <div className="grid gap-4 grid-cols-5 items-center">
                                     <div className="col-span-2">
@@ -170,7 +201,9 @@ const PharmacyPortal: React.FC = () => {
                                             apiUri="brands"
                                             onChange={(option: any) => setBrand(option)}
                                             value={brand}
-                                            id="DrugBrandSelect"/>
+                                            id="DrugBrandSelect"
+                                            onExtraDataHas={handleExtraData}
+                                        />
                                     </div>
                                     <TextInput name="Quantity" onChange={setDrugQuantity} value={drugQuantity}/>
                                     <TextInput name="Price" onChange={setDrugPrice} value={drugPrice}/>
@@ -196,6 +229,7 @@ const PharmacyPortal: React.FC = () => {
                                                     <th className="px-4 py-2 text-left">Drug Name</th>
                                                     <th className="px-4 py-2 text-left">Quantity</th>
                                                     <th className="px-4 py-2 text-left">Price</th>
+                                                    <th className="px-4 py-2 text-left w-8"><DeleteIcon/></th>
                                                 </tr>
                                                 </thead>
                                                 <tbody>
@@ -204,11 +238,18 @@ const PharmacyPortal: React.FC = () => {
                                                         <td className="px-4 py-2 border-r border-gray-800">{drug.brand}</td>
                                                         <td className="px-4 py-2 border-r border-gray-800">{drug.drug}</td>
                                                         <td className="px-4 py-2 border-r border-gray-800">{drug.quantity}</td>
-                                                        <td className="px-4 py-2">{drug.total_price}</td>
+                                                        <td className="px-4 py-2 border-r border-gray-800">{drug.total_price}</td>
+                                                        <td className="px-4 py-2 text-red-500">
+                                                            <button onClick={() => removeDrug(drug)}><DeleteIcon/></button>
+                                                        </td>
                                                     </tr>
                                                 ))}
                                                 </tbody>
                                             </table>
+                                            <div className="border border-gray-800 border-t px-4 py-2 flex justify-between">
+                                                <div>Total : {medicineTotal.toFixed(2)}</div>
+                                                {deleteError && <div className="text-red-500 ml-3 text-right">{deleteError}</div>}
+                                            </div>
                                         </div>
                                     </div>}
                                     {drugLisFetchError && <div className="text-red-500">{drugLisFetchError}</div>}

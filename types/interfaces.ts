@@ -156,33 +156,10 @@ export interface PatientMedicineHistory {
     patient_medicines: HistoryItem[];
 }
 
-
-export interface SearchableSelectProps {
-    placeholder?: string;
-    apiUri?: string;
-    type?: string;
-    onChange?: (selectedOption: SingleValue<Option> | string | undefined) => void;
-    onOptionChange?: (selectedOption: Option | null) => void;
-    onCreateOption?: (newValue: string) => void;
-    value: Option | undefined;
-    id: string;
-    options?: Option[];
-    resetValue?: boolean
-}
-
 export interface Service {
     id: number;
     name: string;
     price: string;
-}
-
-export interface ServicesProps {
-    patientId: number;
-    onNotPatientFound?: () => void;
-    onServiceStatusChange: (servicesStatus: ServicesStatus) => void;
-    resetBillItems: boolean;
-    showMedicineTable?: boolean;
-    initialBill?: Bill;
 }
 
 export interface ServicesStatus {

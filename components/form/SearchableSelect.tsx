@@ -1,10 +1,25 @@
-import React, {useState, useCallback, useEffect} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import AsyncCreatableSelect from 'react-select/async-creatable';
 import {SingleValue} from 'react-select';
 import axios from "@/lib/axios";
-import {Option, SearchableSelectProps} from "@/types/interfaces";
+import {Option} from "@/types/interfaces";
 import customStyles from "@/lib/custom-styles";
 import debounce from 'lodash.debounce';
+
+
+export interface SearchableSelectProps {
+    placeholder?: string;
+    apiUri?: string;
+    type?: string;
+    onChange?: (selectedOption: SingleValue<Option> | string | undefined) => void;
+    onOptionChange?: (selectedOption: Option | null) => void;
+    onCreateOption?: (newValue: string) => void;
+    onExtraDataHas?: (item: string) => void;
+    value: Option | undefined;
+    id: string;
+    options?: Option[];
+    resetValue?: boolean
+}
 
 const SearchableSelect: React.FC<SearchableSelectProps> = (
     {
@@ -15,9 +30,18 @@ const SearchableSelect: React.FC<SearchableSelectProps> = (
         id,
         onChange,
         value,
-        resetValue
+        resetValue,
+        onExtraDataHas
     }) => {
     const [selectedValue, setSelectedValue] = useState<Option | undefined>(value);
+    const [extraData, setExtraData] = useState<any>();
+    const [error, setError] = useState<string>("");
+
+    useEffect(() => {
+        if (onExtraDataHas && selectedValue && extraData && extraData[selectedValue.value]) {
+            onExtraDataHas(extraData[selectedValue.value])
+        }
+    }, [selectedValue]);
 
     useEffect(() => {
         if (resetValue === true) {
@@ -29,12 +53,19 @@ const SearchableSelect: React.FC<SearchableSelectProps> = (
         try {
             const typeUri = type ? `&type=${type}` : "";
             const response = await axios.get(`/dropdown/${apiUri}?search=${inputValue}${typeUri}`);
-            return response.data?.map((item: any) => ({
-                value: item.value,
-                label: item.label,
-            }));
-        } catch (error) {
-            console.error("Error fetching options:", error);
+            return response.data?.map((item: any) => {
+                if (item.extra) setExtraData({...extraData, [item.value]: item.extra})
+                return ({
+                    value: item.value,
+                    label: item.label,
+                })
+            });
+        } catch (error: any) {
+            if (error?.response?.data?.message) {
+                setError(error.response.data.message)
+            } else {
+                console.error("Error fetching options:", error);
+            }
             return [];
         }
     };
@@ -70,8 +101,12 @@ const SearchableSelect: React.FC<SearchableSelectProps> = (
                     loadOptions={debouncedFetchOptions}
                     instanceId={id}
                     value={selectedValue}
+                    isClearable
+                    backspaceRemovesValue
+                    escapeClearsValue
                 />
             </label>
+            {error && <div className="text-sm text-red-500 my-2">{error}</div>}
         </div>
     );
 };

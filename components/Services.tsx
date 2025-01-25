@@ -1,12 +1,23 @@
 import React, {useEffect, useState} from 'react';
 import SearchableSelect from "@/components/form/SearchableSelect";
-import {Bill, Option, ServicesProps} from "@/types/interfaces";
+import {Bill, Option, ServicesStatus} from "@/types/interfaces";
 import axios from "@/lib/axios";
 import Loader from "@/components/form/Loader";
 import ServiceMedicinesTable from "@/components/ServiceMedicinesTable";
 
+
+export interface ServicesProps {
+    patientId: number;
+    onNotPatientFound?: () => void;
+    onServiceStatusChange: (servicesStatus: ServicesStatus) => void;
+    resetBillItems: boolean;
+    showMedicineTable?: boolean;
+    initialBill?: Bill;
+    medicineTotal?: number;
+}
+
 const
-    Services: React.FC<ServicesProps> = ({patientId, onNotPatientFound, onServiceStatusChange, resetBillItems, initialBill, showMedicineTable = false}) => {
+    Services: React.FC<ServicesProps> = ({patientId, onNotPatientFound, onServiceStatusChange, resetBillItems, initialBill,medicineTotal, showMedicineTable = false}) => {
 
         const [selectedService, setSelectedService] = useState<Option>();
         const [activeBill, setActiveBill] = useState<Bill>();
@@ -199,8 +210,8 @@ const
                             {itemUpdateError && itemUpdateError.id === item.id && <div className="mb-4 text-right text-red-500">{itemUpdateError.message}</div>}
 
                             {showMedicineTable && item.service?.name == "Medicines" && activeBill.patient_medicines.length > 0 && (
-                                <div className="border border-dashed border-gray-600 rounded-lg p-4 my-4">
-                                    <h4 className="mb-2 text-lg font-bold">Medicines</h4>
+                                <div className="my-4">
+                                    <h3 className="mb-2">Doctor recommended medicine list</h3>
                                     <ServiceMedicinesTable patientMedicines={activeBill.patient_medicines}/>
                                 </div>
                             )}

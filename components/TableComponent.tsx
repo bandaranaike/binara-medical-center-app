@@ -126,7 +126,7 @@ export default function TableComponent({tab}: TableComponentProps) {
                     <thead>
                     <tr className="bg-gray-800">
                         {fields.map((field) => (
-                            <th key={field} className="p-4 first-letter:uppercase">
+                            !field.endsWith("_id") && <th key={field} className="p-4 first-letter:uppercase">
                                 {field.replace('_', ' ')}
                             </th>
                         ))}
@@ -137,7 +137,7 @@ export default function TableComponent({tab}: TableComponentProps) {
                     {data.map((record) => (
                         <tr key={record.id}>
                             {fields.map((field) => (
-                                <td key={field} className="border-t border-gray-800 border-r py-2 px-4">
+                                !field.endsWith("_id") && <td key={field} className="border-t border-gray-800 border-r py-2 px-4">
                                     {record[field]}
                                 </td>
                             ))}
@@ -277,7 +277,7 @@ export default function TableComponent({tab}: TableComponentProps) {
                                     <div className='text-sm text-gray-400 first-letter:uppercase'>This action will update the list of {apiUrl}</div>
                                     <div className="mt-2">
                                         {fields.map((field) => (
-                                            <div key={field} className="mt-4">
+                                            !field.endsWith('_id') && <div key={field} className="mt-4">
                                                 {dropdowns && dropdowns[field] &&
                                                     <SearchableSelect
                                                         placeholder={field}
