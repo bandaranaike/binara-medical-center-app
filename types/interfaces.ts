@@ -13,7 +13,7 @@ export interface Bill {
     patient: Patient;
     doctor: Doctor;
     bill_items: BillItem[];
-    patient_medicine_history: PatientMedicineHistory;
+    patient_medicines: HistoryItem[];
     created_at: string;
     updated_at: string;
 }
@@ -155,6 +155,7 @@ export interface PatientMedicineHistory {
     created_at: string;
     patient_medicines: HistoryItem[];
 }
+
 
 export interface SearchableSelectProps {
     placeholder?: string;

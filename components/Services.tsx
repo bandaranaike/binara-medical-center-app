@@ -8,24 +8,14 @@ import ServiceMedicinesTable from "@/components/ServiceMedicinesTable";
 const
     Services: React.FC<ServicesProps> = ({patientId, onNotPatientFound, onServiceStatusChange, resetBillItems, initialBill, showMedicineTable = false}) => {
 
-        const defaultBill = {
-            id: -1,
-            patient_id: 0,
-            status: '',
-            patient: {} as any,
-            doctor: {} as any,
-            bill_items: [],
-            patient_medicines: [],
-            created_at: '',
-            updated_at: ''
-        }
-
         const [selectedService, setSelectedService] = useState<Option>();
         const [activeBill, setActiveBill] = useState<Bill>();
         const [servicePrice, setServicePrice] = useState<string>("");
         const [finalBillAmount, setFinalBillAmount] = useState<number>(0);
         const [typingTimeout, setTypingTimeout] = useState<NodeJS.Timeout | null>(null);
         const [isLoading, setIsLoading] = useState(false);
+        const [addServiceError, setAddServiceError] = useState<string>("")
+        const [itemUpdateError, setItemUpdateError] = useState<{ id: number, message: string } | undefined>()
 
         useEffect(() => {
             calculateFinalBillAmount();
@@ -48,13 +38,12 @@ const
         }, [finalBillAmount]);
 
         const handleAddService = () => {
-            console.log("patientId", patientId)
+            setAddServiceError("")
             if (!patientId && onNotPatientFound) {
                 onNotPatientFound();
+                setAddServiceError("To proceed, patient id is required. Please check it")
                 return;
             }
-
-            console.log("selectedService", selectedService, "servicePrice", servicePrice)
 
             if (selectedService && servicePrice) {
                 setIsLoading(true);
@@ -68,7 +57,6 @@ const
 
                 axios.post("bill-items", newBillItem).then((response) => {
                     const updatedBillItem = response.data.data;
-
                     setActiveBill((prevBill) => {
                         if (prevBill) {
                             return {
@@ -79,11 +67,10 @@ const
                         }
                         return prevBill;
                     });
-
                     setSelectedService({label: "", value: ""});
                     setServicePrice("");
                     calculateFinalBillAmount();
-                }).catch((error) => console.error("Error adding service:", error)).finally(() => setIsLoading(false));
+                }).catch((error) => setAddServiceError("Error adding service: " + error.response.data.message)).finally(() => setIsLoading(false));
             }
         };
 
@@ -129,12 +116,10 @@ const
             setTypingTimeout(timeout);
         };
 
-        const updateBillItemAmount = async (itemId: number, amount: string) => {
-            try {
-                await axios.put(`bill-items/${itemId}`, {bill_amount: amount});
-            } catch (error) {
-                console.error("Error updating bill item:", error);
-            }
+        const updateBillItemAmount = (itemId: number, amount: string) => {
+            setItemUpdateError(undefined)
+            axios.put(`bill-items/${itemId}`, {bill_amount: amount})
+                .catch(error => setItemUpdateError({id: itemId, message: error.response.data.message}));
         };
 
         const calculateFinalBillAmount = () => {
@@ -153,7 +138,7 @@ const
         return (
             <div className="bg-gray-900">
                 <form>
-                    <div className="mt-6">
+                    <div className="">
                         <div className="grid gap-4 grid-cols-4 items-center ">
                             <div className="col-span-2">
                                 <SearchableSelect
@@ -176,13 +161,15 @@ const
                             />
                             <button
                                 type="button"
-                                className="mt-3.5 bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700"
+                                className="mt-3.5 border border-green-600 bg-green-700 text-white py-2 px-4 rounded hover:border-green-500"
                                 onClick={handleAddService}
                             >
                                 Add
                             </button>
                         </div>
                     </div>
+
+                    {addServiceError && <div className="text-red-500 mb-4">{addServiceError}</div>}
 
                     <hr className="border-t border-gray-700 mb-4 mt-2"/>
 
@@ -208,10 +195,13 @@ const
                                     Remove
                                 </button>
                             </div>
-                            {showMedicineTable && item.service?.name == "Medicines" && activeBill.patient_medicine_history.patient_medicines.length > 0 && (
+
+                            {itemUpdateError && itemUpdateError.id === item.id && <div className="mb-4 text-right text-red-500">{itemUpdateError.message}</div>}
+
+                            {showMedicineTable && item.service?.name == "Medicines" && activeBill.patient_medicines.length > 0 && (
                                 <div className="border border-dashed border-gray-600 rounded-lg p-4 my-4">
                                     <h4 className="mb-2 text-lg font-bold">Medicines</h4>
-                                    <ServiceMedicinesTable patientMedicines={activeBill.patient_medicine_history.patient_medicines}/>
+                                    <ServiceMedicinesTable patientMedicines={activeBill.patient_medicines}/>
                                 </div>
                             )}
                         </React.Fragment>
