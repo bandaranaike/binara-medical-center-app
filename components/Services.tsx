@@ -4,6 +4,7 @@ import {Bill, Option, ServicesStatus} from "@/types/interfaces";
 import axios from "@/lib/axios";
 import Loader from "@/components/form/Loader";
 import ServiceMedicinesTable from "@/components/ServiceMedicinesTable";
+import {useEffectEvent} from "@react-aria/utils";
 
 
 export interface ServicesProps {
@@ -17,7 +18,7 @@ export interface ServicesProps {
 }
 
 const
-    Services: React.FC<ServicesProps> = ({patientId, onNotPatientFound, onServiceStatusChange, resetBillItems, initialBill,medicineTotal, showMedicineTable = false}) => {
+    Services: React.FC<ServicesProps> = ({patientId, onNotPatientFound, onServiceStatusChange, resetBillItems, initialBill, medicineTotal, showMedicineTable = false}) => {
 
         const [selectedService, setSelectedService] = useState<Option>();
         const [activeBill, setActiveBill] = useState<Bill>();
@@ -37,7 +38,8 @@ const
         }, [initialBill]);
 
         useEffect(() => {
-            setActiveBill(undefined)
+            if (resetBillItems)
+                setActiveBill(undefined)
         }, [resetBillItems]);
 
         useEffect(() => {
@@ -47,6 +49,24 @@ const
                 total: finalBillAmount,
             });
         }, [finalBillAmount]);
+
+        useEffect(() => {
+            if (activeBill && medicineTotal) {
+                setActiveBill((prevBill) => {
+                    if (prevBill) {
+                        return {
+                            ...prevBill,
+                            bill_items: prevBill.bill_items.map((item) =>
+                                item.service.name === "Medicines" ? {...item, bill_amount: medicineTotal.toString()} : item
+                            ),
+                        };
+                    }
+                    return prevBill;
+                });
+
+                console.log("BillItem", medicineTotal)
+            }
+        }, [medicineTotal]);
 
         const handleAddService = () => {
             setAddServiceError("")
@@ -106,7 +126,7 @@ const
             setSelectedService({label: serviceName, value: "-1"});
         };
 
-        const handleInputChange = (itemId: number, newAmountValue: string) => {
+        const handleInputChange = (itemId: number, newAmountValue: string, changeTotalBill: boolean = false) => {
             const newAmount = newAmountValue || '0';
             setActiveBill((prevBill) => {
                 if (prevBill) {

@@ -26,7 +26,7 @@ const PharmacyPortal: React.FC = () => {
     const [deleteError, setDeleteError] = useState("");
     const [billsFetchError, setBillFetchErrors] = useState("");
     const [brand, setBrand] = useState<Option | undefined>()
-    const [drugQuantity, setDrugQuantity] = useState<string>("")
+    const [drugQuantity, setDrugQuantity] = useState<string>("1")
     const [drugPrice, setDrugPrice] = useState<string>("")
     const [drugUnitPrice, setDrugUnitPrice] = useState<string>("")
     const [drugListAddError, setDrugListAddError] = useState<string>("")
@@ -60,9 +60,10 @@ const PharmacyPortal: React.FC = () => {
     }, [drugQuantity, drugUnitPrice])
 
     useEffect(() => {
-        if (drugList)
-            setMedicineTotal(drugList.reduce((c: number, item: any) => c + Number(item.total_price), 0))
-        else setMedicineTotal(0)
+        if (drugList) {
+            const total =drugList.reduce((c: number, item: any) => c + Number(item.total_price), 0);
+            setMedicineTotal(total)
+        } else setMedicineTotal(0)
     }, [drugList]);
 
     const handleFinalizeBill = (billId: number) => {
@@ -117,7 +118,7 @@ const PharmacyPortal: React.FC = () => {
             bill_id: activeBillId, brand_id: brand?.value, quantity: drugQuantity, total_price: drugPrice
         }).then(() => {
             setDrugPrice("")
-            setDrugQuantity("")
+            setDrugQuantity("1")
             setDrugUnitPrice("")
             setBrand({value: "0", label: "Select.."})
             fetchDrugsSaleForBill()
@@ -207,7 +208,10 @@ const PharmacyPortal: React.FC = () => {
                                     </div>
                                     <TextInput name="Quantity" onChange={setDrugQuantity} value={drugQuantity}/>
                                     <TextInput name="Price" onChange={setDrugPrice} value={drugPrice}/>
-                                    <button onClick={addDrugsToList} className="border border-green-600 bg-green-700 text-white rounded hover:border-green-500 p-2 mt-4">Add
+                                    <button
+                                        onClick={addDrugsToList}
+                                        className="border border-green-600 bg-green-700 text-white rounded hover:border-green-500 p-2 mt-4"
+                                    >Add
                                     </button>
                                 </div>
                                 {drugListAddError && <div className="mb-4 text-red-500">{drugListAddError}</div>}

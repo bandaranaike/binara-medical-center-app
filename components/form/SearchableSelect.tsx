@@ -38,14 +38,14 @@ const SearchableSelect: React.FC<SearchableSelectProps> = (
     const [error, setError] = useState<string>("");
 
     useEffect(() => {
-        if (onExtraDataHas && selectedValue && extraData && extraData[selectedValue.value]) {
-            onExtraDataHas(extraData[selectedValue.value])
+        if (onExtraDataHas && apiUri && selectedValue && extraData && extraData[apiUri][selectedValue.value]) {
+            onExtraDataHas(extraData[apiUri][selectedValue.value])
         }
     }, [selectedValue]);
 
     useEffect(() => {
         if (resetValue === true) {
-            setSelectedValue({value: "0", label: ""})
+            setSelectedValue({value: "0", label: "Select.."})
         }
     }, [resetValue]);
 
@@ -53,13 +53,18 @@ const SearchableSelect: React.FC<SearchableSelectProps> = (
         try {
             const typeUri = type ? `&type=${type}` : "";
             const response = await axios.get(`/dropdown/${apiUri}?search=${inputValue}${typeUri}`);
-            return response.data?.map((item: any) => {
-                if (item.extra) setExtraData({...extraData, [item.value]: item.extra})
+            let extraObject: any = {}
+            const optionData = response.data?.map((item: any) => {
+                if (item.extra && apiUri) extraObject[apiUri] = {...extraObject[apiUri], [item.value]: item.extra}
                 return ({
                     value: item.value,
                     label: item.label,
                 })
             });
+            if (apiUri && extraObject[apiUri]) setExtraData(extraObject)
+
+            return optionData
+
         } catch (error: any) {
             if (error?.response?.data?.message) {
                 setError(error.response.data.message)
