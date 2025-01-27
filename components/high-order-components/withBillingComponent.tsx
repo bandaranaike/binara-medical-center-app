@@ -6,6 +6,7 @@ import CustomCheckbox from "@/components/form/CustomCheckbox";
 import axiosLocal from "@/lib/axios";
 import {Patient} from "@/types/interfaces";
 import printService from "@/lib/printService";
+import {randomString} from "@/lib/strings";
 
 interface WithBillingComponentProps {
     validation: any
@@ -15,7 +16,7 @@ const withBillingComponent = <P extends object>(
     WrappedComponent: React.ComponentType<P & {
         formData: any,
         handleFormChange: (name: string, value: string | number | boolean) => void,
-        resetData: boolean
+        resetData: string
     }>
 ) => {
     const ComponentWithBilling: React.FC<WithBillingComponentProps & P> = ({...props}) => {
@@ -53,7 +54,7 @@ const withBillingComponent = <P extends object>(
 
         const [isBooking, setIsBooking] = useState(false);
         const [isLoading, setIsLoading] = useState(false);
-        const [resetForm, setResetForm] = useState(false);
+        const [resetForm, setResetForm] = useState("");
         const [billAmount, setBillAmount] = useState(0);
         const [systemAmount, setSystemAmount] = useState(0);
 
@@ -142,7 +143,7 @@ const withBillingComponent = <P extends object>(
 
         const resetFormData = () => {
             setFormData(defaultFormData)
-            setResetForm(true);
+            setResetForm(randomString());
         }
 
         const createInvoiceBill = () => {

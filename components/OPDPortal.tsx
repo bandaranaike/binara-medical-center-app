@@ -2,13 +2,15 @@ import React, {useEffect, useState} from "react";
 import withBillingComponent from "@/components/high-order-components/withBillingComponent";
 import {BillingPageProps, DoctorFee} from "@/types/interfaces";
 import DoctorSelect from "@/components/DoctorSelect";
-import TextInput from "@/components/form/TextInput";
 
 const OPD: React.FC<BillingPageProps> = ({handleFormChange, onDoctorNameChange, resetData}) => {
 
     useEffect(() => {
         handleFormChange('service_type', "opd")
-    }, []);
+        handleFormChange('doctor_id', "")
+        handleFormChange('opd_doctor_fee', "")
+        handleFormChange('opd_doctor_charge', "")
+    }, [resetData]);
 
     const handleDoctorChangeOption = (data: DoctorFee) => {
         handleFormChange('doctor_id', data.id)

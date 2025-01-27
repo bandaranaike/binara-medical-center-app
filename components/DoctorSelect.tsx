@@ -5,7 +5,7 @@ import CreateNewDoctor from "@/components/CreateNewDoctor";
 import axiosLocal from "@/lib/axios";
 
 interface DoctorSelectProps {
-    resetSelection: boolean
+    resetSelection: string
     doctorType: string
     onDoctorSelect: (data: DoctorFee) => void;
 }

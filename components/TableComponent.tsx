@@ -130,6 +130,7 @@ export default function TableComponent({tab}: TableComponentProps) {
                                 {field.replace('_', ' ')}
                             </th>
                         ))}
+
                         <th className="p-4">Actions</th>
                     </tr>
                     </thead>

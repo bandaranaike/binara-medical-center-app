@@ -30,7 +30,7 @@ export interface BillComponentProps {
 export interface BillingPageProps {
     handleFormChange: (name: string, value: string | number | boolean) => void;
     onDoctorNameChange: (name: string) => void
-    resetData: boolean
+    resetData: string
 }
 
 export interface BillItem {
@@ -139,7 +139,7 @@ export interface PatientDetailsProps {
     patientPhone: string;
     patientName: string;
     patient?: Patient;
-    resetForm: boolean;
+    resetForm: string;
     patientNotFound: boolean;
     onPatientCreatedOrSelected: (patientData: Patient) => void;
 }

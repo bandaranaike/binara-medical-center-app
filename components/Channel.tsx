@@ -10,7 +10,9 @@ const Channel: React.FC<BillingPageProps> = ({handleFormChange, onDoctorNameChan
 
     useEffect(() => {
         handleFormChange('service_type', "specialist")
-    }, []);
+        setChannelingFee("")
+        setInstitutionFee("")
+    }, [resetData]);
 
     useEffect(() => {
         handleFormChange('channeling_fee', Number(channelingFee))
