@@ -1,6 +1,3 @@
-import {SingleValue} from "react-select";
-import React from "react";
-
 export interface Allergy {
     name: string;
     id: number;
@@ -18,19 +15,12 @@ export interface Bill {
     updated_at: string;
 }
 
-export interface BillComponentProps {
-    children?: React.ReactNode;
-    form: any,
-    setForm: (form: any) => void;
-    onCreateInvoiceBill?: () => void;
-    onClearData?: () => void;
-    doctorRequired?: boolean;
-}
-
 export interface BillingPageProps {
     handleFormChange: (name: string, value: string | number | boolean) => void;
     onDoctorNameChange: (name: string) => void
     resetData: string
+    patientId?: number
+    onBillIdAdded?: (billId: number) => void
 }
 
 export interface BillItem {

@@ -126,7 +126,7 @@ export default function TableComponent({tab}: TableComponentProps) {
                     <thead>
                     <tr className="bg-gray-800">
                         {fields.map((field) => (
-                            !field.endsWith("_id") && <th key={field} className="p-4 first-letter:uppercase">
+                            (!field.endsWith("_id") && !["password"].includes(field)) && <th key={field} className="p-4 first-letter:uppercase">
                                 {field.replace('_', ' ')}
                             </th>
                         ))}
@@ -138,7 +138,7 @@ export default function TableComponent({tab}: TableComponentProps) {
                     {data.map((record) => (
                         <tr key={record.id}>
                             {fields.map((field) => (
-                                !field.endsWith("_id") && <td key={field} className="border-t border-gray-800 border-r py-2 px-4">
+                                (!field.endsWith("_id") && !["password"].includes(field)) && <td key={field} className="border-t border-gray-800 border-r py-2 px-4">
                                     {record[field]}
                                 </td>
                             ))}

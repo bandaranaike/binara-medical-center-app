@@ -15,7 +15,7 @@ const Admin = () => {
             select: {type: ['specialist', 'opd', 'dental']}
         },
         {id: "roles", fields: ["name", "key", "description"]},
-        {id: "users", fields: ["name", "role", "email"], dropdowns: {role: "roles"}},
+        {id: "users", fields: ["name", "role", "email","password"], dropdowns: {role: "roles"}},
     ];
 
     return (<AdminTabs tabs={tabs}/>)

@@ -12,7 +12,7 @@ const MedicinesTable: React.FC<MedicinesTableProps> = ({patientMedicines}) => {
             <table className="w-full text-sm text-left text-gray-400">
                 <thead className="bg-gray-700">
                 <tr className="bg-gray-800">
-                    <th className="px-4 py-2">Medicine</th>
+                    <th className="px-4 py-2">Medicine/Treatment</th>
                     <th className="px-4 py-2 text-left">Medication Frequency</th>
                     <th className="px-4 py-2 text-left">Duration</th>
                 </tr>

@@ -175,7 +175,7 @@ const DoctorPortal: React.FC = () => {
     }
 
     if (loading) {
-        return <Loader/>;
+        return <div className="my-4"><Loader/></div>;
     }
 
     return (
@@ -204,7 +204,7 @@ const DoctorPortal: React.FC = () => {
                 </ul>
             ) || (
                 <>
-                    <h2 className="text-2xl font-bold mb-4 text-left">Doctor Portal</h2>
+                    <h2 className="text-2xl font-bold mb-2 text-left">Doctor Portal</h2>
                     {error && <div className="text-red-500 mt-2">{error}</div> || <div>There are currently no bills available for you</div>}
                 </>
             )}

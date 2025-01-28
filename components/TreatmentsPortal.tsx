@@ -1,37 +1,23 @@
-import React, {useState} from 'react';
-import PatientDetails from "@/components/PatientDetails";
-import {BillingPageProps, DoctorFee, Option, Patient, ServicesStatus} from "@/types/interfaces";
-import axiosLocal from "@/lib/axios";
-import SearchablePatientSelect from "@/components/form/SearchablePatientSelect";
-import CustomCheckbox from "@/components/form/CustomCheckbox";
+import React, {useEffect} from 'react';
+import {BillingPageProps, DoctorFee, ServicesStatus} from "@/types/interfaces";
 import Services from "@/components/Services";
-import SearchableSelect from "@/components/form/SearchableSelect";
 import DoctorSelect from "@/components/DoctorSelect";
-import Loader from "@/components/form/Loader";
 import withBillingComponent from "@/components/high-order-components/withBillingComponent";
 
-const Treatment: React.FC<BillingPageProps> = ({handleFormChange, onDoctorNameChange, resetData}) => {
-    const [billNumber, setBillNumber] = useState<number>(0);
-    const [patientNotFound, setPatientNotFound] = useState<boolean>(false);
+const Treatment: React.FC<BillingPageProps> = ({handleFormChange, onDoctorNameChange, resetData, onBillIdAdded, patientId = 0}) => {
 
-    const [doctorId, setDoctorId] = useState(0);
-
-    const [patientId, setPatientId] = useState(0);
-
-    const [billAmount, setBillAmount] = useState(0);
-    const [numberOfServices, setNumberOfServices] = useState(0);
-    const [errors, setErrors] = useState<any>({});
-    const [resetServices, setResetServices] = useState(false);
+    useEffect(() => {
+        handleFormChange("service_type", "opd")
+    }, [resetData]);
 
     const handleServiceStatusChange = (servicesStatus: ServicesStatus) => {
-        errors.services = "";
-        setNumberOfServices(servicesStatus.count);
-        setBillAmount(servicesStatus.total)
-        setBillNumber(servicesStatus.bill_id)
+        handleFormChange('service_charge', servicesStatus.total)
     }
 
     const handleDoctorChangeOption = (drData: DoctorFee) => {
-        setDoctorId(drData.id);
+        onDoctorNameChange(drData.name)
+        handleFormChange('doctor_fee', drData.doctor_fee)
+        handleFormChange('doctor_charge', drData.institution_charge)
     };
 
     return (
@@ -41,8 +27,8 @@ const Treatment: React.FC<BillingPageProps> = ({handleFormChange, onDoctorNameCh
                 key="treatment-portal"
                 onServiceStatusChange={handleServiceStatusChange}
                 patientId={patientId}
-                onNotPatientFound={() => setPatientNotFound(true)}
-                resetBillItems={resetServices}
+                resetBillItems={!!resetData}
+                onBillCreated={onBillIdAdded}
             ></Services>
         </div>
     );

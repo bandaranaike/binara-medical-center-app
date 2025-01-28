@@ -2,6 +2,7 @@ import React, {useEffect, useState} from "react";
 import axios from "@/lib/axios";
 import Loader from "@/components/form/Loader";
 import StatusLabel from "@/components/form/StatusLabel";
+import printService from "@/lib/printService";
 
 interface Bill {
     bill_amount: number;
@@ -48,7 +49,22 @@ const ReceptionList: React.FC = () => {
                 status: "done"
             });
 
-            if (response.status === 200) {
+            console.log("response", response)
+
+            if (response.status === 201) {
+
+                const data = response.data;
+
+                const printData = {
+                    bill_id: data.bill_id,
+                    customer_name: bill.patient_name,
+                    doctor_name: bill.doctor_name,
+                    items: data.bill_items,
+                    total: data.total,
+                };
+
+                await printService.sendPrintRequest(printData);
+
                 // Remove the bill from the list after marking as done
                 setBills((prevBills) =>
                     prevBills.filter((b) => b.id !== bill.id)

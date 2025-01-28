@@ -90,7 +90,7 @@ const RegisterWindow: React.FC<LoginWindowProps> = ({onUserHasLoggedIn}) => {
                 }).then(response => {
                     onUserHasLoggedIn(response.data);
                 }).catch(e => {
-                    setRegisterError(e)
+                    setRegisterError([e.response.data.message])
                 });
             } catch (error) {
                 console.log(error)

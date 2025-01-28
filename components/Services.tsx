@@ -9,16 +9,19 @@ import {useEffectEvent} from "@react-aria/utils";
 
 export interface ServicesProps {
     patientId: number;
-    onNotPatientFound?: () => void;
     onServiceStatusChange: (servicesStatus: ServicesStatus) => void;
     resetBillItems: boolean;
     showMedicineTable?: boolean;
     initialBill?: Bill;
     medicineTotal?: number;
+    onBillCreated?: (billId: number) => void
 }
 
 const
-    Services: React.FC<ServicesProps> = ({patientId, onNotPatientFound, onServiceStatusChange, resetBillItems, initialBill, medicineTotal, showMedicineTable = false}) => {
+    Services: React.FC<ServicesProps> = (
+        {
+            patientId, onServiceStatusChange, resetBillItems, initialBill, medicineTotal, onBillCreated, showMedicineTable = false
+        }) => {
 
         const [selectedService, setSelectedService] = useState<Option>();
         const [activeBill, setActiveBill] = useState<Bill>();
@@ -63,23 +66,21 @@ const
                     }
                     return prevBill;
                 });
-
-                console.log("BillItem", medicineTotal)
             }
         }, [medicineTotal]);
 
         const handleAddService = () => {
             setAddServiceError("")
-            if (!patientId && onNotPatientFound) {
-                onNotPatientFound();
-                setAddServiceError("To proceed, patient id is required. Please check it")
+            if (!patientId) {
+                setAddServiceError("Please select a patient.")
                 return;
             }
 
             if (selectedService && servicePrice) {
                 setIsLoading(true);
+                const billId = activeBill ? activeBill.id : -1
                 const newBillItem = {
-                    bill_id: activeBill?.id,
+                    bill_id: billId,
                     service_id: selectedService.value,
                     service_name: selectedService.value === '-1' ? selectedService.label : null,
                     bill_amount: servicePrice,
@@ -87,17 +88,23 @@ const
                 };
 
                 axios.post("bill-items", newBillItem).then((response) => {
-                    const updatedBillItem = response.data.data;
-                    setActiveBill((prevBill) => {
-                        if (prevBill) {
-                            return {
-                                ...prevBill,
-                                id: updatedBillItem.bill_id,
-                                bill_items: [...prevBill.bill_items, updatedBillItem],
-                            };
-                        }
-                        return prevBill;
-                    });
+                    const updatedBillItem = response.data;
+                    if (billId === -1) {
+                        if (onBillCreated) onBillCreated(updatedBillItem.id)
+                        setActiveBill(updatedBillItem)
+                    } else {
+                        setActiveBill((prevBill) => {
+                            if (prevBill) {
+                                return {
+                                    ...prevBill,
+                                    id: updatedBillItem.bill_id,
+                                    bill_items: [...prevBill.bill_items, updatedBillItem],
+                                };
+                            }
+                            return prevBill;
+                        });
+                    }
+
                     setSelectedService({label: "", value: ""});
                     setServicePrice("");
                     calculateFinalBillAmount();
@@ -168,8 +175,14 @@ const
 
         return (
             <div className="bg-gray-900">
-                <form>
-                    <div className="">
+                <div>
+                    {showMedicineTable && activeBill && activeBill.patient_medicines.length > 0 && (
+                        <div className="mb-4">
+                            <h3 className="mb-3 font-semibold text-xl">Doctor recommended medicine list</h3>
+                            <ServiceMedicinesTable patientMedicines={activeBill.patient_medicines}/>
+                        </div>
+                    )}
+                    <div>
                         <div className="grid gap-4 grid-cols-4 items-center ">
                             <div className="col-span-2">
                                 <SearchableSelect
@@ -192,7 +205,7 @@ const
                             />
                             <button
                                 type="button"
-                                className="mt-3.5 border border-green-600 bg-green-700 text-white py-2 px-4 rounded hover:border-green-500"
+                                className="mt-3.5 border border-green-600 bg-green-700 text-white py-1.5 px-4 rounded hover:border-green-500"
                                 onClick={handleAddService}
                             >
                                 Add
@@ -228,24 +241,17 @@ const
                             </div>
 
                             {itemUpdateError && itemUpdateError.id === item.id && <div className="mb-4 text-right text-red-500">{itemUpdateError.message}</div>}
-
-                            {showMedicineTable && item.service?.name == "Medicines" && activeBill.patient_medicines.length > 0 && (
-                                <div className="my-4">
-                                    <h3 className="mb-2">Doctor recommended medicine list</h3>
-                                    <ServiceMedicinesTable patientMedicines={activeBill.patient_medicines}/>
-                                </div>
-                            )}
                         </React.Fragment>
                     ))}
                     {isLoading && <Loader/>}
                     {activeBill && (
                         <div className="flex justify-between content-center">
-                            <div className="font-bold text-lg mt-4">
-                                Total: LKR {finalBillAmount}
+                            <div className={showMedicineTable ? "font-bold text-lg mt-4" : "mt-4"}>
+                                {showMedicineTable ? 'Total' : "Service total: "}: LKR {finalBillAmount.toFixed(2)}
                             </div>
                         </div>
                     )}
-                </form>
+                </div>
             </div>
         );
     };

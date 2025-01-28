@@ -33,8 +33,10 @@ const PharmacyPortal: React.FC = () => {
     const [drugLisFetchError, setDrugListFetchError] = useState<string>("")
     const [drugList, setDrugList] = useState<Drug [] | undefined>()
     const [isDrugListLoading, setIsDrugListLoading] = useState<boolean>(false)
+    const [isLoading, setIsLoading] = useState<boolean>(false)
 
     useEffect(() => {
+        setIsLoading(true)
         const fetchPharmacyPendingBills = () => {
             setBillFetchErrors("")
             axios.get("bills/pending/pharmacy").then((response) => {
@@ -42,7 +44,8 @@ const PharmacyPortal: React.FC = () => {
                 if (response.data.length > 0) {
                     setActiveBillId(response.data[0].id);
                 }
-            }).catch((error) => setBillFetchErrors("Error fetching pending bills:" + error.response.data.message));
+            }).catch((error) => setBillFetchErrors("Error fetching pending bills:" + error.response.data.message))
+                .finally(() => setIsLoading(false));
         }
         const debounceFetch = setTimeout(fetchPharmacyPendingBills, 400); // Debounce API calls
         return () => clearTimeout(debounceFetch);
@@ -61,7 +64,7 @@ const PharmacyPortal: React.FC = () => {
 
     useEffect(() => {
         if (drugList) {
-            const total =drugList.reduce((c: number, item: any) => c + Number(item.total_price), 0);
+            const total = drugList.reduce((c: number, item: any) => c + Number(item.total_price), 0);
             setMedicineTotal(total)
         } else setMedicineTotal(0)
     }, [drugList]);
@@ -89,14 +92,16 @@ const PharmacyPortal: React.FC = () => {
     };
 
     const fetchDrugsSaleForBill = () => {
-        setIsDrugListLoading(true)
-        setDrugListFetchError("")
-        axios.get(`bills/${activeBillId}/sales`)
-            .then(response => {
-                setDrugList(response.data)
-            })
-            .catch(error => setDrugListFetchError(error.response.data.message))
-            .finally(() => setIsDrugListLoading(false))
+        if (activeBillId) {
+            setIsDrugListLoading(true)
+            setDrugListFetchError("")
+            axios.get(`bills/${activeBillId}/sales`)
+                .then(response => {
+                    setDrugList(response.data)
+                })
+                .catch(error => setDrugListFetchError(error.response.data.message))
+                .finally(() => setIsDrugListLoading(false))
+        }
     }
 
     const handleOnServiceStatusChange = (billStatus: ServicesStatus) => {
@@ -140,6 +145,9 @@ const PharmacyPortal: React.FC = () => {
     };
     return (
         <div className="font-medium text-gray-400 border-gray-700 relative">
+
+            {isLoading && <div className="my-4"><Loader/></div>}
+
             {/* Tabs for Bills */}
             {pendingBills.length > 0 && (
                 <ul className="flex flex-wrap -mb-px border-b border-gray-800">
@@ -280,9 +288,9 @@ const PharmacyPortal: React.FC = () => {
                 </div>
             )}
 
-            {!activeBill && (
+            {!activeBill && !isLoading && (
                 <>
-                    <h2 className="text-2xl font-bold mb-4 text-left">Pharmacy portal</h2>
+                    <h2 className="text-2xl font-bold mb-2 text-left">Pharmacy portal</h2>
                     {billsFetchError &&
                         <div className="text-red-500">{billsFetchError}</div> ||
                         <p className="text-left text-normal">No pending bills available.</p>

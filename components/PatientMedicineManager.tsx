@@ -126,7 +126,7 @@ const PatientMedicineManager: React.FC<PatientMedicineProps> = ({patientId, bill
                                     value={selectedMedicine}
                                     onChange={(item: any) => setSelectedMedicine(item)}
                                     onCreateOption={item => handleCreateNewMedicine(item)}
-                                    placeholder="Medicine"
+                                    placeholder="Medicine/Treatment"
                                     apiUri="medicines"
                                 />
                             </div>

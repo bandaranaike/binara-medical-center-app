@@ -4,7 +4,7 @@ import PatientDetails from "@/components/PatientDetails";
 import Loader from "@/components/form/Loader";
 import CustomCheckbox from "@/components/form/CustomCheckbox";
 import axiosLocal from "@/lib/axios";
-import {Patient} from "@/types/interfaces";
+import {BillingPageProps, Patient} from "@/types/interfaces";
 import printService from "@/lib/printService";
 import {randomString} from "@/lib/strings";
 
@@ -13,11 +13,7 @@ interface WithBillingComponentProps {
 }
 
 const withBillingComponent = <P extends object>(
-    WrappedComponent: React.ComponentType<P & {
-        formData: any,
-        handleFormChange: (name: string, value: string | number | boolean) => void,
-        resetData: string
-    }>
+    WrappedComponent: React.ComponentType<P & BillingPageProps>
 ) => {
     const ComponentWithBilling: React.FC<WithBillingComponentProps & P> = ({...props}) => {
         const defaultFormData = {
@@ -158,7 +154,9 @@ const withBillingComponent = <P extends object>(
                 setIsLoading(true)
                 setBillCreateError("")
                 setErrors({});
-                axiosLocal.post('bills', {...formData, bill_amount: billAmount, system_amount: systemAmount}).then(async billSaveResponse => {
+                axiosLocal.post('bills', {
+                    ...formData, bill_amount: billAmount, system_amount: systemAmount, bill_id: billNumber
+                }).then(async billSaveResponse => {
                     clearAllErrors()
                     setBillNumber(billSaveResponse.data.bill_number);
                     setSuccessMessage(`Invoice #${billSaveResponse.data.bill_id} successfully generated! Queue id: ${billSaveResponse.data.queue_id}`);
@@ -177,7 +175,6 @@ const withBillingComponent = <P extends object>(
             } finally {
                 setIsLoading(false)
             }
-
         };
 
         const handlePrint = async (billId: number, billItems: any, total: number) => {
@@ -204,7 +201,7 @@ const withBillingComponent = <P extends object>(
                 </div>
                 <div className="grid grid-cols-3 gap-8">
                     <div>
-                        <div className="mb-4 border-b border-dashed border-gray-700 pb-6 mb-6 bg-gray-900">
+                        <div className="border-b border-dashed border-gray-700 pb-6 mb-6 bg-gray-900">
                             <div className="mb-2">Search patient :</div>
                             <SearchablePatientSelect onCreateNew={handlePatientOnCreate} onPatientSelect={handlePatientSelect}/>
                         </div>
@@ -216,6 +213,8 @@ const withBillingComponent = <P extends object>(
                                 onDoctorNameChange={setDoctorName}
                                 handleFormChange={handleFormChange}
                                 resetData={resetForm}
+                                patientId={patientId}
+                                onBillIdAdded={setBillNumber}
                             />
                         </div>
 
@@ -237,7 +236,7 @@ const withBillingComponent = <P extends object>(
 
                 <div className="flex justify-between mt-4">
                     <div className="flex items-center">
-                        <div className="text-lg mr-12">Total : {systemAmount + billAmount}</div>
+                        <div className="text-lg mr-12">Total : LKR {(systemAmount + billAmount).toFixed(2)}</div>
                     </div>
                     <div className="mt-3">
                         {billCreateError && <span className="text-red-500 mr-4">{billCreateError}</span>}
