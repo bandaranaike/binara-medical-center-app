@@ -4,9 +4,11 @@ import PatientDetails from "@/components/PatientDetails";
 import Loader from "@/components/form/Loader";
 import CustomCheckbox from "@/components/form/CustomCheckbox";
 import axiosLocal from "@/lib/axios";
-import {BillingPageProps, Patient} from "@/types/interfaces";
+import {BillingPageProps, Option, Patient} from "@/types/interfaces";
 import printService from "@/lib/printService";
 import {randomString} from "@/lib/strings";
+import Select from "react-select";
+import customStyles from "@/lib/custom-styles";
 
 interface WithBillingComponentProps {
     validation: any
@@ -53,15 +55,17 @@ const withBillingComponent = <P extends object>(
         const [resetForm, setResetForm] = useState("");
         const [billAmount, setBillAmount] = useState(0);
         const [systemAmount, setSystemAmount] = useState(0);
+        const [paymentType, setPaymentType] = useState<Option | null>({value: 'cash', label: 'Cash'})
 
         useEffect(() => {
             const getTotalAmount = (flag: string) => {
                 return Object.entries(formData)
-                    .filter(([key, value]) => key.endsWith(flag) && typeof value === 'number')
-                    .reduce((sum, [, value]) => typeof value === 'number' ? (sum + value) : sum, 0)
+                    .filter(([key, value]) => key.endsWith(flag))
+                    .reduce((sum, [, value]) => (sum + Number(value)), 0)
             }
             setBillAmount(getTotalAmount('_fee'));
             setSystemAmount(getTotalAmount('_charge'));
+
         }, [formData]);
 
         const handleFormChange = (name: string, value: string | number | boolean) => {
@@ -156,7 +160,11 @@ const withBillingComponent = <P extends object>(
                 setBillCreateError("")
                 setErrors({});
                 axiosLocal.post('bills', {
-                    ...formData, bill_amount: billAmount, system_amount: systemAmount, bill_id: billNumber
+                    ...formData,
+                    bill_amount: billAmount,
+                    system_amount: systemAmount,
+                    bill_id: billNumber,
+                    payment_type: paymentType?.value
                 }).then(async billSaveResponse => {
                     const data = billSaveResponse.data;
                     clearAllErrors()
@@ -167,11 +175,12 @@ const withBillingComponent = <P extends object>(
 
                         await printService.sendPrintRequest({
                             bill_reference: data.bill_reference,
+                            payment_type: data.payment_type,
                             bill_id: data.bill_id,
                             customer_name: patient ? patient.name : "Customer 001",
                             doctor_name: doctorName,
                             items: data.bill_items,
-                            total: data.total,
+                            total: Number(data.total).toFixed(2),
                         });
                     }
                     setTimeout(() => setSuccessMessage(""), 20000);
@@ -183,15 +192,6 @@ const withBillingComponent = <P extends object>(
                 console.error(error)
             } finally {
                 setIsLoading(false)
-            }
-        };
-
-        const handlePrint = async (billId: number, billItems: any, total: number) => {
-
-            try {
-
-            } catch (error) {
-                console.log("Failed to send print request. Check the console for details." + error);
             }
         };
 
@@ -246,6 +246,17 @@ const withBillingComponent = <P extends object>(
                     </div>
                     <div className="flex items-center">
                         {isLoading && (<div className="mr-4 mt-1"><Loader/></div>)}
+                        <div className="mr-6 flex">
+                            <label className="mr-2 mt-2">Payment type</label>
+                            <Select
+                                instanceId="PaymentTypeSelect"
+                                placeholder="Payment Type"
+                                options={[{label: 'Cash', value: 'cash'}, {label: 'Card', value: 'card'}, {label: 'Online', value: 'online'}]}
+                                styles={customStyles}
+                                value={paymentType}
+                                onChange={setPaymentType}
+                            />
+                        </div>
                         <span className="mr-4"><CustomCheckbox label="Booking" checked={isBooking} setChecked={handleCheckboxChange}/></span>
                         <button className={`text-white px-5 py-2 rounded-md w-60 ${isBooking ? 'bg-blue-700' : 'bg-green-700'}`} onClick={createInvoiceBill}>
                             {isBooking ? 'Create a booking' : 'Create invoice and print'}

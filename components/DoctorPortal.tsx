@@ -9,7 +9,6 @@ import Loader from "@/components/form/Loader"; // Assuming SearchableSelect is i
 const DoctorPortal: React.FC = () => {
 
     const [activePatientId, setActivePatientId] = useState<number>(-1);
-    const [activePatientBillId, setActivePatientBillId] = useState<number>(-1);
     const [patientsBills, setPatientsBills] = useState<PatientBill[]>([]);
     const [activePatientBill, setActivePatientBill] = useState<PatientBill>();
     const [loading, setLoading] = useState<boolean>(true);
@@ -29,7 +28,7 @@ const DoctorPortal: React.FC = () => {
                 const bills = response.data;
 
                 if (bills[0]) {
-                    setActivePatientBillId(bills[0].id)
+                    setActivePatientBill(bills[0])
                     setActivePatientId(bills[0].patient.id)
                 }
 
@@ -47,9 +46,10 @@ const DoctorPortal: React.FC = () => {
     }, [patientBillsChanged]);
 
     const setActiveItems = (patientBill: PatientBill) => {
+        setDiseaseAlreadyHaveMessage("")
+        setAllergyAlreadyHaveMessage("")
         setActivePatientId(patientBill.patient_id)
         setActivePatientBill(patientBill)
-        setActivePatientBillId(patientBill.id)
     }
 
     // Handle adding new allergy and saving to DB
@@ -63,15 +63,16 @@ const DoctorPortal: React.FC = () => {
             });
             if (response.status === 201) {
                 // Update local state with the added allergy if the request was successful
-                setPatientsBills(prev => prev.map(patientBill =>
-                    patientBill.id === activePatientBillId ? {
-                        ...patientBill,
+
+                setActivePatientBill(prevPatientBill =>
+                    prevPatientBill ? {
+                        ...prevPatientBill,
                         patient: {
-                            ...patientBill.patient,
-                            allergies: [...(patientBill.patient.allergies || []), {id: response.data.id, name: newAllergy}]
-                        },
-                    } : patientBill
-                ));
+                            ...prevPatientBill.patient,
+                            allergies: [...(prevPatientBill.patient.allergies || []), {id: response.data.id, name: newAllergy}]
+                        }
+                    } : prevPatientBill
+                )
             } else if (response.status === 208) {
                 setAllergyAlreadyHaveMessage(`The patient already has the allergy: ${newAllergy}`);
             }
@@ -90,15 +91,16 @@ const DoctorPortal: React.FC = () => {
             });
 
             // If the request is successful, update local state to remove the allergy
-            setPatientsBills(prev => prev.map(patientBill =>
-                patientBill.id === activePatientBillId ? {
-                    ...patientBill,
+            setActivePatientBill(prevPatientBill =>
+                prevPatientBill ? {
+                    ...prevPatientBill,
                     patient: {
-                        ...patientBill.patient,
-                        allergies: (patientBill.patient.allergies || []).filter(allergy => allergy.id !== allergyId)
-                    },
-                } : patientBill
-            ));
+                        ...prevPatientBill.patient,
+                        allergies: (prevPatientBill.patient.allergies || []).filter(allergy => allergy.id !== allergyId)
+                    }
+                } : prevPatientBill
+            )
+
         } catch (error) {
             console.error("Error removing allergy: ", error);
         }
@@ -116,15 +118,16 @@ const DoctorPortal: React.FC = () => {
 
             if (response.status === 201) {
                 // Update local state with the added disease if the request was successful
-                setPatientsBills(prev => prev.map(patientBill =>
-                    patientBill.id === activePatientBillId ? {
-                        ...patientBill,
+
+                setActivePatientBill(prevPatientBill =>
+                    prevPatientBill ? {
+                        ...prevPatientBill,
                         patient: {
-                            ...patientBill.patient,
-                            diseases: [...(patientBill.patient.diseases || []), {id: response.data.id, name: newDisease}]
-                        },
-                    } : patientBill
-                ));
+                            ...prevPatientBill.patient,
+                            diseases: [...(prevPatientBill.patient.diseases || []), {id: response.data.id, name: newDisease}]
+                        }
+                    } : prevPatientBill
+                )
             } else if (response.status === 208) {
                 setDiseaseAlreadyHaveMessage(`The patient already has the disease: ${newDisease}`);
             }
@@ -144,15 +147,16 @@ const DoctorPortal: React.FC = () => {
             });
 
             // If the request is successful, update local state to remove the disease
-            setPatientsBills(prev => prev.map(patientBill =>
-                patientBill.id === activePatientBillId ? {
-                    ...patientBill,
+
+            setActivePatientBill(prevPatientBill =>
+                prevPatientBill ? {
+                    ...prevPatientBill,
                     patient: {
-                        ...patientBill.patient,
-                        diseases: (patientBill.patient.diseases || []).filter(disease => disease.id !== diseaseId)
-                    },
-                } : patientBill
-            ));
+                        ...prevPatientBill.patient,
+                        diseases: (prevPatientBill.patient.diseases || []).filter(disease => disease.id !== diseaseId)
+                    }
+                } : prevPatientBill
+            )
         } catch (error) {
             console.error("Error removing disease: ", error);
         }
@@ -162,7 +166,7 @@ const DoctorPortal: React.FC = () => {
         setLoading(true)
         try {
             setStatusChangeError("")
-            const response = await axios.put(`/bills/${activePatientBillId}/status`, {
+            const response = await axios.put(`/bills/${activePatientBill?.id}/status`, {
                 status: 'pharmacy',
             }).then(() => {
                 setPatientBillsChanged((prev) => !prev);
@@ -191,7 +195,7 @@ const DoctorPortal: React.FC = () => {
                         <li key={patientBill.id} className="me-2">
                             <button
                                 className={`inline-block p-4 border-b-2 ${
-                                    activePatientBillId === patientBill.id
+                                    activePatientBill?.id === patientBill.id
                                         ? 'text-blue-600 border-blue-600 dark:text-blue-500 dark:border-blue-500'
                                         : 'border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300'
                                 } rounded-t-lg`}
@@ -210,7 +214,7 @@ const DoctorPortal: React.FC = () => {
             )}
 
             {/* Tabs for Adding New History and Patient Histories */}
-            {(activePatientBillId && patientsBills.length > 0 &&
+            {(patientsBills.length > 0 &&
                 <div className="mt-6 mx-3">
                     <div className="my-3 bg-gray-900 grid grid-cols-3 gap-3 text-left">
                         <div className="border border-gray-800 rounded-lg py-4 px-5">
@@ -219,6 +223,7 @@ const DoctorPortal: React.FC = () => {
                                     <div className="font-bold text-2xl mb-2">{activePatientBill.patient.name}</div>
                                     <div className="text-gray-500"> Age : {activePatientBill.patient.age}</div>
                                     <div className="text-gray-500"> Gender : {activePatientBill.patient.gender}</div>
+                                    <div className="text-gray-500"> Bill No. : {activePatientBill.id}</div>
                                     <div className="text-gray-500"> Bill Reference : {activePatientBill.uuid}</div>
                                 </div>
                             )}
@@ -293,14 +298,14 @@ const DoctorPortal: React.FC = () => {
                     </div>
 
                     <DoctorPatientHistory
-                        key={`${activePatientBillId}-${activePatientId}-${patientBillsChanged}`}
+                        key={`${activePatientBill?.id}-${activePatientId}-${patientBillsChanged}`}
                         patientId={activePatientId}
                     />
-                    {activePatientBillId > 0 && (
+                    {activePatientBill && activePatientBill.id > 0 && (
                         <PatientMedicineManager
-                            key={`${activePatientBillId}-${patientBillsChanged}`}
+                            key={`${activePatientBill?.id}-${patientBillsChanged}`}
                             patientId={activePatientId}
-                            billId={activePatientBillId.toString()}/>
+                            billId={activePatientBill?.id.toString()}/>
                     )}
 
                     <div className="flex justify-end">

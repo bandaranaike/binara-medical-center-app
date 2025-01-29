@@ -2,16 +2,17 @@ import axios, {AxiosInstance} from "axios";
 
 interface PrintItem {
     name: string;
-    price: number;
+    price: string;
 }
 
 interface PrintRequest {
     bill_reference: string;
+    payment_type: string;
     bill_id: number;
     customer_name: string;
     doctor_name: string;
     items: PrintItem[];
-    total: number;
+    total: string;
 }
 
 class PrintService {

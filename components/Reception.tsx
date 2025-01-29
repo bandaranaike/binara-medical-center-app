@@ -49,8 +49,6 @@ const ReceptionList: React.FC = () => {
                 status: "done"
             });
 
-            console.log("response", response)
-
             if (response.status === 201) {
 
                 const data = response.data;
@@ -60,8 +58,9 @@ const ReceptionList: React.FC = () => {
                     customer_name: bill.patient_name,
                     doctor_name: bill.doctor_name,
                     items: data.bill_items,
-                    total: data.total,
-                    bill_reference: data.bill_reference
+                    total: Number(data.total).toFixed(2),
+                    bill_reference: data.bill_reference,
+                    payment_type: data.payment_type
                 });
 
                 // Remove the bill from the list after marking as done

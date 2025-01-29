@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {History} from '@/types/interfaces';
-import axios from '@/lib/axios'; // Assumes you have a setup for axios instance
+import axios from '@/lib/axios';
+import Loader from "@/components/form/Loader"; // Assumes you have a setup for axios instance
 
 interface DoctorPatientHistoryProps {
     patientId: number;
@@ -66,7 +67,7 @@ const DoctorPatientHistory: React.FC<DoctorPatientHistoryProps> = ({patientId}) 
         return (
             <div id="doctor-patient-history" className="mt-8">
                 {/* Loading or Error */}
-                {loading && <p>Loading patient history...</p>}
+                {loading && <div className="text-center"><Loader/></div>}
                 {error && <p className="text-red-500">{error}</p>}
 
                 {!loading && !error && (

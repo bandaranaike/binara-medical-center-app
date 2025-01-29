@@ -178,7 +178,7 @@ const
             <div className="bg-gray-900">
                 <div>
                     {showMedicineTable && activeBill && activeBill.patient_medicines.length > 0 && (
-                        <div className="mb-4">
+                        <div className="mb-6">
                             <h3 className="mb-3 font-semibold text-xl">Doctor recommended medicine list</h3>
                             <ServiceMedicinesTable patientMedicines={activeBill.patient_medicines}/>
                         </div>

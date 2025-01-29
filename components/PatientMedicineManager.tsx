@@ -3,6 +3,7 @@ import axios from '../lib/axios';
 import SearchableSelect from './form/SearchableSelect';
 import {HistoryItem, Option, PatientMedicineHistory} from '@/types/interfaces';
 import ServiceMedicinesTable from "@/components/ServiceMedicinesTable";
+import Loader from "@/components/form/Loader";
 
 interface PatientMedicineProps {
     patientId: number;
@@ -88,7 +89,7 @@ const PatientMedicineManager: React.FC<PatientMedicineProps> = ({patientId, bill
     };
 
     if (loading) {
-        return <div>Loading medicine histories...</div>;
+        return <div className="my-8 text-center"><Loader/></div>;
     }
 
     return (
