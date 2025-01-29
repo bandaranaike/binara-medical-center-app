@@ -55,15 +55,14 @@ const ReceptionList: React.FC = () => {
 
                 const data = response.data;
 
-                const printData = {
+                await printService.sendPrintRequest({
                     bill_id: data.bill_id,
                     customer_name: bill.patient_name,
                     doctor_name: bill.doctor_name,
                     items: data.bill_items,
                     total: data.total,
-                };
-
-                await printService.sendPrintRequest(printData);
+                    bill_reference: data.bill_reference
+                });
 
                 // Remove the bill from the list after marking as done
                 setBills((prevBills) =>

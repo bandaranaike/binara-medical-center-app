@@ -6,6 +6,7 @@ interface PrintItem {
 }
 
 interface PrintRequest {
+    bill_reference: string;
     bill_id: number;
     customer_name: string;
     doctor_name: string;

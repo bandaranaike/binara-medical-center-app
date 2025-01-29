@@ -134,6 +134,7 @@ const
         };
 
         const handleInputChange = (itemId: number, newAmountValue: string, changeTotalBill: boolean = false) => {
+            console.log("Came here")
             const newAmount = newAmountValue || '0';
             setActiveBill((prevBill) => {
                 if (prevBill) {

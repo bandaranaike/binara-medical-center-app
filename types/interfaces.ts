@@ -117,6 +117,7 @@ export interface Patient {
 
 export interface PatientBill {
     id: number;
+    uuid?: number;
     patient_id: number,
     doctor_id: number,
     queue_number: number,

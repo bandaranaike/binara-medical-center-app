@@ -180,9 +180,9 @@ const PharmacyPortal: React.FC = () => {
                         </div>
                         <div className="text-right">
                             <div className="font-bold mb-1 text-lg">Doctor : {activeBill.doctor ? activeBill.doctor?.name : "No doctor assigned"}</div>
-                            <div className="text-gray-500">
-                                <div className="">Created : {formatReadableDateTime(activeBill.created_at)}</div>
-                                <div className="">Last edit : {formatReadableDateTime(activeBill.updated_at)}</div>
+                            <div className="text-gray-500 text-xs">
+                                <div className="">Bill Created at: {formatReadableDateTime(activeBill.created_at)}</div>
+                                <div className="">Bill last update at : {formatReadableDateTime(activeBill.updated_at)}</div>
                             </div>
                         </div>
                     </div>

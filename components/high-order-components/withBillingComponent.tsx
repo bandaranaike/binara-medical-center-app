@@ -91,6 +91,7 @@ const withBillingComponent = <P extends object>(
         };
 
         const handleOnPatientCreateOrSelect = (patientData: Patient) => {
+            setPatient(patientData)
             setPatientId(patientData.id);
             handleFormChange('patient_id', patientData.id);
             if (errors && errors.patient && patientData.id !== patientId) {
@@ -157,37 +158,38 @@ const withBillingComponent = <P extends object>(
                 axiosLocal.post('bills', {
                     ...formData, bill_amount: billAmount, system_amount: systemAmount, bill_id: billNumber
                 }).then(async billSaveResponse => {
+                    const data = billSaveResponse.data;
                     clearAllErrors()
-                    setBillNumber(billSaveResponse.data.bill_number);
-                    setSuccessMessage(`Invoice #${billSaveResponse.data.bill_id} successfully generated! Queue id: ${billSaveResponse.data.queue_id}`);
+                    setBillNumber(data.bill_number);
+                    setSuccessMessage(`Invoice #${data.bill_id} successfully generated! Queue id: ${data.queue_id}`);
 
                     if (["specialist", "dental"].includes(formData.service_type) && !isBooking) {
-                        await handlePrint(billSaveResponse.data.bill_id, billSaveResponse.data.bill_items, billSaveResponse.data.total);
-                    }
 
+                        await printService.sendPrintRequest({
+                            bill_reference: data.bill_reference,
+                            bill_id: data.bill_id,
+                            customer_name: patient ? patient.name : "Customer 001",
+                            doctor_name: doctorName,
+                            items: data.bill_items,
+                            total: data.total,
+                        });
+                    }
                     setTimeout(() => setSuccessMessage(""), 20000);
                     resetFormData()
                 }).catch(error => {
                     setBillCreateError("Error saving bill. " + error.response.data.message);
                 });
             } catch (error) {
-                console.log(error)
+                console.error(error)
             } finally {
                 setIsLoading(false)
             }
         };
 
         const handlePrint = async (billId: number, billItems: any, total: number) => {
-            const printData = {
-                bill_id: billId,
-                customer_name: patient ? patient.name : "Customer 001",
-                doctor_name: doctorName,
-                items: billItems,
-                total: total,
-            };
 
             try {
-                await printService.sendPrintRequest(printData);
+
             } catch (error) {
                 console.log("Failed to send print request. Check the console for details." + error);
             }

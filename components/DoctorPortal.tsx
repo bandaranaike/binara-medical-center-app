@@ -9,9 +9,9 @@ import Loader from "@/components/form/Loader"; // Assuming SearchableSelect is i
 const DoctorPortal: React.FC = () => {
 
     const [activePatientId, setActivePatientId] = useState<number>(-1);
-    const [activePatient, setActivePatient] = useState<Patient>();
     const [activePatientBillId, setActivePatientBillId] = useState<number>(-1);
     const [patientsBills, setPatientsBills] = useState<PatientBill[]>([]);
+    const [activePatientBill, setActivePatientBill] = useState<PatientBill>();
     const [loading, setLoading] = useState<boolean>(true);
     const [patientBillsChanged, setPatientBillsChanged] = useState<boolean>(false);
     const [allergy] = useState<Option>();
@@ -31,7 +31,6 @@ const DoctorPortal: React.FC = () => {
                 if (bills[0]) {
                     setActivePatientBillId(bills[0].id)
                     setActivePatientId(bills[0].patient.id)
-                    setActivePatient(bills[0].patient)
                 }
 
                 setPatientsBills(bills);
@@ -49,6 +48,7 @@ const DoctorPortal: React.FC = () => {
 
     const setActiveItems = (patientBill: PatientBill) => {
         setActivePatientId(patientBill.patient_id)
+        setActivePatientBill(patientBill)
         setActivePatientBillId(patientBill.id)
     }
 
@@ -214,11 +214,12 @@ const DoctorPortal: React.FC = () => {
                 <div className="mt-6 mx-3">
                     <div className="my-3 bg-gray-900 grid grid-cols-3 gap-3 text-left">
                         <div className="border border-gray-800 rounded-lg py-4 px-5">
-                            {activePatient && (
+                            {activePatientBill && (
                                 <div>
-                                    <div className="font-bold text-2xl mb-2">{activePatient.name}</div>
-                                    <div className="text-gray-500"> Age : {activePatient.age}</div>
-                                    <div className="text-gray-500"> Gender : {activePatient.gender}</div>
+                                    <div className="font-bold text-2xl mb-2">{activePatientBill.patient.name}</div>
+                                    <div className="text-gray-500"> Age : {activePatientBill.patient.age}</div>
+                                    <div className="text-gray-500"> Gender : {activePatientBill.patient.gender}</div>
+                                    <div className="text-gray-500"> Bill Reference : {activePatientBill.uuid}</div>
                                 </div>
                             )}
                         </div>
@@ -236,27 +237,24 @@ const DoctorPortal: React.FC = () => {
                                     onCreateOption={(value: any) => handleAddAllergy(value)}
                                 />
                             </div>
-                            {patientsBills
-                                .filter((patientBill) => patientBill.id === activePatientBillId)
-                                .map((patientBill) =>
-                                    (patientBill.patient.allergies?.length || 0) > 0 ? (
-                                        <ul key={patientBill.id} className="px-2 pb-2 ml-2">
-                                            {patientBill.patient.allergies?.map((allergy, index) => (
-                                                <li className="mb-1" key={index}>
-                                                    {allergy.name}
-                                                    <button
-                                                        className="ml-2 text-red-600 font-bold"
-                                                        onClick={() => handleRemoveAllergy(allergy.id)}
-                                                    >
-                                                        x
-                                                    </button>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    ) : (
-                                        <p className="p-3" key={patientBill.id}>No allergies listed.</p>
-                                    )
-                                )}
+                            {activePatientBill && (activePatientBill.patient.allergies?.length || 0) > 0 ? (
+                                <ul key={activePatientBill.id} className="px-2 pb-2 ml-2">
+                                    {activePatientBill.patient.allergies?.map((allergy, index) => (
+                                        <li className="mb-1" key={index}>
+                                            {allergy.name}
+                                            <button
+                                                className="ml-2 text-red-600 font-bold"
+                                                onClick={() => handleRemoveAllergy(allergy.id)}
+                                            >
+                                                x
+                                            </button>
+                                        </li>
+                                    ))}
+                                </ul>
+                            ) : (
+                                <p className="p-3">No allergies listed.</p>
+                            )
+                            }
                             {allergyAlreadyHaveMessage && <div className="text-yellow-400 text-sm px-3 pb-3">{allergyAlreadyHaveMessage}</div>}
                         </div>
                         <div className="border border-gray-800 rounded-lg">
@@ -273,27 +271,22 @@ const DoctorPortal: React.FC = () => {
                                     onCreateOption={(value: any) => handleAddDisease(value)}
                                 />
                             </div>
-                            {patientsBills
-                                .filter((patientBill) => patientBill.id === activePatientBillId)
-                                .map((patientBill) =>
-                                    (patientBill.patient.diseases?.length || 0) > 0 ? (
-                                        <ul key={patientBill.id} className="px-2 pb-2 ml-2">
-                                            {patientBill.patient.diseases?.map((disease, index) => (
-                                                <li className="mb-1" key={index}>
-                                                    {disease.name}
-                                                    <button
-                                                        className="ml-2 text-red-600 font-bold"
-                                                        onClick={() => handleRemoveDisease(disease.id)}
-                                                    >
-                                                        x
-                                                    </button>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    ) : (
-                                        <p className="p-3" key={patientBill.id}>No diseases listed.</p>
-                                    )
-                                )}
+                            {activePatientBill && (activePatientBill.patient.diseases?.length || 0) > 0 ? (
+                                <ul key={activePatientBill.id} className="px-2 pb-2 ml-2">
+                                    {activePatientBill.patient.diseases?.map((disease, index) => (
+                                        <li className="mb-1" key={index}>
+                                            {disease.name}
+                                            <button
+                                                className="ml-2 text-red-600 font-bold"
+                                                onClick={() => handleRemoveDisease(disease.id)}
+                                            >
+                                                x
+                                            </button>
+                                        </li>
+                                    ))}
+                                </ul>
+                            ) : <p className="p-3">No diseases listed.</p>
+                            }
 
                             {diseaseAlreadyHaveMessage && <div className="text-yellow-400 text-sm px-3 pb-3">{diseaseAlreadyHaveMessage}</div>}
                         </div>
