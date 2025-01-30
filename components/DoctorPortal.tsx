@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import axios from '@/lib/axios';
 import SearchableSelect from '@/components/form/SearchableSelect';
-import {Option, Patient, PatientBill} from "@/types/interfaces";
+import {Option, PatientBill} from "@/types/interfaces";
 import PatientMedicineManager from "@/components/PatientMedicineManager";
 import DoctorPatientHistory from "@/components/DoctorPatientHistory";
 import Loader from "@/components/form/Loader"; // Assuming SearchableSelect is in the same folder
@@ -22,21 +22,24 @@ const DoctorPortal: React.FC = () => {
 
     // Fetch the patientsBill data from the API
     useEffect(() => {
-        const fetchPatientsBill = async () => {
+        const fetchPatientsBill = () => {
             try {
-                const response = await axios.get('/bills/pending/doctor'); // Update to your API endpoint
-                const bills = response.data;
+                axios.get('/bills/pending/doctor').then(response => {
+                    const bills = response.data;
 
-                if (bills[0]) {
-                    setActivePatientBill(bills[0])
-                    setActivePatientId(bills[0].patient.id)
-                }
+                    if (bills[0]) {
+                        setActivePatientBill(bills[0])
+                        setActivePatientId(bills[0].patient.id)
+                    }
 
-                setPatientsBills(bills);
-                setLoading(false);
+                    setPatientsBills(bills);
+                    setLoading(false);
+                }).catch(error => {
+                    setError("Error fetching data: " + error.response.data.message)
+                }).finally(() => setLoading(false));
+
             } catch (error) {
-                setError("Error fetching patientsBill data. " + error);
-                setLoading(false);
+                console.error(error);
             }
         };
 
@@ -162,11 +165,11 @@ const DoctorPortal: React.FC = () => {
         }
     };
 
-    const changeBillStatus = async () => {
+    const changeBillStatus = () => {
         setLoading(true)
         try {
             setStatusChangeError("")
-            const response = await axios.put(`/bills/${activePatientBill?.id}/status`, {
+            axios.put(`/bills/${activePatientBill?.id}/status`, {
                 status: 'pharmacy',
             }).then(() => {
                 setPatientBillsChanged((prev) => !prev);

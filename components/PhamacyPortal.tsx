@@ -1,9 +1,9 @@
 import React, {useEffect, useState} from "react";
 import axios from "../lib/axios";
 import SearchableSelect from "@/components/form/SearchableSelect";
-import {Bill, HistoryItem, Option, ServicesStatus} from "@/types/interfaces";
+import {Bill, Option, ServicesStatus} from "@/types/interfaces";
 import {formatReadableDateTime} from "@/lib/readbale-date";
-import Services from "@/components/Services";
+import Services, {BillTotals} from "@/components/Services";
 import TextInput from "@/components/form/TextInput";
 import Loader from "@/components/form/Loader";
 import {DeleteIcon} from "@nextui-org/shared-icons";
@@ -20,7 +20,7 @@ const PharmacyPortal: React.FC = () => {
     const [pendingBills, setPendingBills] = useState<Bill[]>([]);
     const [activeBillId, setActiveBillId] = useState<number | null>(null);
     const [servicesCount, setServicesCount] = useState(0);
-    const [finalBillAmount, setFinalBillAmount] = useState<number>(0);
+    const [finalBillAmounts, setFinalBillAmounts] = useState<ServicesStatus>();
     const [medicineTotal, setMedicineTotal] = useState<number>(0);
     const [error, setError] = useState("");
     const [deleteError, setDeleteError] = useState("");
@@ -75,7 +75,16 @@ const PharmacyPortal: React.FC = () => {
             return;
         }
 
-        axios.put(`bills/${billId}/send-to-reception`, {status: "reception", "bill_amount": finalBillAmount})
+        if (!finalBillAmounts) {
+            setError("Bill totals have some issues.")
+            return;
+        }
+
+        axios.put(`bills/${billId}/send-to-reception`, {
+            status: "reception",
+            bill_amount: finalBillAmounts.bill_total,
+            system_amount: finalBillAmounts.system_total,
+        })
             .then(() => {
                 // Remove the finalized bill from the state
                 setPendingBills((prevBills) =>
@@ -105,7 +114,7 @@ const PharmacyPortal: React.FC = () => {
     }
 
     const handleOnServiceStatusChange = (billStatus: ServicesStatus) => {
-        setFinalBillAmount(billStatus.total);
+        setFinalBillAmounts(billStatus);
         setError("")
         setServicesCount(billStatus.count);
     }
@@ -223,7 +232,7 @@ const PharmacyPortal: React.FC = () => {
                                     </button>
                                 </div>
                                 {drugListAddError && <div className="mb-4 text-red-500">{drugListAddError}</div>}
-                                <div className="">
+                                <div>
                                     {(!drugList || (drugList && drugList.length === 0) || isDrugListLoading) && (
                                         <div className="p-4 text-center text-sm border border-gray-800 rounded-lg">
                                             {isDrugListLoading && <Loader/>}

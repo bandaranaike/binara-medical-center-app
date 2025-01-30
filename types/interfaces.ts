@@ -29,6 +29,7 @@ export interface BillItem {
     service_id: number;
     service: Service;
     bill_amount: string;
+    system_amount: string;
     patient_medicines: PatientMedicineHistory[];
 }
 
@@ -157,4 +158,6 @@ export interface ServicesStatus {
     bill_id: number;
     count: number;
     total: number;
+    system_total: number;
+    bill_total: number;
 }
