@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import axios from '../lib/axios';
 import SearchableSelect from './form/SearchableSelect';
-import {HistoryItem, Option, PatientMedicineHistory} from '@/types/interfaces';
+import {Option, PatientMedicineHistory} from '@/types/interfaces';
 import ServiceMedicinesTable from "@/components/ServiceMedicinesTable";
 import Loader from "@/components/form/Loader";
 

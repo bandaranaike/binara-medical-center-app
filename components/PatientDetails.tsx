@@ -114,7 +114,7 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, patientNam
             setDay(birthDate.getDate().toString());
         }
 
-        setGender({label: gender, value: gender} ?? null);
+        setGender({label: gender, value: gender});
         setIsLoading(false);
     };
 
