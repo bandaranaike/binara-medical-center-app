@@ -5,7 +5,7 @@ interface PrintItem {
     price: string;
 }
 
-interface PrintRequest {
+export interface PrintRequest {
     bill_reference: string;
     payment_type: string;
     bill_id: number;

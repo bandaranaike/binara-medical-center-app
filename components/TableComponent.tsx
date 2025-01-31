@@ -48,11 +48,9 @@ export default function TableComponent({tab}: TableComponentProps) {
                 setTotalPages(response.data.last_page);
             }).catch(error => {
                 setError('Error fetching data. ' + (error.response?.data?.message ?? error.message));
-            });
+            }).finally(() => setLoading(false));
         } catch (error) {
             console.log(error)
-        } finally {
-            setLoading(false)
         }
     };
 
@@ -111,6 +109,9 @@ export default function TableComponent({tab}: TableComponentProps) {
     };
 
     return (
+        loading &&
+        <div className="p-6 my-24 border-t border-gray-800"><Loader/></div>
+        ||
         <div className="mx-auto mt-4">
             <div className="flex justify-end mb-4">
                 <button
@@ -121,7 +122,7 @@ export default function TableComponent({tab}: TableComponentProps) {
                 </button>
             </div>
 
-            <div className="relative overflow-x-auto rounded-lg border border-gray-800">
+            {!loading && fields && <div className="relative overflow-x-auto rounded-lg border border-gray-800">
                 <table className="w-full text-sm text-left text-gray-400">
                     <thead>
                     <tr className="bg-gray-800">
@@ -161,10 +162,6 @@ export default function TableComponent({tab}: TableComponentProps) {
                     </tbody>
                 </table>
                 <div>
-                    {loading &&
-                        <div className="p-6 border-t border-gray-800"><Loader/></div>
-                    }
-
                     {error &&
                         <div className="p-6 border-t border-gray-800 text-center text-red-500">{error}</div>
                     }
@@ -180,10 +177,11 @@ export default function TableComponent({tab}: TableComponentProps) {
                     }
 
                     {!error && !loading && data.length === 0 &&
-                        <div className="p-6 border-t border-gray-800 text-center p-1 text-gray-500">There are no records</div>
+                        <div className="border-t border-gray-800 text-center p-1 text-gray-500">There are no records</div>
                     }
                 </div>
             </div>
+            }
             {/* Delete Confirmation Dialog */}
             <Transition appear show={isDeleteDialogOpen} as={Fragment}>
                 <Dialog as="div" className="relative z-10" onClose={closeDialogs}>

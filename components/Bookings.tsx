@@ -3,7 +3,7 @@ import axios from "@/lib/axios";
 import Loader from "@/components/form/Loader";
 import DeleteConfirm from "@/components/popup/DeleteConfirm";
 import BookingsTable from "@/components/BookingsTable";
-import printService from "@/lib/printService";
+import printService, {PrintRequest} from "@/lib/printService";
 import {Booking} from "@/types/interfaces";
 
 const TAB_TODAY = "today";
@@ -54,12 +54,14 @@ const BookingList: React.FC = () => {
 
                 const data = response.data;
 
-                const printData = {
+                const printData: PrintRequest = {
                     bill_id: booking.id,
                     customer_name: data.patient_name,
                     doctor_name: data.doctor_name,
                     items: data.bill_items,
                     total: data.total,
+                    bill_reference: data.bill_reference,
+                    payment_type: data.payment_type
                 };
 
                 await printService.sendPrintRequest(printData);
