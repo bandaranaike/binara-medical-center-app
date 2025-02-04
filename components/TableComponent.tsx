@@ -7,6 +7,7 @@ import SearchableSelect from "@/components/form/SearchableSelect";
 import Select from "react-select";
 import customStyles from "@/lib/custom-styles";
 import {AdminTab} from "@/components/admin/AdminTabs";
+import TableActionStatus from "@/components/popup/TableActionStatus";
 
 interface TableComponentProps {
     tab: AdminTab;
@@ -23,6 +24,7 @@ export default function TableComponent({tab}: TableComponentProps) {
     const [formData, setFormData] = useState<FormData>({});
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [isActionCalling, setIsActionCalling] = useState<boolean>(true);
     const [isCreateOrUpdateDialogOpen, setIsCreateOrUpdateDialogOpen] = useState(false);
     const [currentRecordId, setCurrentRecordId] = useState<number | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
@@ -30,8 +32,9 @@ export default function TableComponent({tab}: TableComponentProps) {
     const [error, setError] = useState<string>("")
     const [updateOrCreateError, setUpdateOrCreateError] = useState<string>("")
     const [deleteError, setDeleteError] = useState<string>("")
+    const [actionError, setActionError] = useState<string>("")
 
-    const {id: apiUrl, fields, dropdowns, select} = tab;
+    const {id: apiUrl, fields, dropdowns, select, actions} = tab;
 
     useEffect(() => {
         setData([])
@@ -108,6 +111,15 @@ export default function TableComponent({tab}: TableComponentProps) {
         setFormData({});
     };
 
+    const callTheAction = (callBack: (record: any) => Promise<void>, record: any) => {
+        setActionError("")
+        setIsActionCalling(true)
+        callBack(record).then(() => {
+            fetchData()
+            setIsActionCalling(false)
+        }).catch(error => setActionError(error.response.data.message));
+    }
+
     return (
         loading &&
         <div className="p-6 my-24 border-t border-gray-800"><Loader/></div>
@@ -156,6 +168,15 @@ export default function TableComponent({tab}: TableComponentProps) {
                                 >
                                     Delete
                                 </button>
+
+                                {actions && actions.map(action => (
+                                    <button
+                                        key={action.key}
+                                        className="bg-gray-800 text-gray-400 px-2 ml-4 py-0.5 rounded"
+                                        onClick={() => callTheAction(action.callBack, record)}
+                                    >{action.key}</button>
+                                ))}
+
                             </td>
                         </tr>
                     ))}
@@ -182,6 +203,9 @@ export default function TableComponent({tab}: TableComponentProps) {
                 </div>
             </div>
             }
+
+            {/* Action calling dialog */}
+            {isActionCalling && <TableActionStatus errorMessage={actionError} closeWindow={() => setIsActionCalling(false)}></TableActionStatus>}
             {/* Delete Confirmation Dialog */}
             <Transition appear show={isDeleteDialogOpen} as={Fragment}>
                 <Dialog as="div" className="relative z-10" onClose={closeDialogs}>
@@ -245,7 +269,7 @@ export default function TableComponent({tab}: TableComponentProps) {
             {/* Create/Update Dialog */}
             <Transition appear show={isCreateOrUpdateDialogOpen} as={Fragment}>
                 <Dialog as="div" className="relative z-10" onClose={closeDialogs}>
-                    <Transition.Child
+                    <TransitionChild
                         as={Fragment}
                         enter="ease-out duration-300"
                         enterFrom="opacity-0"
@@ -255,7 +279,7 @@ export default function TableComponent({tab}: TableComponentProps) {
                         leaveTo="opacity-0"
                     >
                         <div className="fixed inset-0 bg-black bg-opacity-25"/>
-                    </Transition.Child>
+                    </TransitionChild>
 
                     <div className="fixed inset-0 overflow-y-auto">
                         <div className="flex items-center justify-center min-h-full p-4 text-center">

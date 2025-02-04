@@ -6,6 +6,12 @@ export interface AdminTab {
     fields: string[]
     dropdowns?: any
     select?: any
+    actions?: [AdminTabActions]
+}
+
+export interface AdminTabActions {
+    key: string,
+    callBack: (record: any) => Promise<any>
 }
 
 interface ActiveTabsProps {

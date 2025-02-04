@@ -1,7 +1,11 @@
 import React from "react";
 import AdminTabs, {AdminTab} from "@/components/admin/AdminTabs";
+import axios from "@/lib/axios";
 
 const Admin = () => {
+    const createUserForDoctor = async (record: any) => {
+        return axios.post('users/create-from-doctor', {doctor_id: record.id})
+    }
 
     const tabs: AdminTab[] = [
         {id: "allergies", fields: ["name"]},
@@ -12,10 +16,11 @@ const Admin = () => {
             id: "doctors",
             fields: ["name", "hospital", "specialty", "user", "telephone", "type", "email"],
             dropdowns: {hospital: 'hospitals', specialty: 'specialties', user: 'users'},
-            select: {type: ['specialist', 'opd', 'dental']}
+            select: {type: ['specialist', 'opd', 'dental']},
+            actions: [{key: "Create a user", callBack: createUserForDoctor}]
         },
         {id: "roles", fields: ["name", "key", "description"]},
-        {id: "users", fields: ["name", "role", "email","password"], dropdowns: {role: "roles"}},
+        {id: "users", fields: ["name", "role", "email", "password"], dropdowns: {role: "roles"}},
     ];
 
     return (<AdminTabs tabs={tabs}/>)
