@@ -3,6 +3,7 @@ import axios from "@/lib/axios";
 import Loader from "@/components/form/Loader";
 import StatusLabel from "@/components/form/StatusLabel";
 import printService from "@/lib/printService";
+import DeleteConfirm from "@/components/popup/DeleteConfirm";
 
 interface Bill {
     bill_amount: number;
@@ -22,6 +23,7 @@ const ReceptionList: React.FC = () => {
 
     const [showBill, setShowBill] = useState(false);
     const [selectedBill, setSelectedBill] = useState<Bill | null>(null);
+    const [showDeleteModal, setShowDeleteModal] = useState<boolean | undefined>()
 
     const handleShowBill = (bill: Bill) => {
         setSelectedBill(bill);
@@ -81,6 +83,13 @@ const ReceptionList: React.FC = () => {
         fetchBills();
     }, []);
 
+    const handleDeleteBooking = () => {
+        fetchBills();
+    };
+    const showDeleteConfirmation = (bill: Bill) => {
+        setSelectedBill(bill)
+        setShowDeleteModal(true);
+    };
     return (
         <div className="rounded-lg shadow-md">
             <h2 className="text-2xl font-bold mb-4">Ongoing Bills</h2>
@@ -119,6 +128,13 @@ const ReceptionList: React.FC = () => {
                                         onClick={() => handleShowBill(bill)}
                                     >
                                         Mark as Done
+                                    </button>
+                                    <button
+                                        className="px-4 py-1 rounded bg-red-800 text-white"
+                                        onClick={() => showDeleteConfirmation(bill)}
+                                        disabled={!!bill.id}
+                                    >
+                                        Delete
                                     </button>
                                 </td>
                             </tr>
@@ -202,6 +218,14 @@ const ReceptionList: React.FC = () => {
                         </div>
                     </div>
                 </div>
+            )}
+            {showDeleteModal && (
+                <DeleteConfirm
+                    deleteApiUrl="bills"
+                    onClose={() => setShowDeleteModal(false)}
+                    onDeleteSuccess={() => handleDeleteBooking()}
+                    deleteId={selectedBill!.id}
+                >Are you sure you want to delete this booking?</DeleteConfirm>
             )}
         </div>
     );

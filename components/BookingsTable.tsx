@@ -28,23 +28,20 @@ const BookingsTable: React.FC<{
                     <td className="px-4 py-2 border-r border-gray-800">{Number(booking.bill_amount) + Number(booking.system_amount)}</td>
                     <td className="px-4 py-2 border-r border-gray-800">{booking.queue_date}</td>
                     <td className="px-4 py-2">
-                        {isTodayTab ? (
-                            <button
-                                className="px-4 py-1 rounded bg-blue-800 text-white"
-                                onClick={() => handleShowBooking(booking)}
-                                disabled={!!booking.bill_id}
-                            >
-                                Create Bill
-                            </button>
-                        ) : (
-                            <button
-                                className="px-4 py-1 rounded bg-red-800 text-white"
-                                onClick={() => showDeleteConfirmation(booking)}
-                                disabled={!!booking.bill_id}
-                            >
-                                Delete
-                            </button>
-                        )}
+                        <button
+                            className="px-4 py-1 rounded bg-blue-800 text-white mr-4"
+                            onClick={() => handleShowBooking(booking)}
+                            disabled={!!booking.bill_id}
+                        >
+                            Create Bill
+                        </button>
+                        <button
+                            className="px-4 py-1 rounded bg-red-800 text-white"
+                            onClick={() => showDeleteConfirmation(booking)}
+                            disabled={!!booking.bill_id}
+                        >
+                            Delete
+                        </button>
                     </td>
                 </tr>
             ))}

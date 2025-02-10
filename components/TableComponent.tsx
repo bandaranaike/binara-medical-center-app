@@ -24,7 +24,7 @@ export default function TableComponent({tab}: TableComponentProps) {
     const [formData, setFormData] = useState<FormData>({});
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [isActionCalling, setIsActionCalling] = useState<boolean>(true);
+    const [isActionCalling, setIsActionCalling] = useState<boolean>(false);
     const [isCreateOrUpdateDialogOpen, setIsCreateOrUpdateDialogOpen] = useState(false);
     const [currentRecordId, setCurrentRecordId] = useState<number | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
