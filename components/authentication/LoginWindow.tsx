@@ -1,9 +1,7 @@
 import React, {FormEvent, useState} from "react";
 import TextInput from "@/components/form/TextInput";
 import axios from "@/lib/axios";
-import Cookies from "js-cookie";
 import {LoggedUser} from "@/types/interfaces";
-import CustomRadio from "@/components/form/CustomRadio";
 import CustomCheckbox from "@/components/form/CustomCheckbox";
 
 interface LoginWindowProps {
