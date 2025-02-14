@@ -161,3 +161,10 @@ export interface ServicesStatus {
     system_total: number;
     bill_total: number;
 }
+
+export interface User {
+    id: number | string;
+    name: string;
+    phone: string;
+    patients: Patient[];
+}
