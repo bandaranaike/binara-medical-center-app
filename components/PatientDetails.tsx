@@ -1,4 +1,4 @@
-import React, {EffectCallback, useEffect} from "react";
+import React, {EffectCallback, useCallback, useEffect, useMemo, useState} from "react";
 import TextInput from "@/components/form/TextInput";
 import axios from "@/lib/axios";
 import {isEmpty} from "lodash";
@@ -6,24 +6,28 @@ import {Option, Patient, PatientDetailsProps} from "@/types/interfaces";
 import Select from "react-select";
 import customStyles from "@/lib/custom-styles";
 import Loader from "@/components/form/Loader";
+import parsePhoneNumber, {E164Number} from "libphonenumber-js";
+import debounce from "lodash.debounce";
 
 const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, patientName, onPatientCreatedOrSelected, patientNotFound, patient, resetForm}) => {
-    const [id, setId] = React.useState(0);
-    const [name, setName] = React.useState(patientName);
-    const [age, setAge] = React.useState(0);
-    const [telephone, setTelephone] = React.useState(patientPhone);
-    const [email, setEmail] = React.useState("");
-    const [address, setAddress] = React.useState("");
-    const [year, setYear] = React.useState("");
-    const [month, setMonth] = React.useState("");
-    const [day, setDay] = React.useState("");
-    const [gender, setGender] = React.useState<Option | null>(null);
-    const [isNew, setIsNew] = React.useState(true);
-    const [isLoading, setIsLoading] = React.useState(false);
-    const [savedMessage, setSavedMessage] = React.useState({isSuccess: true, message: ""});
-    const [currentPatient, setCurrentPatient] = React.useState(patient);
+    const [id, setId] = useState(0);
+    const [name, setName] = useState(patientName);
+    const [age, setAge] = useState(0);
+    const [telephone, setTelephone] = useState(patientPhone);
+    const [validatedPhone, setValidatePhone] = useState("");
+    const [email, setEmail] = useState("");
+    const [address, setAddress] = useState("");
+    const [year, setYear] = useState("");
+    const [month, setMonth] = useState("");
+    const [day, setDay] = useState("");
+    const [gender, setGender] = useState<Option | null>(null);
+    const [isNew, setIsNew] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
+    const [savedMessage, setSavedMessage] = useState({isSuccess: true, message: ""});
+    const [currentPatient, setCurrentPatient] = useState(patient);
+    const [hasTelephoneTyped, setHasTelephoneTyped] = useState(false);
 
-    const [errors, setErrors] = React.useState({
+    const [errors, setErrors] = useState({
         name: "",
         age: "",
         telephone: "",
@@ -75,6 +79,24 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, patientNam
             setSavedMessage({message: "", isSuccess: true,});
         }
     }, [patientNotFound]);
+
+    const [debouncedTelephone, setDebouncedTelephone] = useState(telephone);
+
+    useEffect(() => {
+        if (telephone) {
+            setHasTelephoneTyped(true); // Mark that the user has started typing
+        }
+        const handler = setTimeout(() => {
+            setDebouncedTelephone(telephone);
+        }, 300);
+
+        return () => clearTimeout(handler);
+    }, [telephone]);
+
+    useEffect(() => {
+        if (hasTelephoneTyped)
+            validatePhoneNumber(debouncedTelephone);
+    }, [debouncedTelephone]);
 
     const clearUserData = () => {
         setId(0);
@@ -135,23 +157,40 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, patientNam
         if (!telephone) {
             valid = false;
             newErrors.telephone = "Telephone is required.";
+        } else {
+            if (!validatePhoneNumber(telephone)) {
+                newErrors.telephone = "Phone number is invalid";
+                valid = false;
+            }
         }
 
         setErrors(newErrors);
         return valid;
     };
 
+    const validatePhoneNumber = (phone: string) => {
+        const formattedPhone = parsePhoneNumber(phone, "LK");
+        if (!formattedPhone || !formattedPhone.isValid()) {
+            setErrors({...errors, telephone: "Phone number is invalid"})
+            return false;
+        }
+        setErrors({...errors, telephone: ""})
+        setValidatePhone(formattedPhone.number);
+        return true;
+    }
+
     const savePatientData = () => {
-        setIsLoading(true);
         setSavedMessage({message: "", isSuccess: false});
         if (!validateInputs()) return;
+
+        setIsLoading(true);
 
         const isCreate = isNew && isEmpty(id);
         const birthday = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
 
         axios(`patients${isCreate ? "" : `/${id}`}`, {
             method: isCreate ? "POST" : "PUT",
-            data: {name, age, telephone, email, address, birthday, gender: gender?.value},
+            data: {name, age, telephone: validatedPhone, email, address, birthday, gender: gender?.value},
         })
             .then((response) => {
                 const newPatientData = response.data.data;
