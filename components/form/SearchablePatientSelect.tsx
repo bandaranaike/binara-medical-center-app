@@ -126,7 +126,7 @@ const SearchablePatientSelect: React.FC<SearchablePatientSelectProps> = ({onPati
                 </ul>
             )}
             {filteredPatients && filteredPatients.length > 1 &&
-                <div className="border border-gray-700 bg-gray-800 rounded-xl my-4 text-gray-400">
+                <div className="border border-gray-700 bg-gray-800 rounded my-4 text-gray-400">
                     <div className="border-b border-gray-700 px-4 py-3">There are {filteredPatients.length} patients for this user</div>
                     {filteredPatients.map(patient =>
                         <div key={patient.id} className="border-b border-gray-700 px-4 py-2 flex justify-between last:border-b-0">

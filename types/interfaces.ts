@@ -105,6 +105,7 @@ export interface Option {
 
 export interface Patient {
     address: string
+    user_id: number;
     age: number
     email: string
     id: number

@@ -1,16 +1,18 @@
 import React, {EffectCallback, useCallback, useEffect, useMemo, useState} from "react";
 import TextInput from "@/components/form/TextInput";
 import axios from "@/lib/axios";
-import {isEmpty} from "lodash";
+import {isEmpty, round} from "lodash";
 import {Option, Patient, PatientDetailsProps} from "@/types/interfaces";
 import Select from "react-select";
 import customStyles from "@/lib/custom-styles";
 import Loader from "@/components/form/Loader";
-import parsePhoneNumber, {E164Number} from "libphonenumber-js";
-import debounce from "lodash.debounce";
+import parsePhoneNumber from "libphonenumber-js";
+import Progress from "@/components/form/Progress";
+import {getSimilarity} from "@/lib/compare-str-changes";
 
 const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, patientName, onPatientCreatedOrSelected, patientNotFound, patient, resetForm}) => {
     const [id, setId] = useState(0);
+    const [userId, setUserId] = useState(0);
     const [name, setName] = useState(patientName);
     const [age, setAge] = useState(0);
     const [telephone, setTelephone] = useState(patientPhone);
@@ -26,6 +28,9 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, patientNam
     const [savedMessage, setSavedMessage] = useState({isSuccess: true, message: ""});
     const [currentPatient, setCurrentPatient] = useState(patient);
     const [hasTelephoneTyped, setHasTelephoneTyped] = useState(false);
+    const [nameChangeIndex, setNameChangeIndex] = useState(0);
+    const [originalName, setOriginalName] = useState(patientName || "");
+    const [debouncedName, setDebouncedName] = useState(name);
 
     const [errors, setErrors] = useState({
         name: "",
@@ -37,7 +42,6 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, patientNam
         month: "",
         day: "",
     });
-
 
     useEffect(() => {
         if (resetForm) {
@@ -80,6 +84,25 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, patientNam
         }
     }, [patientNotFound]);
 
+    useEffect(() => {
+        console.log("Name changed : ", name)
+        const handler = setTimeout(() => {
+            setDebouncedName(name);
+        }, 300);
+
+        return () => clearTimeout(handler);
+    }, [name]);
+
+    useEffect(() => {
+        if (debouncedName && originalName && debouncedName !== originalName) {
+            console.log("Changes here : ", debouncedName, originalName)
+            const similarity = getSimilarity(originalName, debouncedName)
+            setIsNew(similarity < 0.8)
+            setNameChangeIndex(round((1 - similarity) * 10))
+        }
+    }, [debouncedName, originalName]);
+
+
     const [debouncedTelephone, setDebouncedTelephone] = useState(telephone);
 
     useEffect(() => {
@@ -99,6 +122,9 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, patientNam
     }, [debouncedTelephone]);
 
     const clearUserData = () => {
+        setOriginalName('')
+        setDebouncedName('')
+        setNameChangeIndex(0)
         setId(0);
         setAge(0);
         setEmail("");
@@ -120,14 +146,16 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, patientNam
         setSavedMessage({message: "", isSuccess: true,});
     };
 
-    const populateFields = ({id, name, age, address, telephone, email, birthday, gender}: Patient) => {
+    const populateFields = ({id, name, age, address, telephone, email, birthday, gender, user_id}: Patient) => {
         setIsLoading(true);
         setId(id);
         setName(name);
+        setOriginalName(name);
         setAge(age);
         setTelephone(telephone);
         setEmail(email ?? "");
         setAddress(address ?? "");
+        setUserId(user_id);
 
         if (birthday) {
             const birthDate = new Date(birthday);
@@ -188,9 +216,11 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, patientNam
         const isCreate = isNew && isEmpty(id);
         const birthday = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
 
-        axios(`patients${isCreate ? "" : `/${id}`}`, {
+        const uri = isCreate ? "" : `/${id}`;
+
+        axios(`patients${uri}`, {
             method: isCreate ? "POST" : "PUT",
-            data: {name, age, telephone: validatedPhone, email, address, birthday, gender: gender?.value},
+            data: {name, age, telephone: validatedPhone, email, address, birthday, gender: gender?.value, user_id: userId},
         })
             .then((response) => {
                 const newPatientData = response.data.data;
@@ -239,27 +269,42 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, patientNam
                     onChange={(option: Option | null) => setGender(option)}
                 />
             </div>
-            <div className="flex mt-6 space-x-4">
-                <button
-                    className={`py-2 px-4 ${isNew ? "bg-green-600 border-green-700" : "bg-blue-800 border-blue-700"} rounded border`}
+            <div className="flex mt-6 space-x-4 items-center">
+
+                {isNew && <button
                     onClick={savePatientData}
-                >
-                    {isNew ? "Create Profile" : "Save Profile"}
-                </button>
+                    className="bg-green-600 border-green-700 py-2 px-4 rounded border"> Create patient </button>}
+
+                {!isNew && nameChangeIndex > 2 && <button
+                    onClick={savePatientData}
+                    className="bg-green-600 border-green-700 py-2 px-4 rounded border"> Create new patient </button>}
+
+                {!isNew && nameChangeIndex < 8 && <button
+                    onClick={savePatientData}
+                    className="bg-blue-800 border-blue-700 py-2 px-4 rounded border">Save patient</button>}
+
                 <button
                     className="py-2 px-4 bg-gray-700 border-gray-700 rounded border"
                     onClick={resetToNewPatient}
                 >
                     Reset & Create New
                 </button>
-                <div className={`pt-2 pl-3 ${savedMessage.isSuccess ? "text-green-500" : "text-red-500"}`}>
-                    {savedMessage.message}
-                </div>
+                {savedMessage.message &&
+                    <div className={`pt-2 pl-3 ${savedMessage.isSuccess ? "text-green-500" : "text-red-500"}`}>
+                        {savedMessage.message}
+                    </div>
+                }
                 {isLoading && (
                     <div className="flex grow justify-end">
                         <Loader/>
                     </div>
                 )}
+                {nameChangeIndex > 0 &&
+                    <div className="mr-3 text-xs text-gray-500"><Progress progress={nameChangeIndex}/>
+                        <div className="mt-0.5">Name change index : {nameChangeIndex}</div>
+                    </div>
+                }
+
             </div>
         </div>
     );

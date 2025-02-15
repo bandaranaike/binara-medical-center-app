@@ -13,6 +13,7 @@ const OPD: React.FC<BillingPageProps> = ({handleFormChange, onDoctorNameChange, 
     }, [resetData]);
 
     const handleDoctorChangeOption = (data: DoctorFee) => {
+        handleFormChange('service_type', "opd")
         handleFormChange('doctor_id', data.id)
         handleFormChange('opd_doctor_fee', data.doctor_fee)
         handleFormChange('opd_doctor_charge', data.institution_charge)
