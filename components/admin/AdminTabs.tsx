@@ -41,10 +41,10 @@ const AdminTabs: React.FC<ActiveTabsProps> = ({tabs, onSelectActiveTab}) => {
                                 <a
                                     href="#"
                                     onClick={() => setActiveTab(tab)}
-                                    className={`inline-block p-4 border-b-2 rounded-t-lg first-letter:uppercase ${
+                                    className={`inline-block p-4 border-b-2 rounded-t-lg capitalize ${
                                         activeTab.id === tab.id ? activeTabClass : inactiveTabClass
                                     }`}
-                                >{tab.id}</a>
+                                >{tab.id.replace('-', ' ')}</a>
                             </li>
                         ))}
                     </ul>
