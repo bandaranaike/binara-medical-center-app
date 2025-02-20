@@ -32,5 +32,11 @@ jobs:
           echo "${SSH_PRIVATE_KEY}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan 147.93.111.8 >> ~/.ssh/known_hosts
-          rsync -avz --exclude=node_modules --exclude=.git ./ root@147.93.111.8:/var/www/binara-medical-center-app
-          ssh root@147.93.111.8 'cd /var/www/binara-medical-center-app && npm install && npm run build && pm2 restart ecosystem.config.js && sudo systemctl reload nginx'
+          rsync -avz --exclude=node_modules --exclude=.git ./ root@147.93.111.8:/var/www/app.binara.live
+          ssh root@147.93.111.8 << 'EOF'
+            cd /var/www/app.binara.live
+            npm install
+            npm run build
+            pm2 restart ecosystem.config.js --update-env
+            sudo systemctl reload nginx
+          EOF
