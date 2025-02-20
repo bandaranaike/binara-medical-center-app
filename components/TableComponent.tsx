@@ -53,7 +53,7 @@ export default function TableComponent({tab}: TableComponentProps) {
                 setError('Error fetching data. ' + (error.response?.data?.message ?? error.message));
             }).finally(() => setLoading(false));
         } catch (error) {
-            console.log(error)
+            console.error(error)
         }
     };
 

@@ -85,7 +85,6 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, patientNam
     }, [patientNotFound]);
 
     useEffect(() => {
-        console.log("Name changed : ", name)
         const handler = setTimeout(() => {
             setDebouncedName(name);
         }, 300);
@@ -95,7 +94,6 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, patientNam
 
     useEffect(() => {
         if (debouncedName && originalName && debouncedName !== originalName) {
-            console.log("Changes here : ", debouncedName, originalName)
             const similarity = getSimilarity(originalName, debouncedName)
             setIsNew(similarity < 0.8)
             setNameChangeIndex(round((1 - similarity) * 10))

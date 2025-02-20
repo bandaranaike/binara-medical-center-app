@@ -53,7 +53,7 @@ const LoginWindow: React.FC<LoginWindowProps> = ({onUserHasLoggedIn}) => {
                     }
                 });
             } catch (error) {
-                console.log(error)
+                console.error(error)
             }
         }
 
