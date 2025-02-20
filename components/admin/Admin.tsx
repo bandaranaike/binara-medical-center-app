@@ -19,6 +19,15 @@ const Admin = () => {
             select: {type: ['specialist', 'opd', 'dental']},
             actions: [{key: "Create a user", callBack: createUserForDoctor}]
         },
+        {
+            id: "doctors-schedules",
+            fields: ["doctor", "weekday", "time", "recurring", "seats"],
+            dropdowns: {doctor: 'doctors'},
+            select: {
+                weekday: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+                recurring: ['Daily', 'Weekly', '', 'Bi-Weekly', 'Monthly', 'Bi-Monthly', 'Quarterly', 'Yearly', 'Once', 'As Needed', 'Variable'],
+            }
+        },
         {id: "roles", fields: ["name", "key", "description"]},
         {id: "users", fields: ["name", "role", "email", "password"], dropdowns: {role: "roles"}},
     ];

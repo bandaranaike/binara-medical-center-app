@@ -93,10 +93,10 @@ const RegisterWindow: React.FC<LoginWindowProps> = ({onUserHasLoggedIn}) => {
                     setRegisterError([e.response.data.message])
                 });
             } catch (error) {
-                console.log(error)
+                console.error(error)
             }
         } else {
-            console.log("Validation failed:", registerError);
+            console.error("Validation failed:", registerError);
         }
     };
 
