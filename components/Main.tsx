@@ -15,6 +15,7 @@ import {useUserContext} from "@/context/UserContext";
 import {setAxiosToken} from "@/lib/axios";
 import OPDPortal from "@/components/OPDPortal";
 import PharmacyAdminPortal from "@/components/pharmacy-admin/PharmacyAdminPortal";
+import Welcome from "@/components/table/Welcome";
 
 interface Tab {
     id: string;
@@ -44,6 +45,7 @@ const Main = () => {
         {id: "stat-summary", label: "Stat Summary", component: <StatSummary/>, roles: ["admin"]},
         {id: "admin", label: "Admin", component: <Admin/>, roles: ["admin"]},
         {id: "pharmacy-admin", label: "Pharmacy Admin", component: <PharmacyAdminPortal/>, roles: ["pharmacy_admin", "admin"]},
+        {id: "welcome", label: "Welcome", component: <Welcome/>, roles: ["patient"]},
     ];
 
     const [activeTab, setActiveTab] = useState("");

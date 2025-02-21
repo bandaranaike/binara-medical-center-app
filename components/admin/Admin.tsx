@@ -30,6 +30,7 @@ const Admin = () => {
         },
         {id: "roles", fields: ["name", "key", "description"]},
         {id: "users", fields: ["name", "role", "email", "password"], dropdowns: {role: "roles"}},
+        {id: "trusted-sites", fields: ["domain", "api_key"]},
     ];
 
     return (<AdminTabs tabs={tabs}/>)
