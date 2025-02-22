@@ -21,11 +21,12 @@ const Admin = () => {
         },
         {
             id: "doctors-schedules",
-            fields: ["doctor", "weekday", "time", "recurring", "seats"],
+            fields: ["doctor", "weekday", "recurring", "status", "time", "seats"],
             dropdowns: {doctor: 'doctors'},
             select: {
                 weekday: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
-                recurring: ['Daily', 'Weekly', '', 'Bi-Weekly', 'Monthly', 'Bi-Monthly', 'Quarterly', 'Yearly', 'Once', 'As Needed', 'Variable'],
+                recurring: ['Daily', 'Weekly', 'Bi-Weekly', 'Monthly', 'Bi-Monthly', 'Quarterly', 'Yearly', 'Once', 'As Needed', 'Variable'],
+                status: ['active', 'inactive']
             }
         },
         {id: "roles", fields: ["name", "key", "description"]},

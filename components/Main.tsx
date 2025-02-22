@@ -44,6 +44,7 @@ const Main = () => {
         {id: "reception", label: "Reception", component: <Reception/>, roles: ["reception", "admin"]},
         {id: "stat-summary", label: "Stat Summary", component: <StatSummary/>, roles: ["admin"]},
         {id: "admin", label: "Admin", component: <Admin/>, roles: ["admin"]},
+        // {id: "calendar", label: "Calendar", component: <DoctorsAvailabilityCalendar/>, roles: ["admin"]},
         {id: "pharmacy-admin", label: "Pharmacy Admin", component: <PharmacyAdminPortal/>, roles: ["pharmacy_admin", "admin"]},
         {id: "welcome", label: "Welcome", component: <Welcome/>, roles: ["patient"]},
     ];

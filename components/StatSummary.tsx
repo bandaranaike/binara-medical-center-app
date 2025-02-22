@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useCallback , useEffect, useState} from "react";
 import axios from "@/lib/axios";
 import TotalRevenue from "@/components/reports/TotalRevenue";
 import RevenueByDoctor from "@/components/reports/RevenueByDoctor";
@@ -8,6 +8,7 @@ import {DateRangePicker, DateValue, RangeValue} from "@nextui-org/react";
 import dayjs from "dayjs";
 
 import {BillSummaryData, DailyReportSummaryData, RevenueByDoctorData, TotalRevenueData} from "@/types/report-interfaces";
+import debounce from "lodash.debounce";
 
 interface DateRange {
     startDate: string | null;
@@ -21,40 +22,36 @@ const StatSummary = () => {
     const [totalRevenue, setTotalRevenue] = useState<TotalRevenueData | undefined>();
     const [startDate, setStartDate] = useState<string | null>();
     const [endDate, setEndDate] = useState<string | null>();
-    const [isDataLoaded, setIsDataLoaded] = useState<boolean>(false);
 
-    const fetchData = async (start: string | null = null, end: string | null = null) => {
-        try {
-            const response = await axios.get("reports", {params: {startDate: start, endDate: end}});
-            const {
-                billStatusSummary,
-                dailyReportSummary,
-                revenueByDoctor,
-                totalRevenue,
-            } = response.data;
+    const fetchData = useCallback(
+        debounce(async (start: string | null = null, end: string | null = null) => {
+            try {
+                const response = await axios.get("reports", { params: { startDate: start, endDate: end } });
+                const { billStatusSummary, dailyReportSummary, revenueByDoctor, totalRevenue } = response.data;
 
-            setBillStatusSummary(billStatusSummary);
-            setDailyReportSummary(dailyReportSummary);
-            setRevenueByDoctor(revenueByDoctor);
-            setTotalRevenue(totalRevenue);
-            setIsDataLoaded(true);
-        } catch (error) {
-            console.error("Failed to fetch reports data:", error);
-        }
-    };
+                setBillStatusSummary(billStatusSummary);
+                setDailyReportSummary(dailyReportSummary);
+                setRevenueByDoctor(revenueByDoctor);
+                setTotalRevenue(totalRevenue);
+            } catch (error) {
+                console.error("Failed to fetch reports data:", error);
+            }
+        }, 300), // Adjust debounce delay as needed
+        []
+    );
 
     useEffect(() => {
+        fetchData();
         return () => {
-            if (!isDataLoaded) fetchData();
+            fetchData.cancel();
         };
-    }, []);
+    }, [fetchData]);
 
     const handleDateChange = (value: RangeValue<DateValue> | null) => {
         const formattedStartDate = value?.start ? dayjs(value.start.toDate('Asia/Colombo')).format("YYYY-MM-DD") : null;
         const formattedEndDate = value?.end ? dayjs(value.end.toDate('Asia/Colombo')).format("YYYY-MM-DD") : null;
         setStartDate(formattedStartDate);
         setEndDate(formattedEndDate);
-        setIsDataLoaded(false);
         fetchData(formattedStartDate, formattedEndDate);
     };
 

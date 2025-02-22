@@ -41,6 +41,9 @@ export interface Booking {
     patient_name: string;
     doctor_name: string;
     queue_date: string;
+    appointment_type: string;
+    payment_type: string;
+    payment_status: string;
     bill_id: number | null; // Null indicates the bill is not yet created
 }
 

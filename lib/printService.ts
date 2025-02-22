@@ -35,9 +35,8 @@ class PrintService {
      */
     async sendPrintRequest(printData: PrintRequest): Promise<void> {
         try {
-            const response = await this.axiosInstance.post("/print", printData);
+            await this.axiosInstance.post("/print", printData);
         } catch (error: any) {
-            console.error("Error in print request:", error.response?.data || error.message);
             throw error;
         }
     }
