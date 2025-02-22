@@ -76,7 +76,6 @@ const SearchablePatientSelect: React.FC<SearchablePatientSelectProps> = ({onPati
     };
 
     const handleSelectUser = (user: User) => {
-        console.log("user came", user)
         setQuery(""); // Clear the search input
         setFilteredUsers([]); // Clear the suggestions
         setSelectedIndex(-1); // Reset selected index

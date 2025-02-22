@@ -1,4 +1,3 @@
-// BookingsTable.tsx
 import React from "react";
 import {Booking} from "@/types/interfaces";
 
@@ -6,7 +5,7 @@ const BookingsTable: React.FC<{
     bookings: Booking[]; isTodayTab: boolean;
     handleShowBooking: (booking: Booking) => void;
     showDeleteConfirmation: (booking: Booking) => void;
-}> = ({bookings, isTodayTab, handleShowBooking, showDeleteConfirmation}) => (
+}> = ({bookings, handleShowBooking, showDeleteConfirmation}) => (
     <div className="relative overflow-x-auto sm:rounded-lg border border-gray-800">
         <table className="w-full text-sm text-left text-gray-400">
             <thead className="font-bold">
@@ -27,7 +26,7 @@ const BookingsTable: React.FC<{
                     <td className="px-4 py-2 border-r border-gray-800">{booking.doctor_name ?? 'No doctor assigned'}</td>
                     <td className="px-4 py-2 border-r border-gray-800">{booking.appointment_type}</td>
                     <td className="px-4 py-2 border-r border-gray-800">{booking.patient_name}</td>
-                    <td className="px-4 py-2 border-r border-gray-800">{Number(booking.bill_amount) + Number(booking.system_amount)}</td>
+                    <td className="px-4 py-2 border-r border-gray-800">{(Number(booking.bill_amount) + Number(booking.system_amount)).toFixed(2)}</td>
                     <td className="px-4 py-2 border-r border-gray-800">{booking.queue_date}</td>
                     <td className="px-4 py-2">
                         <button
