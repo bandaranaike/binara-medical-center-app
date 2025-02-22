@@ -4,10 +4,11 @@ import axios from "@/lib/axios";
 import Pagination from "@/components/table/Pagination";
 import Loader from "@/components/form/Loader";
 import SearchableSelect from "@/components/form/SearchableSelect";
-import Select from "react-select";
+import Select, {SingleValue} from "react-select";
 import customStyles from "@/lib/custom-styles";
 import {AdminTab} from "@/components/admin/AdminTabs";
 import TableActionStatus from "@/components/popup/TableActionStatus";
+import {Option} from "@/types/interfaces";
 
 interface TableComponentProps {
     tab: AdminTab;
@@ -324,6 +325,10 @@ export default function TableComponent({tab}: TableComponentProps) {
                                                                 return {value: item, label: item}
                                                             })}
                                                             styles={customStyles}
+                                                            onChange={(option: SingleValue<Option>) => {
+                                                                if (typeof option === 'object')
+                                                                    setFormData({...formData, [field]: option?.value})
+                                                            }}
                                                         />
                                                     </div>
                                                 )}
