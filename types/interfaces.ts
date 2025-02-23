@@ -65,6 +65,14 @@ export interface DoctorFee {
     name: string
 }
 
+export interface Drug {
+    id: number;
+    quantity: number;
+    total_price: number;
+    brand: string;
+    drug: string;
+}
+
 export interface History {
     id: number;
     date: string;

@@ -99,7 +99,7 @@ const BookingList: React.FC = () => {
                     onClose={() => setShowDeleteModal(false)}
                     onDeleteSuccess={() => handleDeleteBooking()}
                     deleteId={selectedBooking!.id}
-                >Are you sure you want to delete this booking?</DeleteConfirm>
+                >Are you sure you want to delete this medicine?</DeleteConfirm>
             )}
         </div>
     );

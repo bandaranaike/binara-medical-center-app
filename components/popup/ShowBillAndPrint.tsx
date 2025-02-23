@@ -37,7 +37,7 @@ const ShowBillAndPrint: FC<ShowBillAndPrintProps> = ({selectedBooking, onRemoveS
                         customer_name: data.patient_name,
                         doctor_name: data.doctor_name,
                         items: data.bill_items,
-                        total: data.total,
+                        total: data.total.toFixed(2),
                         bill_reference: data.bill_reference,
                         payment_type: data.payment_type
                     };

@@ -15,6 +15,7 @@ export interface TotalRevenueProps {
 export interface TotalRevenueData {
     totalRevenue: number
     totalSystemRevenue: number
+    totalBillRevenue: number
 }
 
 export interface BillSummaryProps {

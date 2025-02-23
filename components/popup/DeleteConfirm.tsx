@@ -13,6 +13,7 @@ interface DeleteConfirmProps {
 
 const DeleteConfirm: React.FC<DeleteConfirmProps> = ({deleteApiUrl, onClose, onDeleteSuccess, onDeleteError, children, deleteId}) => {
     const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(false);
 
     const handleDelete = async () => {
         setIsLoading(true);
@@ -21,10 +22,16 @@ const DeleteConfirm: React.FC<DeleteConfirmProps> = ({deleteApiUrl, onClose, onD
             setIsLoading(false);
             if (onDeleteSuccess) onDeleteSuccess();
             onClose(); // Close the modal after successful deletion.
-        } catch (error) {
+        } catch (error: any) {
+            if (onDeleteError) {
+                if (error?.response?.data) {
+                    setError(error.response.data)
+                    onDeleteError(error.response.data);
+                }
+                onDeleteError("There was an error")
+            }
+        } finally {
             setIsLoading(false);
-            if (onDeleteError) onDeleteError(error);
-            console.error("Error deleting:", error);
         }
     };
 
@@ -39,6 +46,7 @@ const DeleteConfirm: React.FC<DeleteConfirmProps> = ({deleteApiUrl, onClose, onD
                     Delete confirmation
                 </div>
                 <div className="mb-4 text-gray-400 pt-6 px-4 pb-2">{children}</div>
+                {error && <div className="px-4 -mt-3 mb-3 text-red-500">{error}</div>}
                 <div className="flex justify-end space-x-2 pb-4 px-4">
                     {isLoading && <Loader/>}
                     <button

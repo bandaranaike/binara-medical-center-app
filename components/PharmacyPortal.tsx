@@ -1,20 +1,12 @@
 import React, {useEffect, useState} from "react";
 import axios from "../lib/axios";
 import SearchableSelect from "@/components/form/SearchableSelect";
-import {Bill, Option, ServicesStatus} from "@/types/interfaces";
+import {Bill, Drug, Option, ServicesStatus} from "@/types/interfaces";
 import {formatReadableDateTime} from "@/lib/readbale-date";
-import Services, {BillTotals} from "@/components/Services";
+import Services from "@/components/Services";
 import TextInput from "@/components/form/TextInput";
 import Loader from "@/components/form/Loader";
 import {DeleteIcon} from "@nextui-org/shared-icons";
-
-interface Drug {
-    id: number;
-    quantity: number;
-    total_price: number;
-    brand: string;
-    drug: string;
-}
 
 const PharmacyPortal: React.FC = () => {
     const [pendingBills, setPendingBills] = useState<Bill[]>([]);
@@ -121,7 +113,7 @@ const PharmacyPortal: React.FC = () => {
 
     const activeBill = pendingBills.find((bill) => bill.id === activeBillId);
 
-    const addDrugsToList = () => {
+    const addDrugToList = () => {
         if (!brand || !drugQuantity || !drugPrice) {
             setDrugListAddError("Please fill all the fields")
             return;
@@ -180,7 +172,7 @@ const PharmacyPortal: React.FC = () => {
             {/* Active Bill Details */}
             {activeBill && (
                 <div className="py-3 text-left">
-                    <div className="flex justify-between py-3">
+                    <div className="flex justify-between pt-3 pb-5 border-b border-gray-800 mb-8">
                         <div className="">
                             <h2 className="text-2xl font-bold mb-1 text-gray-400">
                                 {activeBill.patient.name}
@@ -188,7 +180,7 @@ const PharmacyPortal: React.FC = () => {
                             <div className="text-gray-500">Age: {activeBill.patient.age} <span className="px-1">|</span> Gender: {activeBill.patient.gender}</div>
                         </div>
                         <div className="text-right">
-                            <div className="font-bold mb-1 text-lg">Doctor : {activeBill.doctor ? activeBill.doctor?.name : "No doctor assigned"}</div>
+                            <div className="font-bold -mt-2 mb-1 text-lg">Doctor : {activeBill.doctor ? activeBill.doctor?.name : "No doctor assigned"}</div>
                             <div className="text-gray-500 text-xs">
                                 <div className="">Bill Created at: {formatReadableDateTime(activeBill.created_at)}</div>
                                 <div className="">Bill last update at : {formatReadableDateTime(activeBill.updated_at)}</div>
@@ -216,7 +208,7 @@ const PharmacyPortal: React.FC = () => {
                                     <div className="col-span-2">
                                         <SearchableSelect
                                             placeholder="Drug/Brand"
-                                            apiUri="brands"
+                                            apiUri="pharmacy-brands"
                                             onChange={(option: any) => setBrand(option)}
                                             value={brand}
                                             id="DrugBrandSelect"
@@ -226,7 +218,7 @@ const PharmacyPortal: React.FC = () => {
                                     <TextInput name="Quantity" onChange={setDrugQuantity} value={drugQuantity}/>
                                     <TextInput name="Price" onChange={setDrugPrice} value={drugPrice}/>
                                     <button
-                                        onClick={addDrugsToList}
+                                        onClick={addDrugToList}
                                         className="border border-green-600 bg-green-700 text-white rounded hover:border-green-500 p-2 mt-4"
                                     >Add
                                     </button>
@@ -250,7 +242,7 @@ const PharmacyPortal: React.FC = () => {
                                                     <th className="px-4 py-2 text-left">Drug Name</th>
                                                     <th className="px-4 py-2 text-left">Quantity</th>
                                                     <th className="px-4 py-2 text-left">Price</th>
-                                                    <th className="px-4 py-2 text-left w-8"><DeleteIcon/></th>
+                                                    <th className="px-4 py-2 text-left w-16">Action</th>
                                                 </tr>
                                                 </thead>
                                                 <tbody>
@@ -260,8 +252,8 @@ const PharmacyPortal: React.FC = () => {
                                                         <td className="px-4 py-2 border-r border-gray-800">{drug.drug}</td>
                                                         <td className="px-4 py-2 border-r border-gray-800">{drug.quantity}</td>
                                                         <td className="px-4 py-2 border-r border-gray-800">{drug.total_price}</td>
-                                                        <td className="px-4 py-2 text-red-500">
-                                                            <button onClick={() => removeDrug(drug)}><DeleteIcon/></button>
+                                                        <td className="px-4 py-2 hover:text-red-500">
+                                                            <DeleteIcon className="mx-auto cursor-pointer" onClick={() => removeDrug(drug)}/>
                                                         </td>
                                                     </tr>
                                                 ))}

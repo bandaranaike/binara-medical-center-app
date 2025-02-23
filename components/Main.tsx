@@ -4,7 +4,7 @@ import React, {ReactElement, useEffect, useState} from "react";
 import Channel from "../components/Channel";
 import StatSummary from "../components/StatSummary";
 import DoctorsPatientQueue from "@/components/DoctorPortal";
-import PharmacyPortal from "@/components/PhamacyPortal";
+import PharmacyPortal from "@/components/PharmacyPortal";
 import Reception from "@/components/Reception";
 import Bookings from "@/components/Bookings";
 import TreatmentsPortal from "@/components/TreatmentsPortal";
@@ -16,7 +16,6 @@ import {setAxiosToken} from "@/lib/axios";
 import OPDPortal from "@/components/OPDPortal";
 import PharmacyAdminPortal from "@/components/pharmacy-admin/PharmacyAdminPortal";
 import Welcome from "@/components/table/Welcome";
-import DoctorAvailabilityManager from "@/components/admin/DoctorAvailabilityManager";
 
 interface Tab {
     id: string;
@@ -45,7 +44,6 @@ const Main = () => {
         {id: "reception", label: "Reception", component: <Reception/>, roles: ["reception", "admin"]},
         {id: "stat-summary", label: "Stat Summary", component: <StatSummary/>, roles: ["admin"]},
         {id: "admin", label: "Admin", component: <Admin/>, roles: ["admin"]},
-        {id: "calendar", label: "Calendar", component: <DoctorAvailabilityManager/>, roles: ["admin"]},
         {id: "pharmacy-admin", label: "Pharmacy Admin", component: <PharmacyAdminPortal/>, roles: ["pharmacy_admin", "admin"]},
         {id: "welcome", label: "Welcome", component: <Welcome/>, roles: ["patient"]},
     ];

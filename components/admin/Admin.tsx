@@ -14,9 +14,9 @@ const Admin = () => {
         {id: "specialties", fields: ["name"]},
         {
             id: "doctors",
-            fields: ["name", "hospital", "specialty", "user", "telephone", "type", "email"],
+            fields: ["name", "hospital", "specialty", "user", "telephone", "doctor_type", "email"],
             dropdowns: {hospital: 'hospitals', specialty: 'specialties', user: 'users'},
-            select: {type: ['specialist', 'opd', 'dental']},
+            select: {doctor_type: ['specialist', 'opd', 'dental']},
             actions: [{key: "Create a user", callBack: createUserForDoctor}]
         },
         {
@@ -28,6 +28,12 @@ const Admin = () => {
                 recurring: ['Daily', 'Weekly', 'Bi-Weekly', 'Monthly', 'Bi-Monthly', 'Quarterly', 'Yearly', 'Once', 'As Needed', 'Variable'],
                 status: ['active', 'inactive']
             }
+        },
+        {
+            id: "doctors-availabilities",
+            fields: ['doctor', 'time', 'date', 'seats', 'available_seats', 'status'],
+            dropdowns: {doctor: "doctors"},
+            select: {status: ['active', 'canceled']},
         },
         {id: "roles", fields: ["name", "key", "description"]},
         {id: "users", fields: ["name", "role", "email", "password"], dropdowns: {role: "roles"}},

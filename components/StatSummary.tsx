@@ -10,11 +10,6 @@ import dayjs from "dayjs";
 import {BillSummaryData, DailyReportSummaryData, RevenueByDoctorData, TotalRevenueData} from "@/types/report-interfaces";
 import debounce from "lodash.debounce";
 
-interface DateRange {
-    startDate: string | null;
-    endDate: string | null;
-}
-
 const StatSummary = () => {
     const [billStatusSummary, setBillStatusSummary] = useState<BillSummaryData | undefined>();
     const [dailyReportSummary, setDailyReportSummary] = useState<DailyReportSummaryData | undefined>();
@@ -73,10 +68,10 @@ const StatSummary = () => {
                 </div>
             </div>
             <div className="grid grid-cols-6 gap-3">
-                <div className="col-span-4">
+                <div className="col-span-2">
                     <DailyReportSummary data={dailyReportSummary}/>
                 </div>
-                <div className="col-span-2">
+                <div className="col-span-4">
                     <TotalRevenue data={totalRevenue}/>
                 </div>
             </div>
