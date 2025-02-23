@@ -200,13 +200,30 @@ const Services: React.FC<ServicesProps> = (
         }
     }
 
+    const insertMedicineBillItem = (onNewServiceAdded: any) => {
+        if (activeBill) {
+            const medicineBillItem = activeBill.bill_items.find(billItem => billItem.service.name == "Medicines");
+            if (!medicineBillItem) {
+                setActiveBill((prevBill) => {
+                    if (prevBill) {
+                        return {
+                            ...prevBill,
+                            bill_items: [...prevBill.bill_items, onNewServiceAdded],
+                        };
+                    }
+                    return prevBill;
+                });
+            }
+        }
+    }
+
     return (
         <div className="bg-gray-900">
             <div>
-                {showMedicineTable && activeBill && activeBill.patient_medicines.length > 0 && (
+                {showMedicineTable && activeBill &&  (
                     <div className="mb-12">
                         <h3 className="mb-1 font-semibold text-xl">Doctor recommended medicine list</h3>
-                        <PatientMedicineManager patientId={patientId} billId={activeBill.id.toString()} />
+                        <PatientMedicineManager patientId={patientId} billId={activeBill.id.toString()} onNewServiceAdded={insertMedicineBillItem}/>
                     </div>
                 )}
                 <div>

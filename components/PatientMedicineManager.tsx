@@ -11,7 +11,7 @@ interface PatientMedicineProps {
     patientId: number;
     billId: string | number;
     editable?: boolean;
-    onNewServiceAdded?: () => void;
+    onNewServiceAdded?: (addedMedicineItem: any) => void;
 }
 
 const PatientMedicineManager: React.FC<PatientMedicineProps> = ({patientId, billId, onNewServiceAdded, editable = true}) => {
@@ -76,8 +76,8 @@ const PatientMedicineManager: React.FC<PatientMedicineProps> = ({patientId, bill
                 // Update the medicine history for the current bill
                 setHistoryUpdatedVersion(randomString())
 
-                if (onNewServiceAdded && response.data.is_medicine_item_added) {
-                    onNewServiceAdded()
+                if (onNewServiceAdded && response.data.added_medicine_item) {
+                    onNewServiceAdded(response.data.added_medicine_item)
                 }
 
                 // Clear the form fields

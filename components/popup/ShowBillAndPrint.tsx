@@ -37,7 +37,7 @@ const ShowBillAndPrint: FC<ShowBillAndPrintProps> = ({selectedBooking, onRemoveS
                         customer_name: data.patient_name,
                         doctor_name: data.doctor_name,
                         items: data.bill_items,
-                        total: data.total.toFixed(2),
+                        total: data.total,
                         bill_reference: data.bill_reference,
                         payment_type: data.payment_type
                     };
@@ -127,7 +127,7 @@ const ShowBillAndPrint: FC<ShowBillAndPrintProps> = ({selectedBooking, onRemoveS
                                     className="rounded bg-blue-800 text-white px-3 py-2"
                                     onClick={() => handleConvertBill(selectedBooking)}
                                 >
-                                    {status == "done" ? "Mark as done" : "Confirm the payment and create bill"}
+                                    {selectedBooking.status == "done" ? "Print the bill" : (status == "done" ? "Mark as done" : "Confirm the payment and create bill")}
                                 </button>
                                 <button className="rounded bg-gray-600 text-white px-3 py-2" onClick={() => onCloseBooking()}>
                                     Cancel

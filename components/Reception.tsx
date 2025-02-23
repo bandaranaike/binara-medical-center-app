@@ -85,15 +85,15 @@ const ReceptionList: React.FC = () => {
                                         className="px-4 py-1 mr-3 rounded bg-blue-800 text-white"
                                         onClick={() => handleShowBill(bill)}
                                     >
-                                        Mark as Done
+                                        {bill.status == "done" ? "Print bill" : "Mark as Done"}
                                     </button>
-                                    <button
-                                        className="px-4 py-1 rounded bg-red-800 text-white"
-                                        onClick={() => showDeleteConfirmation(bill)}
-                                        disabled={!!bill.id}
-                                    >
-                                        Delete
-                                    </button>
+                                    {bill.status != "done" &&
+                                        <button
+                                            className="px-4 py-1 rounded  bg-red-800 text-white"
+                                            onClick={() => showDeleteConfirmation(bill)}
+                                        >
+                                            Delete
+                                        </button>}
                                 </td>
                             </tr>
                         ))}
