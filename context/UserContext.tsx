@@ -1,5 +1,6 @@
 import {LoggedUser} from "@/types/interfaces";
 import React, {createContext, useContext, useState, useEffect} from "react";
+import axios from "@/lib/axios";
 
 // Define the context type
 interface UserContextType {
@@ -43,6 +44,7 @@ const UserProvider: React.FC<{ children: React.ReactNode }> = ({children}) => {
 
     // Logout function
     const logout = () => {
+        axios.post('logout')
         setUserWithStorage(null);
     };
 

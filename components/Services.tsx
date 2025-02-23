@@ -3,8 +3,8 @@ import SearchableSelect from "@/components/form/SearchableSelect";
 import {Bill, Option, ServicesStatus} from "@/types/interfaces";
 import axios from "@/lib/axios";
 import Loader from "@/components/form/Loader";
-import ServiceMedicinesTable from "@/components/ServiceMedicinesTable";
-
+import PatientMedicineManager from "@/components/PatientMedicineManager";
+import {DeleteIcon} from "@nextui-org/shared-icons";
 
 export interface ServicesProps {
     patientId: number;
@@ -35,9 +35,11 @@ const Services: React.FC<ServicesProps> = (
     const [isLoading, setIsLoading] = useState(false);
     const [addServiceError, setAddServiceError] = useState<string>("")
     const [itemUpdateError, setItemUpdateError] = useState<{ id: number, message: string } | undefined>()
+    const [doctorMedicineId, setDoctorMedicineId] = useState(0)
 
     useEffect(() => {
         calculateFinalBillAmount();
+        findDoctorMedicineItem();
     }, [activeBill]);
 
     useEffect(() => {
@@ -66,7 +68,7 @@ const Services: React.FC<ServicesProps> = (
                     return {
                         ...prevBill,
                         bill_items: prevBill.bill_items.map((item) =>
-                            item.service.name === "Medicines" ? {...item, bill_amount: medicineTotal.toString()} : item
+                            item.id === doctorMedicineId ? {...item, system_amount: medicineTotal.toString()} : item
                         ),
                     };
                 }
@@ -74,6 +76,10 @@ const Services: React.FC<ServicesProps> = (
             });
         }
     }, [medicineTotal]);
+
+    useEffect(() => {
+
+    }, []);
 
     const handleAddService = () => {
         setAddServiceError("")
@@ -155,14 +161,14 @@ const Services: React.FC<ServicesProps> = (
 
         if (typingTimeout) clearTimeout(typingTimeout);
         const timeout = setTimeout(() => {
-            updateBillItemAmount(itemId, newAmount);
+            updateBillItemAmount(itemId, newAmount, key);
         }, 800);
         setTypingTimeout(timeout);
     };
 
-    const updateBillItemAmount = (itemId: number, amount: string) => {
+    const updateBillItemAmount = (itemId: number, amount: string, key: string) => {
         setItemUpdateError(undefined)
-        axios.put(`bill-items/${itemId}`, {bill_amount: amount})
+        axios.put(`bill-items/${itemId}`, {[key]: amount})
             .catch(error => setItemUpdateError({id: itemId, message: error.response.data.message}));
     };
 
@@ -187,16 +193,41 @@ const Services: React.FC<ServicesProps> = (
         }
     };
 
+    const findDoctorMedicineItem = () => {
+        const doctorMedicineBillItem = activeBill?.bill_items.find(billItem => billItem.service.name === "Medicines")
+        if (doctorMedicineBillItem) {
+            setDoctorMedicineId(doctorMedicineBillItem.id)
+        }
+    }
+
+    const insertMedicineBillItem = (onNewServiceAdded: any) => {
+        if (activeBill) {
+            const medicineBillItem = activeBill.bill_items.find(billItem => billItem.service.name == "Medicines");
+            if (!medicineBillItem) {
+                setActiveBill((prevBill) => {
+                    if (prevBill) {
+                        return {
+                            ...prevBill,
+                            bill_items: [...prevBill.bill_items, onNewServiceAdded],
+                        };
+                    }
+                    return prevBill;
+                });
+            }
+        }
+    }
+
     return (
         <div className="bg-gray-900">
             <div>
-                {showMedicineTable && activeBill && activeBill.patient_medicines.length > 0 && (
-                    <div className="mb-6">
-                        <h3 className="mb-3 font-semibold text-xl">Doctor recommended medicine list</h3>
-                        <ServiceMedicinesTable patientMedicines={activeBill.patient_medicines}/>
+                {showMedicineTable && activeBill &&  (
+                    <div className="mb-12">
+                        <h3 className="mb-1 font-semibold text-xl">Doctor recommended medicine list</h3>
+                        <PatientMedicineManager patientId={patientId} billId={activeBill.id.toString()} onNewServiceAdded={insertMedicineBillItem}/>
                     </div>
                 )}
                 <div>
+                    <h3 className="mb-5 font-semibold text-xl">Treatments List</h3>
                     <div className="grid gap-4 grid-cols-4 items-center ">
                         <div className="col-span-2">
                             <SearchableSelect
@@ -231,17 +262,17 @@ const Services: React.FC<ServicesProps> = (
 
                 <hr className="border-t border-gray-700 mb-4 mt-2"/>
                 <div className="mt-4">
-                    <div className="mb-2 gap-4 grid grid-cols-4 items-center text-center">
-                        <div className="text-right">Treatment</div>
+                    <div className="mb-2 gap-4 grid grid-cols-5 items-center text-center">
+                        <div className="text-right col-span-2">Treatment</div>
                         <div>Charge</div>
                         <div>Institution charge</div>
                         <div>Action</div>
                     </div>
                     {activeBill && activeBill.bill_items.map((item) => (
                         <React.Fragment key={item.id}>
-                            <div className="mb-2 gap-4 grid grid-cols-4 items-center">
-                                <label className="block text-sm font-medium text-gray-400 text-right">
-                                    {item.service?.name || "Service"}
+                            <div className="mb-2 gap-4 grid grid-cols-5 items-center">
+                                <label className="block text-sm font-medium text-gray-400 text-right col-span-2">
+                                    {item.id == doctorMedicineId ? "Doctor Medicines" : item.service?.name || "Service"}
                                 </label>
                                 <input
                                     type="text"
@@ -259,13 +290,11 @@ const Services: React.FC<ServicesProps> = (
                                         handleInputChange(item.id, e.target.value, 'system_amount')
                                     }
                                 />
-                                <button
-                                    type="button"
-                                    className="mt-2 bg-red-800 text-white py-1 px-4 rounded hover:bg-red-900"
-                                    onClick={() => handleRemoveBillItem(item.id)}
-                                >
-                                    Remove
-                                </button>
+                                <div className="w-full">
+                                    <DeleteIcon
+                                        onClick={item.id == doctorMedicineId ? () => false : () => handleRemoveBillItem(item.id)}
+                                        className={`${item.id == doctorMedicineId ? 'text-gray-600 cursor-not-allowed hover:text-gray-600' : 'hover:text-red-500 cursor-pointer'} mx-auto`}/>
+                                </div>
                             </div>
 
                             {itemUpdateError && itemUpdateError.id === item.id && <div className="mb-4 text-right text-red-500">{itemUpdateError.message}</div>}
@@ -274,11 +303,22 @@ const Services: React.FC<ServicesProps> = (
                 </div>
                 {isLoading && <Loader/>}
                 {activeBill && (
-                    <div className="flex justify-between content-center">
-                        <div className={showMedicineTable ? "font-bold text-lg mt-4" : "mt-4"}>
-                            {showMedicineTable ? 'Total' : "Service total: "}: LKR {finalBillAmounts.total.toFixed(2)}
-                        </div>
-                    </div>
+                    <table className={showMedicineTable ? "mt-12" : "mt-4"}>
+                        <tbody>
+                        <tr>
+                            <td className="text-right pr-1 pb-1">Institution charge</td>
+                            <td className="font-bold pb-1">: {finalBillAmounts.systemTotal.toFixed(2)}</td>
+                        </tr>
+                        <tr className="">
+                            <td className="text-right pr-1 pb-1">Bill charge</td>
+                            <td className="font-bold pb-1">: {finalBillAmounts.billTotal.toFixed(2)}</td>
+                        </tr>
+                        <tr className="">
+                            <td className="text-right pr-1 pb-1">{showMedicineTable ? 'Total' : "Service total: "}</td>
+                            <td className="font-bold pb-1">: {finalBillAmounts.total.toFixed(2)}</td>
+                        </tr>
+                        </tbody>
+                    </table>
                 )}
             </div>
         </div>

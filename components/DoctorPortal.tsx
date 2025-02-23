@@ -2,9 +2,11 @@ import React, {useEffect, useState} from 'react';
 import axios from '@/lib/axios';
 import SearchableSelect from '@/components/form/SearchableSelect';
 import {Option, PatientBill} from "@/types/interfaces";
-import PatientMedicineManager from "@/components/PatientMedicineManager";
 import DoctorPatientHistory from "@/components/DoctorPatientHistory";
-import Loader from "@/components/form/Loader"; // Assuming SearchableSelect is in the same folder
+import Loader from "@/components/form/Loader";
+// import DoctorPatientMedicineHistory from "@/components/doctor/DoctorPatientMedicineHistory";
+import {DeleteIcon} from "@nextui-org/shared-icons";
+import PatientMedicineManager from "@/components/PatientMedicineManager";
 
 const DoctorPortal: React.FC = () => {
 
@@ -19,6 +21,7 @@ const DoctorPortal: React.FC = () => {
     const [allergyAlreadyHaveMessage, setAllergyAlreadyHaveMessage] = useState<string>("");
     const [error, setError] = useState<string>("");
     const [statusChangeError, setStatusChangeError] = useState<string>("");
+    // const [historyMedicineLoaded, setHistoryMedicineLoaded] = useState<boolean | undefined>()
 
     // Fetch the patientsBill data from the API
     useEffect(() => {
@@ -187,10 +190,6 @@ const DoctorPortal: React.FC = () => {
 
     return (
         <div className="font-medium dark:text-gray-400 dark:border-gray-700 relative">
-            {/*<div className="absolute border border-gray-700 bg-gray-800 rounded mt-4 mr-4 -top-24 -right-8 px-3 py-2 text-center">*/}
-            {/*    <div className="mb-1 text-lg">Next</div>*/}
-            {/*    <div className="text-2xl">12</div>*/}
-            {/*</div>*/}
 
             {patientsBills.length > 0 && (
                 <ul className="flex flex-wrap -mb-px border-b border-gray-800">
@@ -248,13 +247,13 @@ const DoctorPortal: React.FC = () => {
                             {activePatientBill && (activePatientBill.patient.allergies?.length || 0) > 0 ? (
                                 <ul key={activePatientBill.id} className="px-2 pb-2 ml-2">
                                     {activePatientBill.patient.allergies?.map((allergy, index) => (
-                                        <li className="mb-1" key={index}>
+                                        <li className="mb-1 flex content-center" key={index}>
                                             {allergy.name}
                                             <button
-                                                className="ml-2 text-red-600 font-bold"
+                                                className="ml-2 hover:text-red-600 font-bold"
                                                 onClick={() => handleRemoveAllergy(allergy.id)}
                                             >
-                                                x
+                                                <DeleteIcon/>
                                             </button>
                                         </li>
                                     ))}
@@ -282,13 +281,13 @@ const DoctorPortal: React.FC = () => {
                             {activePatientBill && (activePatientBill.patient.diseases?.length || 0) > 0 ? (
                                 <ul key={activePatientBill.id} className="px-2 pb-2 ml-2">
                                     {activePatientBill.patient.diseases?.map((disease, index) => (
-                                        <li className="mb-1" key={index}>
+                                        <li className="mb-1 flex content-center" key={index}>
                                             {disease.name}
                                             <button
-                                                className="ml-2 text-red-600 font-bold"
+                                                className="ml-2 hover:text-red-600 font-bold"
                                                 onClick={() => handleRemoveDisease(disease.id)}
                                             >
-                                                x
+                                                <DeleteIcon/>
                                             </button>
                                         </li>
                                     ))}
@@ -304,13 +303,22 @@ const DoctorPortal: React.FC = () => {
                         key={`${activePatientBill?.id}-${activePatientId}-${patientBillsChanged}`}
                         patientId={activePatientId}
                     />
-                    {activePatientBill && activePatientBill.id > 0 && (
-                        <PatientMedicineManager
-                            key={`${activePatientBill?.id}-${patientBillsChanged}`}
-                            patientId={activePatientId}
-                            billId={activePatientBill?.id.toString()}/>
-                    )}
 
+                    {activePatientBill &&
+                        <PatientMedicineManager patientId={activePatientId} billId={activePatientBill?.id.toString()}/>
+                    }
+
+                    {/*<div className="border border-dashed rounded-xl p-3 min-h-48 my-6">*/}
+                    {/*    {historyMedicineLoaded && <>*/}
+                    {/*        <h3 className="textlg font-semibold border-t border-gray-800 mt-12 pt-6">Medicine Histories</h3>*/}
+                    {/*        {activePatientBill && activePatientBill.id > 0 && (*/}
+                    {/*            <DoctorPatientMedicineHistory*/}
+                    {/*                patientId={activePatientId}*/}
+                    {/*            />*/}
+                    {/*        )}</> || <div>*/}
+                    {/*        <button className="mx-auto border py-2 px-4 border-gray-700 bg-gray-800" onClick={() => setHistoryMedicineLoaded(true)}>Load history</button>*/}
+                    {/*    </div>}*/}
+                    {/*</div>*/}
                     <div className="flex justify-end">
                         {statusChangeError && <div className="text-red-500 mx-6 p-2">{statusChangeError}</div>}
                         <button onClick={changeBillStatus} className="border-green-600 border rounded px-4 py-2 bg-green-700 text-gray-100">Send to pharmacy</button>

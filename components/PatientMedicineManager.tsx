@@ -1,31 +1,36 @@
 import React, {useState, useEffect} from 'react';
-import axios from '../lib/axios';
-import SearchableSelect from './form/SearchableSelect';
-import {Option, PatientMedicineHistory} from '@/types/interfaces';
-import ServiceMedicinesTable from "@/components/ServiceMedicinesTable";
+import axios from '@/lib/axios';
+import SearchableSelect from '@/components/form/SearchableSelect';
+import {HistoryItem, Option} from '@/types/interfaces';
 import Loader from "@/components/form/Loader";
+import {randomString} from "@/lib/strings";
+import {DeleteIcon} from "@nextui-org/shared-icons";
+import DeleteConfirm from "@/components/popup/DeleteConfirm";
 
 interface PatientMedicineProps {
     patientId: number;
-    billId: string;
+    billId: string | number;
+    editable?: boolean;
+    onNewServiceAdded?: (addedMedicineItem: any) => void;
 }
 
-const PatientMedicineManager: React.FC<PatientMedicineProps> = ({patientId, billId}) => {
-    const [medicineHistories, setMedicineHistories] = useState<PatientMedicineHistory[]>([]);
-    const [activeTab, setActiveTab] = useState<number>(0);
+const PatientMedicineManager: React.FC<PatientMedicineProps> = ({patientId, billId, onNewServiceAdded, editable = true}) => {
+    const [patientMedicineHistories, setPatientMedicineHistories] = useState<HistoryItem[]>([]);
     const [selectedMedicine, setSelectedMedicine] = useState<Option>();
     const [medicationFrequency, setMedicationFrequency] = useState<Option>();
     const [duration, setDuration] = useState<string>('');
     const [medicineFetchError, setMedicineFetchError] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(true);
     const [addMedicineError, setAddMedicineError] = useState<string | undefined>()
+    const [historyUpdatedVersion, setHistoryUpdatedVersion] = useState("")
+    const [deleteId, setDeleteId] = useState(0)
 
     useEffect(() => {
         const fetchMedicineHistories = () => {
             try {
                 setMedicineFetchError("")
-                axios.get(`/doctors/patient/${patientId}/medicine-histories`).then(response => {
-                    setMedicineHistories(response.data);
+                axios.get(`/doctors/patient/bill/${billId}/medicine-histories`).then(response => {
+                    setPatientMedicineHistories(response.data);
                 }).catch(error => {
                     setMedicineFetchError('Error fetching medicine histories: ' + error.response.data.message);
                 }).finally(() => {
@@ -38,7 +43,7 @@ const PatientMedicineManager: React.FC<PatientMedicineProps> = ({patientId, bill
 
         const debounceFetch = setTimeout(fetchMedicineHistories, 400); // Debounce API calls
         return () => clearTimeout(debounceFetch);
-    }, [patientId]);
+    }, [patientId, historyUpdatedVersion]);
 
     const handleCreateNewMedicine = (item: any) => {
         setSelectedMedicine({label: item, value: "-1"})
@@ -46,10 +51,6 @@ const PatientMedicineManager: React.FC<PatientMedicineProps> = ({patientId, bill
 
     const handleCreateNewMedicationFrequency = (item: any) => {
         setMedicationFrequency({label: item, value: "-1"})
-    }
-
-    const setActiveTabAndBillId = (index: number) => {
-        setActiveTab(index);
     }
 
     const handleAddMedicine = async (e: React.FormEvent) => {
@@ -61,6 +62,7 @@ const PatientMedicineManager: React.FC<PatientMedicineProps> = ({patientId, bill
 
         try {
             setAddMedicineError('');
+            setLoading(true)
 
             axios.post('/patients/add-medicine', {
                 patient_id: patientId,
@@ -72,7 +74,11 @@ const PatientMedicineManager: React.FC<PatientMedicineProps> = ({patientId, bill
                 duration,
             }).then(response => {
                 // Update the medicine history for the current bill
-                setMedicineHistories(response.data.data);
+                setHistoryUpdatedVersion(randomString())
+
+                if (onNewServiceAdded && response.data.added_medicine_item) {
+                    onNewServiceAdded(response.data.added_medicine_item)
+                }
 
                 // Clear the form fields
                 setSelectedMedicine(undefined);
@@ -88,92 +94,98 @@ const PatientMedicineManager: React.FC<PatientMedicineProps> = ({patientId, bill
         }
     };
 
-    if (loading) {
-        return <div className="my-8 text-center"><Loader/></div>;
-    }
-
+    const medicineDeleted = () => {
+        setLoading(true)
+        setHistoryUpdatedVersion(randomString());
+        setDeleteId(0)
+    };
     return (
-        <div className="mt-8">
-            <ul className="flex flex-wrap -mb-px">
-                {medicineHistories.length === 0 && (
-                    <li key="first" className="me-2 ml-2">
-                        <button className={`inline-block p-3 border-b-2 text-blue-500 border-blue-500 rounded-t-lg`}>
-                            Add new
-                        </button>
-                    </li>
-                )}
-                {medicineHistories.map((history, index) => (
-                    <li key={index} className="me-2 ml-2">
-                        <button
-                            className={`inline-block p-4 border-b-2 ${
-                                activeTab === index
-                                    ? 'text-blue-500 border-blue-500'
-                                    : 'border-transparent hover:text-gray-600 hover:border-gray-300'
-                            } rounded-t-lg`}
-                            onClick={() => setActiveTabAndBillId(index)}
-                        >
-                            {history.created_at.substring(0, 10)}
-                        </button>
-                    </li>
-                ))}
-            </ul>
-            <div className="text-left p-4 border border-gray-800 rounded-md mb-8">
-                {((medicineHistories[activeTab]?.status === 'doctor') || medicineHistories.length === 0) && (
-                    <form onSubmit={handleAddMedicine}>
-                        <div className="grid grid-cols-1 lg:grid-cols-5 gap-3">
-                            <div>
-                                <SearchableSelect
-                                    id="selectMedicine"
-                                    value={selectedMedicine}
-                                    onChange={(item: any) => setSelectedMedicine(item)}
-                                    onCreateOption={item => handleCreateNewMedicine(item)}
-                                    placeholder="Medicine/Treatment"
-                                    apiUri="medicines"
-                                />
-                            </div>
-                            <div>
-                                <SearchableSelect
-                                    id="selecteMedicationFrequency"
-                                    value={selectedMedicine}
-                                    onChange={(item: any) => setMedicationFrequency(item)}
-                                    onCreateOption={item => handleCreateNewMedicationFrequency(item)}
-                                    placeholder="Medication frequency"
-                                    apiUri="medication_frequencies"
-                                />
-                            </div>
-                            <div>
-                                <label className="block mb-2 text-left">Duration:</label>
-                                <input
-                                    type="text"
-                                    className="block w-full px-2 py-1.5 border border-gray-700 rounded mb-4 bg-gray-800"
-                                    value={duration}
-                                    onChange={(e) => setDuration(e.target.value)}
-                                    placeholder="Enter duration (e.g., 5 days)"
-                                />
-                            </div>
-                            <div>
-                                <div className="py-3.5"></div>
-                                <button
-                                    type="submit"
-                                    className="px-4 pt-2 mt-0.5 pb-2 bg-blue-800 text-white rounded"
-                                >
-                                    Add Medicine
-                                </button>
-                            </div>
+        <div className="my-4">
+            <div className="text-left">
+                {editable && <form onSubmit={handleAddMedicine}>
+                    <div className="grid grid-cols-1 lg:grid-cols-5 gap-3 max-w-4xl">
+                        <div className="col-span-2">
+                            <SearchableSelect
+                                id="selectMedicine"
+                                value={selectedMedicine}
+                                onChange={(item: any) => setSelectedMedicine(item)}
+                                onCreateOption={item => handleCreateNewMedicine(item)}
+                                placeholder="Medicine/Treatment"
+                                apiUri="medicines"
+                            />
                         </div>
-                        {addMedicineError && <div className="text-red-500 mb-4">{addMedicineError}</div>}
-                        {medicineFetchError && <div className="text-red-500">{medicineFetchError}</div>}
-                    </form>
-                )}
+                        <div>
+                            <SearchableSelect
+                                id="selecteMedicationFrequency"
+                                value={selectedMedicine}
+                                onChange={(item: any) => setMedicationFrequency(item)}
+                                onCreateOption={item => handleCreateNewMedicationFrequency(item)}
+                                placeholder="Frequency"
+                                apiUri="medication_frequencies"
+                            />
+                        </div>
+                        <div>
+                            <label className="block mb-2 text-left">Duration:</label>
+                            <input
+                                type="text"
+                                className="block w-full px-2 py-1.5 border border-gray-700 rounded mb-4 bg-gray-800"
+                                value={duration}
+                                onChange={(e) => setDuration(e.target.value)}
+                                placeholder="Duration"
+                            />
+                        </div>
+                        <div>
+                            <button
+                                type="submit"
+                                className="w-full mt-8 border border-green-600 bg-green-700 text-white py-1.5 px-4 rounded hover:border-green-500"
+                            >
+                                Add
+                            </button>
+                        </div>
+                    </div>
+                    {addMedicineError && <div className="text-red-500 mb-4">{addMedicineError}</div>}
+                    {medicineFetchError && <div className="text-red-500">{medicineFetchError}</div>}
+                </form>}
                 <div className="max-w-4xl">
-                    {(medicineHistories[activeTab]?.status !== 'doctor') && (medicineHistories[activeTab] && medicineHistories[activeTab].patient_medicines.length == 0) &&
-                        <div className="p-3 text-gray-500">There were no medicines</div>
-                    }
-                    {medicineHistories[activeTab] && medicineHistories[activeTab].patient_medicines.length > 0 &&
-                        <ServiceMedicinesTable patientMedicines={medicineHistories[activeTab].patient_medicines}/>
-                    }
+                    <div className="relative overflow-x-auto sm:rounded-lg border border-gray-800">
+                        {(patientMedicineHistories.length > 0) && <table className="w-full text-sm text-left text-gray-400">
+                            <thead className="bg-gray-700">
+                            <tr className="bg-gray-800">
+                                <th className="px-4 py-2">Medicine/Treatment</th>
+                                <th className="px-4 py-2 text-left">Frequency</th>
+                                <th className="px-4 py-2 text-left">Duration</th>
+                                {editable && <th className="px-4 py-2 text-left w-16">Action</th>}
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {patientMedicineHistories && patientMedicineHistories.map((medicine: HistoryItem) => (
+                                <tr key={medicine.id} className="border-t border-gray-800">
+                                    <td className="px-4 py-2 border-r border-gray-800">{medicine.medicine.name}</td>
+                                    <td className="px-4 py-2 border-r border-gray-800">{medicine.medication_frequency.name}</td>
+                                    <td className="px-4 py-2 border-r border-gray-800">{medicine.duration}</td>
+                                    {editable && <td className="px-4 py-2">
+                                        <DeleteIcon
+                                            onClick={() => setDeleteId(medicine.id)}
+                                            className="mx-auto hover:text-red-500 cursor-pointer"
+                                        />
+                                    </td>}
+                                </tr>
+                            ))}
+                            </tbody>
+                        </table>}
+                        {(patientMedicineHistories.length == 0) && <div className="p-4 text-gray-500 text-sm text-center">Medicine list will appear here</div>}
+                    </div>
+                    {loading && <div className="my-1 text-center"><Loader/></div>}
                 </div>
             </div>
+            {deleteId > 0 &&
+                <DeleteConfirm
+                    deleteApiUrl="patient-medicine-histories"
+                    onClose={() => setDeleteId(0)}
+                    onDeleteSuccess={medicineDeleted}
+                    deleteId={deleteId}
+                >Are you sure you want to delete this medicine?</DeleteConfirm>
+            }
         </div>
     );
 };

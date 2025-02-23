@@ -41,6 +41,10 @@ export interface Booking {
     patient_name: string;
     doctor_name: string;
     queue_date: string;
+    appointment_type: string;
+    payment_type: string;
+    payment_status: string;
+    status: string;
     bill_id: number | null; // Null indicates the bill is not yet created
 }
 
@@ -59,6 +63,14 @@ export interface DoctorFee {
     doctor_fee: number,
     institution_charge: number,
     name: string
+}
+
+export interface Drug {
+    id: number;
+    quantity: number;
+    total_price: number;
+    brand: string;
+    drug: string;
 }
 
 export interface History {
