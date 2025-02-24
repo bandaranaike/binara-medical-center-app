@@ -9,6 +9,7 @@ import customStyles from "@/lib/custom-styles";
 import {AdminTab} from "@/components/admin/AdminTabs";
 import TableActionStatus from "@/components/popup/TableActionStatus";
 import {Option} from "@/types/interfaces";
+import {PlusFilledIcon} from "@nextui-org/shared-icons";
 
 interface TableComponentProps {
     tab: AdminTab;
@@ -128,10 +129,10 @@ export default function TableComponent({tab}: TableComponentProps) {
         <div className="mx-auto mt-4">
             <div className="flex justify-end mb-4">
                 <button
-                    className="bg-blue-700 text-white px-4 py-2 rounded"
+                    className="bg-green-700 text-white px-3 py-2 rounded text-sm border-green-500 items-center flex gap-1"
                     onClick={() => openCreateOrUpdateDialog()}
                 >
-                    Add New Record
+                    <PlusFilledIcon/> Add New Record
                 </button>
             </div>
 
