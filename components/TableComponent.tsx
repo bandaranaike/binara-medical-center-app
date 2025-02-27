@@ -1,4 +1,4 @@
-import React, {useState, useEffect, Fragment} from 'react';
+import React, {useState, useEffect, Fragment, useCallback} from 'react';
 import {Dialog, Transition, TransitionChild} from '@headlessui/react';
 import axios from "@/lib/axios";
 import Pagination from "@/components/table/Pagination";
@@ -9,10 +9,11 @@ import customStyles from "@/lib/custom-styles";
 import {AdminTab} from "@/components/admin/AdminTabs";
 import TableActionStatus from "@/components/popup/TableActionStatus";
 import {Option} from "@/types/interfaces";
-import {PlusFilledIcon} from "@nextui-org/shared-icons";
-import searchableSelect from "@/components/form/SearchableSelect";
 import TextInput from "@/components/form/TextInput";
 import CustomSelect from "@/components/form/CustomSelect";
+import debounce from "lodash.debounce";
+import {Datepicker} from "flowbite-react";
+import {PlusCircleIcon, XCircleIcon} from "@heroicons/react/24/outline";
 
 interface TableComponentProps {
     tab: AdminTab;
@@ -38,29 +39,38 @@ export default function TableComponent({tab}: TableComponentProps) {
     const [updateOrCreateError, setUpdateOrCreateError] = useState<string>("")
     const [deleteError, setDeleteError] = useState<string>("")
     const [actionError, setActionError] = useState<string>("")
+    const [searchField, setSearchField] = useState<string>("");
+    const [searchType, setSearchType] = useState('')
 
     const {id: apiUrl, fields, dropdowns, select, actions, filters} = tab;
+
 
     useEffect(() => {
         setData([])
         setTotalPages(0)
         setError('');
+        setLoading(true);
         fetchData();
     }, [currentPage, apiUrl]);
 
-    const fetchData = () => {
-        setLoading(true)
-        try {
-            axios.get(`${apiUrl}?page=${currentPage}&searchField=${searchField}&searchValue=${searchValue}`).then(response => {
-                setData(response.data.data);
-                setTotalPages(response.data.last_page);
-            }).catch(error => {
-                setError('Error fetching data. ' + (error.response?.data?.message ?? error.message));
-            }).finally(() => setLoading(false));
-        } catch (error) {
-            console.error(error)
-        }
-    };
+    const fetchData = useCallback(
+        debounce((search: string = "") => {
+            try {
+                axios.get(`${apiUrl}?page=${currentPage}&searchField=${searchField}&searchValue=${search}`)
+                    .then(response => {
+                        setData(response.data.data);
+                        setTotalPages(response.data.last_page);
+                    })
+                    .catch(error => {
+                        setError('Error fetching data. ' + (error.response?.data?.message ?? error.message));
+                    })
+                    .finally(() => setLoading(false));
+            } catch (error) {
+                console.error(error);
+            }
+        }, 50),
+        [apiUrl, currentPage, searchField] // Dependencies
+    );
 
     const handleCreateOrUpdate = () => {
         try {
@@ -75,6 +85,7 @@ export default function TableComponent({tab}: TableComponentProps) {
     };
 
     const dataSaveSucceed = () => {
+        setLoading(true);
         fetchData();
         setIsCreateOrUpdateDialogOpen(false);
     }
@@ -90,6 +101,7 @@ export default function TableComponent({tab}: TableComponentProps) {
     const handleDelete = async (id: number) => {
         try {
             await axios.delete(`${apiUrl}/${id}`);
+            setLoading(true);
             fetchData();
             setIsDeleteDialogOpen(false);
         } catch (error) {
@@ -120,16 +132,30 @@ export default function TableComponent({tab}: TableComponentProps) {
         setActionError("")
         setIsActionCalling(true)
         callBack(record).then(() => {
+            setLoading(true);
             fetchData()
             setIsActionCalling(false)
         }).catch(error => setActionError(error.response.data.message));
     }
 
-    const [searchField, setSearchField] = useState<string>("");
-    const [searchValue, setSearchValue] = useState<string>("");
+    const searchOnTable = (search: string) => {
+        if (searchField) {
+            fetchData(search)
+        }
+    };
+
+    const searchFieldSet = (field: string) => {
+        setSearchField(field)
+        if (filters && filters.types && filters.types[field]) setSearchType(filters.types[field])
+        else setSearchType('text')
+    }
+
     useEffect(() => {
-        console.log("Searching..")
-    }, [searchField, searchValue]);
+        if (filters?.options) setSearchField(filters?.options[0].value)
+        setSearchType('')
+    }, [filters]);
+
+    const debounceSearchOnTable = debounce(searchOnTable, 300)
 
     return (
         loading &&
@@ -137,28 +163,31 @@ export default function TableComponent({tab}: TableComponentProps) {
         ||
         <div className="mx-auto mt-4">
             <div className="flex justify-between mb-4">
-
-                <div className="flex gap-2">
-                    <div className="">
-                        <CustomSelect
-                            options={[
-                                {value: "name", label: "Name"}
-                            ]}
-                            value={searchField}
-                            onChange={setSearchField}
-                            placeholder="Name"
-                        />
+                <div className="flex-grow">
+                    {filters && <div className="flex gap-2 items-center">
+                        Search :
+                        <div className="">
+                            <CustomSelect
+                                options={filters.options}
+                                value={searchField}
+                                onChange={searchFieldSet}
+                                className="min-w-60"
+                            />
+                        </div>
+                        {searchType == "date" && <Datepicker onChange={e => debounceSearchOnTable(e?.toISOString().split('T')[0] || "")}/> ||
+                            <div className="">
+                                <TextInput onChange={debounceSearchOnTable}/>
+                            </div>
+                        }
                     </div>
-                    <div className="">
-                        <TextInput name="Search" onChange={setSearchValue}/>
-                    </div>
+                    }
                 </div>
                 <div className="">
                     <button
                         className="bg-green-700 text-white px-3 py-2 rounded text-sm border-green-500 items-center flex gap-1"
                         onClick={() => openCreateOrUpdateDialog()}
                     >
-                        <PlusFilledIcon/> Add New Record
+                        <PlusCircleIcon width={20}/> Add New Record
                     </button>
                 </div>
             </div>

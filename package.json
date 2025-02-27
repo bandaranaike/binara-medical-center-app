@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@headlessui/react": "^2.1.2",
+    "@heroicons/react": "^2.2.0",
     "@nextui-org/date-picker": "^2.3.8",
     "@nextui-org/react": "^2.6.10",
     "axios": "^1.7.2",
