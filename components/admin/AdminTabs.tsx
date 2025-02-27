@@ -7,6 +7,7 @@ export interface AdminTab {
     dropdowns?: any
     select?: any
     actions?: [AdminTabActions]
+    filters?: any
 }
 
 export interface AdminTabActions {

@@ -33,12 +33,6 @@ const Dental: React.FC<BillingPageProps> = ({handleFormChange, onDoctorNameChang
     )
 }
 
-// <DentalPortal>
-//      <withBillingComponent validation onSubmit onDoctorNameChange>
-//          <Dental/>
-//      </withBillingComponent>
-// </DentalPortal>
-
 const DentalPortal: React.FC = () => {
 
     const validationRules: any = {
@@ -49,6 +43,6 @@ const DentalPortal: React.FC = () => {
     const DentalComponent = withBillingComponent(Dental);
 
     // @ts-ignore
-    return <DentalComponent validation={validationRules}/>;
+    return <DentalComponent validation={validationRules} enableBooking={true}/>;
 };
 export default DentalPortal;

@@ -1,5 +1,6 @@
 import type {Config} from "tailwindcss";
 import {nextui} from "@nextui-org/react";
+import {plugin, content} from "flowbite-react/tailwind";
 
 const config: Config = {
     content: [
@@ -8,7 +9,8 @@ const config: Config = {
         "./app/**/*.{js,ts,jsx,tsx,mdx}",
         "./node_modules/flowbite-react/lib/**/*.js",
         "./node_modules/tailwind-datepicker-react/dist/**/*.js",
-        "./node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}"
+        "./node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}",
+        content(),
     ],
     theme: {
         extend: {
@@ -20,7 +22,8 @@ const config: Config = {
         },
     },
     plugins: [
-        require("flowbite/plugin"), nextui()
+        require("flowbite/plugin"), nextui(),
+        plugin(),
     ],
 };
 export default config;

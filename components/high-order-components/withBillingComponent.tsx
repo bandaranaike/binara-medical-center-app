@@ -3,6 +3,7 @@ import SearchablePatientSelect from "@/components/form/SearchablePatientSelect";
 import PatientDetails from "@/components/PatientDetails";
 import Loader from "@/components/form/Loader";
 import CustomCheckbox from "@/components/form/CustomCheckbox";
+import {Datepicker} from "flowbite-react";
 import axiosLocal from "@/lib/axios";
 import {BillingPageProps, Option, Patient} from "@/types/interfaces";
 import printService from "@/lib/printService";
@@ -11,7 +12,8 @@ import Select from "react-select";
 import customStyles from "@/lib/custom-styles";
 
 interface WithBillingComponentProps {
-    validation: any
+    validation: any;
+    enableBooking?: boolean;
 }
 
 const withBillingComponent = <P extends object>(
@@ -56,6 +58,11 @@ const withBillingComponent = <P extends object>(
         const [billAmount, setBillAmount] = useState(0);
         const [systemAmount, setSystemAmount] = useState(0);
         const [paymentType, setPaymentType] = useState<Option | null>({value: 'cash', label: 'Cash'})
+
+        const [date, setDate] = useState<Date | null>(new Date());
+
+        const today = new Date();
+        const maxDate = new Date(today.getFullYear(), today.getMonth() + 1, today.getDate());
 
         useEffect(() => {
             const getTotalAmount = (flag: string) => {
@@ -164,7 +171,8 @@ const withBillingComponent = <P extends object>(
                     bill_amount: billAmount,
                     system_amount: systemAmount,
                     bill_id: billNumber,
-                    payment_type: paymentType?.value
+                    payment_type: paymentType?.value,
+                    date
                 }).then(async billSaveResponse => {
                     const data = billSaveResponse.data;
                     clearAllErrors()
@@ -197,9 +205,19 @@ const withBillingComponent = <P extends object>(
 
         return (<>
             <div className="bg-gray-900 text-white">
-                <div className="flex justify-between items-center mb-6 pb-4">
-                    <span>{new Date().toDateString()}</span>
-                    <span className="text-lg">Bill No : <span className="font-bold">{billNumber}</span></span>
+                <div className="flex justify-between items-center mb-6 pb-4 mt-4">
+                    <div className="flex gap-4 items-center content-center">
+                        {props.enableBooking && <CustomCheckbox label="Booking" checked={isBooking} setChecked={handleCheckboxChange}/>}
+                        <Datepicker
+                            disabled={!isBooking}
+                            value={date}
+                            onChange={setDate}
+                            minDate={new Date()}
+                            maxDate={maxDate}
+                            title="Up to one month in advance."
+                        />
+                    </div>
+                    {billNumber > 0 && <span className="text-lg">Bill No : <span className="font-bold">{billNumber}</span></span>}
                 </div>
                 <div className="grid grid-cols-3 gap-8">
                     <div>
@@ -257,7 +275,6 @@ const withBillingComponent = <P extends object>(
                                 onChange={setPaymentType}
                             />
                         </div>
-                        <span className="mr-4"><CustomCheckbox label="Booking" checked={isBooking} setChecked={handleCheckboxChange}/></span>
                         <button className={`text-white px-5 py-2 rounded-md w-60 ${isBooking ? 'bg-blue-700' : 'bg-green-700'}`} onClick={createInvoiceBill}>
                             {isBooking ? 'Create a booking' : 'Create invoice and print'}
                         </button>

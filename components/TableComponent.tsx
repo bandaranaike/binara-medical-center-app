@@ -10,6 +10,9 @@ import {AdminTab} from "@/components/admin/AdminTabs";
 import TableActionStatus from "@/components/popup/TableActionStatus";
 import {Option} from "@/types/interfaces";
 import {PlusFilledIcon} from "@nextui-org/shared-icons";
+import searchableSelect from "@/components/form/SearchableSelect";
+import TextInput from "@/components/form/TextInput";
+import CustomSelect from "@/components/form/CustomSelect";
 
 interface TableComponentProps {
     tab: AdminTab;
@@ -36,7 +39,7 @@ export default function TableComponent({tab}: TableComponentProps) {
     const [deleteError, setDeleteError] = useState<string>("")
     const [actionError, setActionError] = useState<string>("")
 
-    const {id: apiUrl, fields, dropdowns, select, actions} = tab;
+    const {id: apiUrl, fields, dropdowns, select, actions, filters} = tab;
 
     useEffect(() => {
         setData([])
@@ -48,7 +51,7 @@ export default function TableComponent({tab}: TableComponentProps) {
     const fetchData = () => {
         setLoading(true)
         try {
-            axios.get(`${apiUrl}?page=${currentPage}`).then(response => {
+            axios.get(`${apiUrl}?page=${currentPage}&searchField=${searchField}&searchValue=${searchValue}`).then(response => {
                 setData(response.data.data);
                 setTotalPages(response.data.last_page);
             }).catch(error => {
@@ -122,18 +125,42 @@ export default function TableComponent({tab}: TableComponentProps) {
         }).catch(error => setActionError(error.response.data.message));
     }
 
+    const [searchField, setSearchField] = useState<string>("");
+    const [searchValue, setSearchValue] = useState<string>("");
+    useEffect(() => {
+        console.log("Searching..")
+    }, [searchField, searchValue]);
+
     return (
         loading &&
         <div className="p-6 my-24 border-t border-gray-800"><Loader/></div>
         ||
         <div className="mx-auto mt-4">
-            <div className="flex justify-end mb-4">
-                <button
-                    className="bg-green-700 text-white px-3 py-2 rounded text-sm border-green-500 items-center flex gap-1"
-                    onClick={() => openCreateOrUpdateDialog()}
-                >
-                    <PlusFilledIcon/> Add New Record
-                </button>
+            <div className="flex justify-between mb-4">
+
+                <div className="flex gap-2">
+                    <div className="">
+                        <CustomSelect
+                            options={[
+                                {value: "name", label: "Name"}
+                            ]}
+                            value={searchField}
+                            onChange={setSearchField}
+                            placeholder="Name"
+                        />
+                    </div>
+                    <div className="">
+                        <TextInput name="Search" onChange={setSearchValue}/>
+                    </div>
+                </div>
+                <div className="">
+                    <button
+                        className="bg-green-700 text-white px-3 py-2 rounded text-sm border-green-500 items-center flex gap-1"
+                        onClick={() => openCreateOrUpdateDialog()}
+                    >
+                        <PlusFilledIcon/> Add New Record
+                    </button>
+                </div>
             </div>
 
             {!loading && fields && <div className="relative overflow-x-auto rounded-lg border border-gray-800">
@@ -200,7 +227,7 @@ export default function TableComponent({tab}: TableComponentProps) {
                     }
 
                     {!error && !loading && data.length === 0 &&
-                        <div className="border-t border-gray-800 text-center p-1 text-gray-500">There are no records</div>
+                        <div className="border-t border-gray-800 text-center p-3 text-gray-500">There are no records</div>
                     }
                 </div>
             </div>

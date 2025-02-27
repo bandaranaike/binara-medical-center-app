@@ -56,7 +56,7 @@ const ChannelPortal: React.FC = () => {
     };
 
     // @ts-ignore
-    return <ChannelComponent validation={validationRules}/>;
+    return <ChannelComponent validation={validationRules} enableBooking={true}/>;
 }
 
 export default ChannelPortal;
