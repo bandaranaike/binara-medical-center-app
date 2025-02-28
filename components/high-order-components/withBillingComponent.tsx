@@ -3,7 +3,6 @@ import SearchablePatientSelect from "@/components/form/SearchablePatientSelect";
 import PatientDetails from "@/components/PatientDetails";
 import Loader from "@/components/form/Loader";
 import CustomCheckbox from "@/components/form/CustomCheckbox";
-import {Datepicker} from "flowbite-react";
 import axiosLocal from "@/lib/axios";
 import {ApiError, BillingPageProps, Option, Patient} from "@/types/interfaces";
 import printService from "@/lib/printService";
@@ -148,7 +147,6 @@ const withBillingComponent = <P extends object>(
         const handlePatientSelect = (patient: Patient) => {
             setPatientId(patient.id);
             setPatient(patient);
-            // handleFormChange('is_booking', formData.is_booking);
             handleFormChange('patient_id', patient.id);
         };
 
@@ -201,20 +199,25 @@ const withBillingComponent = <P extends object>(
 
                     if (["specialist", "dental"].includes(formData.service_type) && !isBooking) {
 
-                        await printService.sendPrintRequest({
-                            bill_reference: data.bill_reference,
-                            payment_type: data.payment_type,
-                            bill_id: data.bill_id,
-                            customer_name: patient ? patient.name : "Customer 001",
-                            doctor_name: doctorName,
-                            items: data.bill_items,
-                            total: Number(data.total).toFixed(2),
-                        });
+                        try {
+                            await printService.sendPrintRequest({
+                                bill_reference: data.bill_reference,
+                                payment_type: data.payment_type,
+                                bill_id: data.bill_id,
+                                customer_name: patient ? patient.name : "Customer 001",
+                                doctor_name: doctorName,
+                                items: data.bill_items,
+                                total: Number(data.total).toFixed(2),
+                            });
+
+                        } catch (e: any) {
+                            setBillCreateError(`Bill printing error: ${e.message}`)
+                        }
                     }
                     setTimeout(() => setSuccessMessage(""), 20000);
                     resetFormData()
                 }).catch(error => {
-                    setBillCreateError("Error saving bill. " + error.response.data.message);
+                    setBillCreateError(error);
                 });
             } catch (error) {
                 console.error(error)
@@ -249,6 +252,7 @@ const withBillingComponent = <P extends object>(
                                 handleFormChange={handleFormChange}
                                 resetData={resetForm}
                                 patientId={patientId}
+                                isBooking={isBooking}
                                 onBillIdAdded={setBillNumber}
                             />
                         </div>

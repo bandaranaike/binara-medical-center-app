@@ -47,7 +47,8 @@ const Admin = () => {
                     {label: "Specialty", value: "specialty:name"},
                     {label: "Type", value: "doctor_type"},
                 ]
-            }
+            },
+            labels: ['doctor_type']
         },
         {
             id: "doctors-schedules",
@@ -64,7 +65,8 @@ const Admin = () => {
                     {label: "Weekday", value: "weekday"},
                     {label: "Recurring", value: "recurring"},
                 ]
-            }
+            },
+            labels: ['weekday', 'recurring', 'status']
         },
         {
             id: "doctors-availabilities",
@@ -77,13 +79,15 @@ const Admin = () => {
                     {label: "Date", value: 'date'},
                 ],
                 types: {date: "date"}
-            }
+            },
+            labels: ['status']
         },
         {
             id: "roles", fields: ["name", "key", "description"],
             filters: {
                 options: [{label: "Name", value: "name"}],
-            }
+            },
+            labels: ['key']
         },
         {
             id: "users",
@@ -95,7 +99,8 @@ const Admin = () => {
                     {label: "Role", value: "role:name"},
                     {label: "Email", value: "email"},
                 ],
-            }
+            },
+            labels: ['role']
         },
         {
             id: "trusted-sites", fields: ["domain", "api_key"],

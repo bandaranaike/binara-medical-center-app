@@ -25,10 +25,11 @@ export interface Bill {
 
 export interface BillingPageProps {
     handleFormChange: (name: string, value: string | number | boolean) => void;
-    onDoctorNameChange: (name: string) => void
-    resetData: string
-    patientId?: number
-    onBillIdAdded?: (billId: number) => void
+    onDoctorNameChange: (name: string) => void;
+    resetData: string;
+    patientId?: number;
+    isBooking?: boolean;
+    onBillIdAdded?: (billId: number) => void;
 }
 
 export interface BillItem {
@@ -45,6 +46,7 @@ export interface Booking {
     bill_amount: number;
     system_amount: number;
     id: number;
+    uuid: string;
     queue_number: number;
     patient_name: string;
     doctor_name: string;

@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import AsyncCreatableSelect from 'react-select/async-creatable';
 import {SingleValue} from 'react-select';
 import axios from "@/lib/axios";
@@ -19,6 +19,7 @@ export interface SearchableSelectProps {
     id: string;
     options?: Option[];
     resetValue?: boolean
+    extraParams?: any
 }
 
 const SearchableSelect: React.FC<SearchableSelectProps> = (
@@ -31,7 +32,8 @@ const SearchableSelect: React.FC<SearchableSelectProps> = (
         onChange,
         value,
         resetValue,
-        onExtraDataHas
+        onExtraDataHas,
+        extraParams
     }) => {
     const [selectedValue, setSelectedValue] = useState<Option | undefined>(value);
     const [extraData, setExtraData] = useState<any>();
@@ -49,10 +51,17 @@ const SearchableSelect: React.FC<SearchableSelectProps> = (
         }
     }, [resetValue]);
 
+    useEffect(() => {
+        debouncedFetchDoctors()
+        return () => debouncedFetchDoctors.cancel();
+    }, [extraParams]);
+
     const fetchOptions = async (inputValue: string) => {
         try {
             const typeUri = type ? `&type=${type}` : "";
-            const response = await axios.get(`/dropdown/${apiUri}?search=${inputValue}${typeUri}`);
+            const response = await axios.get(`/dropdown/${apiUri}?search=${inputValue}${typeUri}`, {
+                params: extraParams
+            });
             let extraObject: any = {}
             const optionData = response.data?.map((item: any) => {
                 if (item.extra && apiUri) extraObject[apiUri] = {...extraObject[apiUri], [item.value]: item.extra}
@@ -69,7 +78,7 @@ const SearchableSelect: React.FC<SearchableSelectProps> = (
             if (error?.response?.data?.message) {
                 setError(error.response.data.message)
             } else {
-                console.error("Error fetching options:", error);
+                setError("Error fetching options: " + error.message);
             }
             return [];
         }
@@ -81,6 +90,13 @@ const SearchableSelect: React.FC<SearchableSelectProps> = (
             fetchOptions(inputValue).then(callback);
         }, 300),
         [apiUri]
+    );
+
+    // Debounce fetchOptions to avoid frequent calls
+    const debouncedFetchDoctors = useMemo(() =>
+        debounce(() => {
+            fetchOptions('');
+        }, 300), [fetchOptions]
     );
 
     const handleOnChange = (selectedOption: SingleValue<Option>) => {

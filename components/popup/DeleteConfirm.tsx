@@ -4,7 +4,7 @@ import axios from "@/lib/axios";
 
 interface DeleteConfirmProps {
     deleteApiUrl: string;
-    deleteId: number;
+    deleteId: string|number;
     onClose: () => void;
     onDeleteSuccess?: () => void;
     onDeleteError?: (error: any) => void;

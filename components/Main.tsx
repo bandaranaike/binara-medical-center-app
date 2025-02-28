@@ -5,7 +5,7 @@ import Channel from "../components/Channel";
 import StatSummary from "../components/StatSummary";
 import DoctorsPatientQueue from "@/components/DoctorPortal";
 import PharmacyPortal from "@/components/PharmacyPortal";
-import TodayList from "@/components/Reception";
+import TodayList from "@/components/TodayList";
 import Bookings from "@/components/Bookings";
 import TreatmentsPortal from "@/components/TreatmentsPortal";
 import Admin from "@/components/admin/Admin";

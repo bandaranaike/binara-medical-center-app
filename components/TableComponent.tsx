@@ -14,6 +14,8 @@ import CustomSelect from "@/components/form/CustomSelect";
 import debounce from "lodash.debounce";
 import {Datepicker} from "flowbite-react";
 import {PlusCircleIcon, XCircleIcon} from "@heroicons/react/24/outline";
+import StatusLabel from "@/components/form/StatusLabel";
+import {dateToYmdFormat} from "@/lib/readbale-date";
 
 interface TableComponentProps {
     tab: AdminTab;
@@ -42,7 +44,7 @@ export default function TableComponent({tab}: TableComponentProps) {
     const [searchField, setSearchField] = useState<string>("");
     const [searchType, setSearchType] = useState('')
 
-    const {id: apiUrl, fields, dropdowns, select, actions, filters, readonly = false} = tab;
+    const {id: apiUrl, fields, dropdowns, select, actions, filters, labels, readonly = false} = tab;
 
 
     useEffect(() => {
@@ -177,7 +179,7 @@ export default function TableComponent({tab}: TableComponentProps) {
                                 className="min-w-60"
                             />
                         </div>
-                        {searchType == "date" && <Datepicker onChange={e => debounceSearchOnTable(e?.toISOString().split('T')[0] || "")}/> ||
+                        {searchType == "date" && <Datepicker onChange={e => debounceSearchOnTable(dateToYmdFormat(e))}/> ||
                             <div className="">
                                 <TextInput onChange={debounceSearchOnTable}/>
                             </div>
@@ -211,9 +213,9 @@ export default function TableComponent({tab}: TableComponentProps) {
                     <tbody>
                     {data.map((record) => (
                         <tr key={record.id}>
-                            {fields.map((field) => (
+                            {fields.map((field: any) => (
                                 (!field.endsWith("_id") && !["password"].includes(field)) && <td key={field} className="border-t border-gray-800 border-r py-2 px-4">
-                                    {record[field]}
+                                  {labels?.includes(field) && record[field] ? <StatusLabel status={record[field]}/> : record[field]}
                                 </td>
                             ))}
                             {!readonly && <td className="border-t border-gray-800 p-1">
