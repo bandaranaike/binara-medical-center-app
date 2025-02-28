@@ -1,15 +1,18 @@
-import React, {useEffect, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import SearchablePatientSelect from "@/components/form/SearchablePatientSelect";
 import PatientDetails from "@/components/PatientDetails";
 import Loader from "@/components/form/Loader";
 import CustomCheckbox from "@/components/form/CustomCheckbox";
 import {Datepicker} from "flowbite-react";
 import axiosLocal from "@/lib/axios";
-import {BillingPageProps, Option, Patient} from "@/types/interfaces";
+import {ApiError, BillingPageProps, Option, Patient} from "@/types/interfaces";
 import printService from "@/lib/printService";
 import {randomString} from "@/lib/strings";
 import Select from "react-select";
 import customStyles from "@/lib/custom-styles";
+import AvailabilityDatePicker from "@/components/form/AvailabilityDatePicker";
+import debounce from "lodash.debounce";
+import axios from "@/lib/axios";
 
 interface WithBillingComponentProps {
     validation: any;
@@ -60,9 +63,7 @@ const withBillingComponent = <P extends object>(
         const [paymentType, setPaymentType] = useState<Option | null>({value: 'cash', label: 'Cash'})
 
         const [date, setDate] = useState<Date | null>(new Date());
-
-        const today = new Date();
-        const maxDate = new Date(today.getFullYear(), today.getMonth() + 1, today.getDate());
+        const [availableDates, setAvailableDates] = useState([]);
 
         useEffect(() => {
             const getTotalAmount = (flag: string) => {
@@ -73,7 +74,26 @@ const withBillingComponent = <P extends object>(
             setBillAmount(getTotalAmount('_fee'));
             setSystemAmount(getTotalAmount('_charge'));
 
+            if (formData.doctor_id) {
+                fetchDoctorDates(formData.doctor_id)
+            }
         }, [formData]);
+
+        const fetchDoctorDates = useCallback(debounce(async (doctorId) => {
+            try {
+                axios.get(`doctor-availabilities/doctor/${doctorId}/get-dates`).then(response => {
+                    const availableDates = response.data.map((dateData: { date: string }) => dateData.date);
+                    setAvailableDates(availableDates)
+                    setDate(availableDates[0])
+                }).catch(error => {
+                    console.error('Error fetching data:' + error.response.data.message);
+                });
+
+            } catch (e) {
+                const error = e as ApiError;
+                console.error(error.response?.data?.message || "An error occurred");
+            }
+        }, 200), [formData.doctor_id]);
 
         const handleFormChange = (name: string, value: string | number | boolean) => {
             setFormData((prevState) => ({...prevState, [name]: value}));
@@ -205,19 +225,14 @@ const withBillingComponent = <P extends object>(
 
         return (<>
             <div className="bg-gray-900 text-white">
-                <div className="flex justify-between items-center mb-6 pb-4 mt-4">
-                    <div className="flex gap-4 items-center content-center">
+                <div className="flex justify-between items-center mb-1 pb-4 mt-4">
+                    <div className="">
                         {props.enableBooking && <CustomCheckbox label="Booking" checked={isBooking} setChecked={handleCheckboxChange}/>}
-                        <Datepicker
-                            disabled={!isBooking}
-                            value={date}
-                            onChange={setDate}
-                            minDate={new Date()}
-                            maxDate={maxDate}
-                            title="Up to one month in advance."
-                        />
                     </div>
-                    {billNumber > 0 && <span className="text-lg">Bill No : <span className="font-bold">{billNumber}</span></span>}
+                    <div className="flex gap-4 items-center content-center">
+                        <AvailabilityDatePicker disabled={!isBooking} availableDates={availableDates} onDateChange={setDate} selectedDate={date}/>
+                        {billNumber > 0 && <span className="text-lg">Bill No : <span className="font-bold">{billNumber}</span></span>}
+                    </div>
                 </div>
                 <div className="grid grid-cols-3 gap-8">
                     <div>

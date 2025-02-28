@@ -5,7 +5,7 @@ import Channel from "../components/Channel";
 import StatSummary from "../components/StatSummary";
 import DoctorsPatientQueue from "@/components/DoctorPortal";
 import PharmacyPortal from "@/components/PharmacyPortal";
-import Reception from "@/components/Reception";
+import TodayList from "@/components/Reception";
 import Bookings from "@/components/Bookings";
 import TreatmentsPortal from "@/components/TreatmentsPortal";
 import Admin from "@/components/admin/Admin";
@@ -16,6 +16,7 @@ import {setAxiosToken} from "@/lib/axios";
 import OPDPortal from "@/components/OPDPortal";
 import PharmacyAdminPortal from "@/components/pharmacy-admin/PharmacyAdminPortal";
 import Welcome from "@/components/table/Welcome";
+import ReceptionAdmin from "@/components/reception/ReceptionAdmin";
 
 interface Tab {
     id: string;
@@ -41,7 +42,8 @@ const Main = () => {
         {id: "doctor-portal", label: "Doctor Portal", component: <DoctorsPatientQueue/>, roles: ["doctor"]},
         {id: "pharmacy-portal", label: "Pharmacy Portal", component: <PharmacyPortal/>, roles: ["pharmacy", "pharmacy_admin", "doctor"]},
         {id: "bookings", label: "Bookings", component: <Bookings/>, roles: ["reception", "admin"]},
-        {id: "reception", label: "Reception", component: <Reception/>, roles: ["reception", "admin"]},
+        {id: "today-list", label: "Today List", component: <TodayList/>, roles: ["reception", "admin"]},
+        {id: "reception-admin", label: "Reception Admin", component: <ReceptionAdmin/>, roles: ["reception"]},
         {id: "stat-summary", label: "Stat Summary", component: <StatSummary/>, roles: ["admin"]},
         {id: "admin", label: "Admin", component: <Admin/>, roles: ["admin"]},
         {id: "pharmacy-admin", label: "Pharmacy Admin", component: <PharmacyAdminPortal/>, roles: ["pharmacy_admin", "admin"]},

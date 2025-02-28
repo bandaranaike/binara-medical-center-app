@@ -5,6 +5,7 @@ export interface AdminTab {
     id: string,
     fields: string[]
     dropdowns?: any
+    readonly ?: boolean
     select?: any
     actions?: [AdminTabActions]
     filters?: {

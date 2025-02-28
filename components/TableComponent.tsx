@@ -42,7 +42,7 @@ export default function TableComponent({tab}: TableComponentProps) {
     const [searchField, setSearchField] = useState<string>("");
     const [searchType, setSearchType] = useState('')
 
-    const {id: apiUrl, fields, dropdowns, select, actions, filters} = tab;
+    const {id: apiUrl, fields, dropdowns, select, actions, filters, readonly = false} = tab;
 
 
     useEffect(() => {
@@ -72,6 +72,10 @@ export default function TableComponent({tab}: TableComponentProps) {
         [apiUrl, currentPage, searchField] // Dependencies
     );
 
+    useEffect(() => {
+        setCurrentPage(1)
+    }, [apiUrl]);
+
     const handleCreateOrUpdate = () => {
         try {
             if (currentRecordId) {
@@ -95,6 +99,7 @@ export default function TableComponent({tab}: TableComponentProps) {
     }
 
     const handlePageChange = (page: number) => {
+        setLoading(true)
         setCurrentPage(page);
     };
 
@@ -140,6 +145,7 @@ export default function TableComponent({tab}: TableComponentProps) {
 
     const searchOnTable = (search: string) => {
         if (searchField) {
+            setLoading(true)
             fetchData(search)
         }
     };
@@ -158,9 +164,6 @@ export default function TableComponent({tab}: TableComponentProps) {
     const debounceSearchOnTable = debounce(searchOnTable, 300)
 
     return (
-        loading &&
-        <div className="p-6 my-24 border-t border-gray-800"><Loader/></div>
-        ||
         <div className="mx-auto mt-4">
             <div className="flex justify-between mb-4">
                 <div className="flex-grow">
@@ -183,16 +186,16 @@ export default function TableComponent({tab}: TableComponentProps) {
                     }
                 </div>
                 <div className="">
-                    <button
+                    {!readonly && <button
                         className="bg-green-700 text-white px-3 py-2 rounded text-sm border-green-500 items-center flex gap-1"
                         onClick={() => openCreateOrUpdateDialog()}
                     >
                         <PlusCircleIcon width={20}/> Add New Record
-                    </button>
+                    </button>}
                 </div>
             </div>
 
-            {!loading && fields && <div className="relative overflow-x-auto rounded-lg border border-gray-800">
+            <div className="relative overflow-x-auto rounded-lg border border-gray-800">
                 <table className="w-full text-sm text-left text-gray-400">
                     <thead>
                     <tr className="bg-gray-800">
@@ -202,7 +205,7 @@ export default function TableComponent({tab}: TableComponentProps) {
                             </th>
                         ))}
 
-                        <th className="p-4">Actions</th>
+                        {!readonly && <th className="p-4">Actions</th>}
                     </tr>
                     </thead>
                     <tbody>
@@ -213,7 +216,7 @@ export default function TableComponent({tab}: TableComponentProps) {
                                     {record[field]}
                                 </td>
                             ))}
-                            <td className="border-t border-gray-800 p-1">
+                            {!readonly && <td className="border-t border-gray-800 p-1">
                                 <button
                                     className="bg-gray-800 text-yellow-400 px-2 mr-4 py-0.5 rounded"
                                     onClick={() => openCreateOrUpdateDialog(record)}
@@ -235,7 +238,7 @@ export default function TableComponent({tab}: TableComponentProps) {
                                     >{action.key}</button>
                                 ))}
 
-                            </td>
+                            </td>}
                         </tr>
                     ))}
                     </tbody>
@@ -259,8 +262,9 @@ export default function TableComponent({tab}: TableComponentProps) {
                         <div className="border-t border-gray-800 text-center p-3 text-gray-500">There are no records</div>
                     }
                 </div>
+                {loading && <div className="p-6 my-24 min-w-max absolute left-1/2 top-0 border-gray-800"><Loader/></div>}
             </div>
-            }
+
 
             {/* Action calling dialog */}
             {isActionCalling && <TableActionStatus errorMessage={actionError} closeWindow={() => setIsActionCalling(false)}></TableActionStatus>}

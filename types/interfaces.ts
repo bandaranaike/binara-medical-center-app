@@ -3,6 +3,14 @@ export interface Allergy {
     id: number;
 }
 
+export interface ApiError {
+    response?: {
+        data?: {
+            message?: string;
+        };
+    };
+}
+
 export interface Bill {
     id: number;
     patient_id: number;
