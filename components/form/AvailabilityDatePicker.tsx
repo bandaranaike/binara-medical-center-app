@@ -75,13 +75,19 @@ const AvailabilityDatePicker: React.FC<DatePickerProps> = ({selectedDate, onDate
                         key={day.toISOString()}
                         className="p-px"
                     >
-                        <div className={`text-center text-sm font-semibold leading-9 ${
-                            !isCurrentMonthDay ?
-                                'text-gray-500 cursor-not-allowed ' :
-                                isDisabled ?
-                                    'text-gray-500 cursor-not-allowed' :
-                                    'hover:text-white cursor-pointer rounded-lg bg-purple-700 bg-opacity-25 hover:bg-opacity-100'
-                        } ${isSelected ? ' text-white rounded-lg bg-opacity-80' : ''}`}
+                        <div
+                            className={
+                                `text-center text-sm font-semibold leading-9 transition-colors rounded bg-gray-50 dark:bg-gray-700 dark:bg-opacity-30
+                                ${isDisabled
+                                    ? 'cursor-not-allowed' // Disabled state
+                                    : isSelected
+                                        ? 'bg-purple-700 text-white cursor-pointer dark:bg-purple-700 dark:bg-opacity-90 dark:text-white dark:hover:bg-opacity-100' // Selected state
+                                        : 'cursor-pointer bg-purple-100 hover:bg-purple-200 dark:bg-purple-500 dark:bg-opacity-20 dark:hover:bg-opacity-40' // Default selectable state
+                                } 
+                                ${!isCurrentMonthDay
+                                    ? 'text-gray-400 dark:text-gray-500' // Not current month but selectable
+                                    : 'text-gray-600  dark:text-gray-400'} 
+                                `}
                              onClick={() => !isDisabled && handleDateClick(cloneDay)}> {format(day, 'd')}</div>
                     </td>
                 );

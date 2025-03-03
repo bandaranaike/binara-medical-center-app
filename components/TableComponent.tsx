@@ -13,9 +13,11 @@ import TextInput from "@/components/form/TextInput";
 import CustomSelect from "@/components/form/CustomSelect";
 import debounce from "lodash.debounce";
 import {Datepicker} from "flowbite-react";
-import {PlusCircleIcon, XCircleIcon} from "@heroicons/react/24/outline";
+import {PlusCircleIcon, TrashIcon, XCircleIcon} from "@heroicons/react/24/outline";
 import StatusLabel from "@/components/form/StatusLabel";
 import {dateToYmdFormat} from "@/lib/readbale-date";
+import CustomTableBulkCheckbox from "@/components/form/CustomTableBulkCheckbox";
+import DeleteConfirm from "@/components/popup/DeleteConfirm";
 
 interface TableComponentProps {
     tab: AdminTab;
@@ -42,7 +44,9 @@ export default function TableComponent({tab}: TableComponentProps) {
     const [deleteError, setDeleteError] = useState<string>("")
     const [actionError, setActionError] = useState<string>("")
     const [searchField, setSearchField] = useState<string>("");
-    const [searchType, setSearchType] = useState('')
+    const [searchType, setSearchType] = useState('');
+    const [selectAll, setSelectAll] = useState(false);
+    const [selectedRows, setSelectedRows] = useState(new Set());
 
     const {id: apiUrl, fields, dropdowns, select, actions, filters, labels, readonly = false} = tab;
 
@@ -74,8 +78,13 @@ export default function TableComponent({tab}: TableComponentProps) {
         [apiUrl, currentPage, searchField] // Dependencies
     );
 
+    const [searchValue, setSearchValue] = useState<string>("")
+    const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState<boolean>(false)
+
     useEffect(() => {
         setCurrentPage(1)
+        setSelectedRows(new Set());
+        setSelectAll(false)
     }, [apiUrl]);
 
     const handleCreateOrUpdate = () => {
@@ -159,12 +168,42 @@ export default function TableComponent({tab}: TableComponentProps) {
     }
 
     useEffect(() => {
-        if (filters?.options) setSearchField(filters?.options[0].value)
-        setSearchType('')
+        resetSearch()
     }, [filters]);
+
+    const toggleSelectRow = (id: number | string | undefined) => {
+        const newSelectedRows = new Set(selectedRows);
+        if (newSelectedRows.has(id)) {
+            newSelectedRows.delete(id);
+        } else {
+            newSelectedRows.add(id);
+        }
+
+        setSelectedRows(newSelectedRows);
+        setSelectAll(newSelectedRows.size === data.length);
+    };
+
+    const toggleSelectAll = () => {
+        if (selectAll) {
+            setSelectedRows(new Set());
+        } else {
+            setSelectedRows(new Set(data.map(row => row.id)));
+        }
+        setSelectAll(!selectAll);
+    };
 
     const debounceSearchOnTable = debounce(searchOnTable, 300)
 
+    const resetSearch = () => {
+        if (filters?.options) setSearchField(filters?.options[0].value)
+        setSearchType("")
+        setSearchValue("")
+        fetchData();
+    };
+    const handleSearchChange = (searchValue: string) => {
+        setSearchValue(searchValue)
+        debounceSearchOnTable(searchValue)
+    };
     return (
         <div className="mx-auto mt-4">
             <div className="flex justify-between mb-4">
@@ -179,15 +218,23 @@ export default function TableComponent({tab}: TableComponentProps) {
                                 className="min-w-60"
                             />
                         </div>
-                        {searchType == "date" && <Datepicker onChange={e => debounceSearchOnTable(dateToYmdFormat(e))}/> ||
+                        {searchType == "date" && <Datepicker onChange={e => handleSearchChange(dateToYmdFormat(e))}/> ||
                             <div className="">
-                                <TextInput onChange={debounceSearchOnTable}/>
+                                <TextInput value={searchValue} onChange={handleSearchChange}/>
                             </div>
                         }
+                        {searchField && <XCircleIcon width={28} className="cursor-pointer hover:text-yellow-500" onClick={() => resetSearch()}/>}
                     </div>
                     }
                 </div>
-                <div className="">
+                <div className="flex gap-3">
+                    {!readonly && <button
+                        onClick={() => setShowBulkDeleteConfirm(true)}
+                        className={`bg-red-800 text-white px-3 py-2 rounded text-sm flex gap-2 items-center ${selectedRows.size === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        disabled={selectedRows.size === 0}
+                    >
+                        <TrashIcon width={18}/> Bulk Delete
+                    </button>}
                     {!readonly && <button
                         className="bg-green-700 text-white px-3 py-2 rounded text-sm border-green-500 items-center flex gap-1"
                         onClick={() => openCreateOrUpdateDialog()}
@@ -201,6 +248,12 @@ export default function TableComponent({tab}: TableComponentProps) {
                 <table className="w-full text-sm text-left text-gray-400">
                     <thead>
                     <tr className="bg-gray-800">
+                        {!readonly && <th className="p-4 w-12">
+                            <CustomTableBulkCheckbox
+                                checked={selectAll}
+                                setChecked={toggleSelectAll}
+                            />
+                        </th>}
                         {fields.map((field) => (
                             (!field.endsWith("_id") && !["password"].includes(field)) && <th key={field} className="p-4 first-letter:uppercase">
                                 {field.replace('_', ' ')}
@@ -213,9 +266,15 @@ export default function TableComponent({tab}: TableComponentProps) {
                     <tbody>
                     {data.map((record) => (
                         <tr key={record.id}>
+                            {!readonly && <td className="p-4">
+                                <CustomTableBulkCheckbox
+                                    checked={selectedRows.has(record.id)}
+                                    setChecked={() => toggleSelectRow(record.id)}
+                                />
+                            </td>}
                             {fields.map((field: any) => (
                                 (!field.endsWith("_id") && !["password"].includes(field)) && <td key={field} className="border-t border-gray-800 border-r py-2 px-4">
-                                  {labels?.includes(field) && record[field] ? <StatusLabel status={record[field]}/> : record[field]}
+                                    {labels?.includes(field) && record[field] ? <StatusLabel status={record[field]}/> : record[field]}
                                 </td>
                             ))}
                             {!readonly && <td className="border-t border-gray-800 p-1">
@@ -329,6 +388,17 @@ export default function TableComponent({tab}: TableComponentProps) {
                     </div>
                 </Dialog>
             </Transition>
+
+            {showBulkDeleteConfirm &&
+                <DeleteConfirm
+                    onDeleteSuccess={fetchData}
+                    deleteApiUrl={apiUrl}
+                    deleteId={Array.from(selectedRows)}
+                    onClose={() => setShowBulkDeleteConfirm(false)}
+                >
+                    You are about to delete the selected {selectedRows.size} record{selectedRows.size > 1 ? 's' : ''}. Are you sure you want to proceed?
+                </DeleteConfirm>
+            }
 
             {/* Create/Update Dialog */}
             <Transition appear show={isCreateOrUpdateDialogOpen} as={Fragment}>
