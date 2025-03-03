@@ -3,18 +3,9 @@
 @tailwind utilities;
 
 :root {
-    --foreground-rgb: 53, 53, 53;
-    --background-start-rgb: 214, 219, 220;
-    --background-end-rgb: 255, 255, 255;
-    --tw-ring-color: 'FFF0'
-}
-
-@media (prefers-color-scheme: dark) {
-    :root {
-        --foreground-rgb: 240, 240, 240;
-        --background-start-rgb: 10, 10, 10;
-        --background-end-rgb: 10, 10, 10;
-    }
+    --foreground-rgb: 240, 240, 240;
+    --background-start-rgb: 10, 10, 10;
+    --background-end-rgb: 10, 10, 10;
 }
 
 body {

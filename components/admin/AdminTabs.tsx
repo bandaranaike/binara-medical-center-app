@@ -5,8 +5,14 @@ export interface AdminTab {
     id: string,
     fields: string[]
     dropdowns?: any
+    readonly?: boolean
     select?: any
     actions?: [AdminTabActions]
+    filters?: {
+        options: { value: string, label: string }[],
+        types?: any
+    },
+    labels?: string[]
 }
 
 export interface AdminTabActions {

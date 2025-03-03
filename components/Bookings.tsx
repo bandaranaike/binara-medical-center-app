@@ -98,7 +98,7 @@ const BookingList: React.FC = () => {
                     deleteApiUrl="bills"
                     onClose={() => setShowDeleteModal(false)}
                     onDeleteSuccess={() => handleDeleteBooking()}
-                    deleteId={selectedBooking!.id}
+                    deleteId={selectedBooking!.uuid}
                 >Are you sure you want to delete this medicine?</DeleteConfirm>
             )}
         </div>

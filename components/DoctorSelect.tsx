@@ -8,9 +8,10 @@ interface DoctorSelectProps {
     resetSelection: string
     doctorType: string
     onDoctorSelect: (data: DoctorFee) => void;
+    isBooking?: boolean
 }
 
-const DoctorSelect: React.FC<DoctorSelectProps> = ({onDoctorSelect, resetSelection, doctorType}) => {
+const DoctorSelect: React.FC<DoctorSelectProps> = ({onDoctorSelect, resetSelection, doctorType, isBooking}) => {
 
     const [doctor, setDoctor] = useState<Option>();
     const [errors, setErrors] = useState<any>({});
@@ -22,15 +23,22 @@ const DoctorSelect: React.FC<DoctorSelectProps> = ({onDoctorSelect, resetSelecti
 
     const getDoctorFee = (doctorId: number) => {
         if (doctorId) {
-            axiosLocal.get(`doctor-channeling-fees/get-fee/${doctorId}`).then(result => {
-                const data = result.data;
-                onDoctorSelect({
-                    id: doctorId,
-                    institution_charge: data.system_price,
-                    doctor_fee: data.bill_price,
-                    name: data.name
+            try {
+                axiosLocal.get(`doctor-channeling-fees/get-fee/${doctorId}`).then(result => {
+                    const data = result.data;
+                    onDoctorSelect({
+                        id: doctorId,
+                        institution_charge: data.system_price,
+                        doctor_fee: data.bill_price,
+                        name: data.name
+                    });
+                }).catch(e => {
+                    setErrors({doctor: e.response.data.message})
                 });
-            });
+            } catch (e) {
+                setErrors({doctor: "There was an error when fetching doctors"})
+            }
+
         } else {
             onDoctorSelect({
                 id: doctorId,
@@ -71,6 +79,7 @@ const DoctorSelect: React.FC<DoctorSelectProps> = ({onDoctorSelect, resetSelecti
                 onCreateOption={handleOpenCreateDoctor}
                 id={'DoctorNameSelect'}
                 resetValue={!doctor}
+                extraParams={{"is-booking": isBooking}}
             />
             {errors.doctor && <span className="text-red-500">{errors.doctor}</span>}
 

@@ -36,7 +36,7 @@ const OPDPortal: React.FC = () => {
     const OPDComponent = withBillingComponent(OPD)
 
     // @ts-ignore
-    return (<OPDComponent validation={validationRules}/>)
+    return (<OPDComponent validation={validationRules} enableBooking={false}/>)
 }
 
 export default OPDPortal;

@@ -1,17 +1,21 @@
-import React, {useEffect, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import SearchablePatientSelect from "@/components/form/SearchablePatientSelect";
 import PatientDetails from "@/components/PatientDetails";
 import Loader from "@/components/form/Loader";
 import CustomCheckbox from "@/components/form/CustomCheckbox";
 import axiosLocal from "@/lib/axios";
-import {BillingPageProps, Option, Patient} from "@/types/interfaces";
+import {ApiError, BillingPageProps, Option, Patient} from "@/types/interfaces";
 import printService from "@/lib/printService";
 import {randomString} from "@/lib/strings";
 import Select from "react-select";
 import customStyles from "@/lib/custom-styles";
+import AvailabilityDatePicker from "@/components/form/AvailabilityDatePicker";
+import debounce from "lodash.debounce";
+import axios from "@/lib/axios";
 
 interface WithBillingComponentProps {
-    validation: any
+    validation: any;
+    enableBooking?: boolean;
 }
 
 const withBillingComponent = <P extends object>(
@@ -57,6 +61,9 @@ const withBillingComponent = <P extends object>(
         const [systemAmount, setSystemAmount] = useState(0);
         const [paymentType, setPaymentType] = useState<Option | null>({value: 'cash', label: 'Cash'})
 
+        const [date, setDate] = useState<Date | null>(new Date());
+        const [availableDates, setAvailableDates] = useState([]);
+
         useEffect(() => {
             const getTotalAmount = (flag: string) => {
                 return Object.entries(formData)
@@ -66,7 +73,26 @@ const withBillingComponent = <P extends object>(
             setBillAmount(getTotalAmount('_fee'));
             setSystemAmount(getTotalAmount('_charge'));
 
+            if (formData.doctor_id) {
+                fetchDoctorDates(formData.doctor_id)
+            }
         }, [formData]);
+
+        const fetchDoctorDates = useCallback(debounce(async (doctorId) => {
+            try {
+                axios.get(`doctor-availabilities/doctor/${doctorId}/get-dates`).then(response => {
+                    const availableDates = response.data.map((dateData: { date: string }) => dateData.date);
+                    setAvailableDates(availableDates)
+                    setDate(availableDates[0])
+                }).catch(error => {
+                    console.error('Error fetching data:' + error.response.data.message);
+                });
+
+            } catch (e) {
+                const error = e as ApiError;
+                console.error(error.response?.data?.message || "An error occurred");
+            }
+        }, 200), [formData.doctor_id]);
 
         const handleFormChange = (name: string, value: string | number | boolean) => {
             setFormData((prevState) => ({...prevState, [name]: value}));
@@ -121,7 +147,6 @@ const withBillingComponent = <P extends object>(
         const handlePatientSelect = (patient: Patient) => {
             setPatientId(patient.id);
             setPatient(patient);
-            // handleFormChange('is_booking', formData.is_booking);
             handleFormChange('patient_id', patient.id);
         };
 
@@ -164,7 +189,8 @@ const withBillingComponent = <P extends object>(
                     bill_amount: billAmount,
                     system_amount: systemAmount,
                     bill_id: billNumber,
-                    payment_type: paymentType?.value
+                    payment_type: paymentType?.value,
+                    date
                 }).then(async billSaveResponse => {
                     const data = billSaveResponse.data;
                     clearAllErrors()
@@ -173,20 +199,25 @@ const withBillingComponent = <P extends object>(
 
                     if (["specialist", "dental"].includes(formData.service_type) && !isBooking) {
 
-                        await printService.sendPrintRequest({
-                            bill_reference: data.bill_reference,
-                            payment_type: data.payment_type,
-                            bill_id: data.bill_id,
-                            customer_name: patient ? patient.name : "Customer 001",
-                            doctor_name: doctorName,
-                            items: data.bill_items,
-                            total: Number(data.total).toFixed(2),
-                        });
+                        try {
+                            await printService.sendPrintRequest({
+                                bill_reference: data.bill_reference,
+                                payment_type: data.payment_type,
+                                bill_id: data.bill_id,
+                                customer_name: patient ? patient.name : "Customer 001",
+                                doctor_name: doctorName,
+                                items: data.bill_items,
+                                total: Number(data.total).toFixed(2),
+                            });
+
+                        } catch (e: any) {
+                            setBillCreateError(`Bill printing error: ${e.message}`)
+                        }
                     }
                     setTimeout(() => setSuccessMessage(""), 20000);
                     resetFormData()
                 }).catch(error => {
-                    setBillCreateError("Error saving bill. " + error.response.data.message);
+                    setBillCreateError(error);
                 });
             } catch (error) {
                 console.error(error)
@@ -197,9 +228,14 @@ const withBillingComponent = <P extends object>(
 
         return (<>
             <div className="bg-gray-900 text-white">
-                <div className="flex justify-between items-center mb-6 pb-4">
-                    <span>{new Date().toDateString()}</span>
-                    <span className="text-lg">Bill No : <span className="font-bold">{billNumber}</span></span>
+                <div className="flex justify-between items-center mb-1 pb-4 mt-4">
+                    <div className="">
+                        {props.enableBooking && <CustomCheckbox label="Booking" checked={isBooking} setChecked={handleCheckboxChange}/>}
+                    </div>
+                    <div className="flex gap-4 items-center content-center">
+                        <AvailabilityDatePicker disabled={!isBooking} availableDates={availableDates} onDateChange={setDate} selectedDate={date}/>
+                        {billNumber > 0 && <span className="text-lg">Bill No : <span className="font-bold">{billNumber}</span></span>}
+                    </div>
                 </div>
                 <div className="grid grid-cols-3 gap-8">
                     <div>
@@ -216,6 +252,7 @@ const withBillingComponent = <P extends object>(
                                 handleFormChange={handleFormChange}
                                 resetData={resetForm}
                                 patientId={patientId}
+                                isBooking={isBooking}
                                 onBillIdAdded={setBillNumber}
                             />
                         </div>
@@ -257,7 +294,6 @@ const withBillingComponent = <P extends object>(
                                 onChange={setPaymentType}
                             />
                         </div>
-                        <span className="mr-4"><CustomCheckbox label="Booking" checked={isBooking} setChecked={handleCheckboxChange}/></span>
                         <button className={`text-white px-5 py-2 rounded-md w-60 ${isBooking ? 'bg-blue-700' : 'bg-green-700'}`} onClick={createInvoiceBill}>
                             {isBooking ? 'Create a booking' : 'Create invoice and print'}
                         </button>

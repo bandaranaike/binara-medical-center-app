@@ -1,7 +1,7 @@
 import React from "react";
 
 interface BInputProps {
-    name: string;
+    name?: string;
     value?: string;
     type?: string;
     onChange: (value: any) => void;
@@ -11,9 +11,9 @@ interface BInputProps {
 
 const TextInput: React.FC<BInputProps> = ({name, value, onChange, type = 'text', error, required}) => {
     return (
-        <div className="mb-3">
+        <div>
             <label>
-                <span className="block mb-2">{name} {required && <span className="text-red-500 text-sm -mt-2">*</span>} </span>
+                {name && <span className="block mb-2">{name} {required && <span className="text-red-500 text-sm -mt-2">*</span>} </span>}
                 <input
                     type={type}
                     className="bg-gray-800 w-full rounded border-gray-700 text-gray-300 dark:bg-gray-800 dark:text-gray-300"

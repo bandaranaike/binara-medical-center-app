@@ -5,7 +5,7 @@ import DeleteConfirm from "@/components/popup/DeleteConfirm";
 import {Booking} from "@/types/interfaces";
 import ShowBillAndPrint from "@/components/popup/ShowBillAndPrint";
 
-const ReceptionList: React.FC = () => {
+const TodayList: React.FC = () => {
     const [bills, setBills] = useState<Booking[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -118,11 +118,11 @@ const ReceptionList: React.FC = () => {
                     deleteApiUrl="bills"
                     onClose={() => setShowDeleteModal(false)}
                     onDeleteSuccess={() => handleDeleteBooking()}
-                    deleteId={selectedBill!.id}
+                    deleteId={selectedBill!.uuid}
                 >Are you sure you want to delete this booking?</DeleteConfirm>
             )}
         </div>
     );
 };
 
-export default ReceptionList;
+export default TodayList;

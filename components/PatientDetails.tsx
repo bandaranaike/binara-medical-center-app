@@ -196,13 +196,14 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, patientNam
 
     const validatePhoneNumber = (phone: string) => {
         const formattedPhone = parsePhoneNumber(phone, "LK");
-        if (!formattedPhone || !formattedPhone.isValid()) {
+        if (phone && (!formattedPhone || !formattedPhone.isValid())) {
             setErrors({...errors, telephone: "Phone number is invalid"})
             return false;
+        } else if (formattedPhone) {
+            setErrors({...errors, telephone: ""})
+            setValidatePhone(formattedPhone.number);
+            return true;
         }
-        setErrors({...errors, telephone: ""})
-        setValidatePhone(formattedPhone.number);
-        return true;
     }
 
     const savePatientData = () => {

@@ -25,30 +25,60 @@ const PharmacyAdminPortal: React.FC = () => {
         {
             id: "categories",
             fields: ["name"],
+            filters: {
+                options: [{label: "Name", value: "name"}],
+            }
         },
         {
             id: "drugs",
             fields: ["category", "name", "minimum_quantity"],
-            dropdowns: {category: 'categories'}
+            dropdowns: {category: 'categories'},
+            filters: {
+                options: [
+                    {label: "Category", value: 'category:name'},
+                    {label: "Name", value: 'name'},
+                ]
+            }
         },
         {
             id: "brands",
             fields: ["drug", "name"],
-            dropdowns: {drug: 'drugs'}
+            dropdowns: {drug: 'drugs'},
+            filters: {
+                options: [
+                    {label: "Drug", value: 'drug:name'},
+                    {label: "Name", value: 'name'},
+                ]
+            }
         },
         {
             id: "sales",
             fields: ["brand", "bill_id", "quantity", "total_price", "brand_id"],
-            dropdowns: {brand: 'brands'}
+            dropdowns: {brand: 'brands'},
+            filters: {
+                options: [
+                    {label: "Brand", value: 'brand:name'},
+                ]
+            }
         },
         {
             id: "stocks",
             fields: ["brand", "supplier", "unit_price", "batch_number", "initial_quantity", "quantity", "expire_date", "cost"],
-            dropdowns: {supplier: 'suppliers', brand: "brands"}
+            dropdowns: {supplier: 'suppliers', brand: "brands"},
+            filters: {
+                options: [
+                    {label: "Brand", value: 'brand:name'},
+                    {label: "Batch number", value: 'batch_number'},
+                    {label: "Supplier", value: 'supplier:name'},
+                ]
+            }
         },
         {
             id: "suppliers",
-            fields: ["name", "address", "phone", "email"]
+            fields: ["name", "address", "phone", "email"],
+            filters: {
+                options: [{label: "Name", value: "name"}],
+            }
         },
     ];
 
