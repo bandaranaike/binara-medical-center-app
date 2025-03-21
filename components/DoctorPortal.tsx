@@ -224,9 +224,8 @@ const DoctorPortal: React.FC = () => {
                                 <div>
                                     <div className="font-bold text-2xl mb-2">{activePatientBill.patient.name}</div>
                                     <div className="text-gray-500"> Age : {activePatientBill.patient.age}</div>
-                                    <div className="text-gray-500"> Gender : {activePatientBill.patient.gender}</div>
+                                    {activePatientBill.patient.gender && <div className="text-gray-500"> Gender : {activePatientBill.patient.gender}</div>}
                                     <div className="text-gray-500"> Bill No. : {activePatientBill.id}</div>
-                                    <div className="text-gray-500"> Bill Reference : {activePatientBill.uuid}</div>
                                 </div>
                             )}
                         </div>

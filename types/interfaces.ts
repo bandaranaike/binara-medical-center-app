@@ -94,6 +94,7 @@ export interface HistoryItem {
     duration: string;
     medicine: Medicine;
     medication_frequency: MedicationFrequency;
+    sale: Sale;
 }
 
 export interface LoggedUser {
@@ -123,6 +124,7 @@ export interface MedicineHistory {
 export interface Option {
     value: string;
     label: string;
+    extra?: string;
 }
 
 export interface Patient {
@@ -169,6 +171,18 @@ export interface PatientMedicineHistory {
     status: string;
     created_at: string;
     patient_medicines: HistoryItem[];
+}
+
+export interface Sale {
+    id: number;
+    quantity: number;
+    total_price: number;
+    brand: {
+        name: string;
+        drug: {
+            name: string
+        }
+    }
 }
 
 export interface Service {

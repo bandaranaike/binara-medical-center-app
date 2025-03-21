@@ -136,7 +136,6 @@ const PharmacyPortal: React.FC = () => {
         setDrugUnitPrice(item)
     };
 
-
     const removeDrug = (deletingDrug: Drug) => {
         setDeleteError("")
         axios.delete(`sales/${deletingDrug.id}`).then(() => {
@@ -144,6 +143,7 @@ const PharmacyPortal: React.FC = () => {
                 setDrugList(drugList.filter(drug => drug.id !== deletingDrug.id))
         }).catch(error => setDeleteError(error.response.data.message));
     };
+
     return (
         <div className="font-medium text-gray-400 border-gray-700 relative">
 

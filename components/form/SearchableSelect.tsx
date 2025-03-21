@@ -56,7 +56,7 @@ const SearchableSelect: React.FC<SearchableSelectProps> = (
         return () => debouncedFetchDoctors.cancel();
     }, [extraParams]);
 
-    const fetchOptions = async (inputValue: string) => {
+    const fetchOptions = useCallback(async (inputValue: string) => {
         try {
             const typeUri = type ? `&type=${type}` : "";
             const response = await axios.get(`/dropdown/${apiUri}?search=${inputValue}${typeUri}`, {
@@ -82,7 +82,7 @@ const SearchableSelect: React.FC<SearchableSelectProps> = (
             }
             return [];
         }
-    };
+    },[apiUri, extraParams, type]);
 
     // Debounce fetchOptions to avoid frequent calls
     const debouncedFetchOptions = useCallback(

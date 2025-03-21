@@ -108,6 +108,9 @@ const Admin = () => {
                 options: [{label: "Domain", value: "domain"}],
             }
         },
+        {
+            id: "services", fields: ["name", "key", 'bill_price', 'system_price', 'separate_items', 'is_percentage'],
+        },
     ];
 
     return (<AdminTabs tabs={tabs}/>)
