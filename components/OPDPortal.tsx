@@ -22,7 +22,7 @@ const OPD: React.FC<BillingPageProps> = ({handleFormChange, onDoctorNameChange, 
 
     return (
         <div>
-            <DoctorSelect doctorType="opd" resetSelection={resetData} onDoctorSelect={handleDoctorChangeOption}/>
+            <DoctorSelect isBooking={false} date={null} doctorType="opd" resetSelection={resetData} onDoctorSelect={handleDoctorChangeOption}/>
         </div>
     );
 };

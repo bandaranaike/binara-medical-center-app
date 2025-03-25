@@ -51,11 +51,6 @@ const SearchableSelect: React.FC<SearchableSelectProps> = (
         }
     }, [resetValue]);
 
-    useEffect(() => {
-        debouncedFetchDoctors()
-        return () => debouncedFetchDoctors.cancel();
-    }, [extraParams]);
-
     const fetchOptions = useCallback(async (inputValue: string) => {
         try {
             const typeUri = type ? `&type=${type}` : "";
@@ -82,21 +77,14 @@ const SearchableSelect: React.FC<SearchableSelectProps> = (
             }
             return [];
         }
-    },[apiUri, extraParams, type]);
+    }, [apiUri, extraParams, type]);
 
     // Debounce fetchOptions to avoid frequent calls
     const debouncedFetchOptions = useCallback(
         debounce((inputValue: string, callback: (options: Option[]) => void) => {
             fetchOptions(inputValue).then(callback);
         }, 300),
-        [apiUri]
-    );
-
-    // Debounce fetchOptions to avoid frequent calls
-    const debouncedFetchDoctors = useMemo(() =>
-        debounce(() => {
-            fetchOptions('');
-        }, 300), [fetchOptions]
+        [apiUri, extraParams, type]
     );
 
     const handleOnChange = (selectedOption: SingleValue<Option>) => {

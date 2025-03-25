@@ -29,6 +29,7 @@ export interface BillingPageProps {
     resetData: string;
     patientId?: number;
     isBooking?: boolean;
+    doctorDate?: Date | null;
     onBillIdAdded?: (billId: number) => void;
 }
 

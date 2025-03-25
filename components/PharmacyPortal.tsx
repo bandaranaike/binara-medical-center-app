@@ -78,19 +78,36 @@ const PharmacyPortal: React.FC = () => {
             system_amount: finalBillAmounts.system_total,
         })
             .then(() => {
-                // Remove the finalized bill from the state
-                setPendingBills((prevBills) =>
-                    prevBills.filter((bill) => bill.id !== billId)
-                );
-
-                // Reset the active bill if the current one was finalized
-                const nextBillIndex = pendingBills.length - 2;
-                if (activeBillId === billId && pendingBills[nextBillIndex]) {
-                    setActiveBillId(pendingBills[nextBillIndex].id);
-                }
+                removeCurrentBillAndFocusNext(billId);
             })
             .catch((error) => console.error("Error finalizing bill:", error));
     };
+
+    const removeCurrentBillAndFocusNext = (billId: number) => {
+        // Remove the target bill from the state
+        setPendingBills((prevBills) =>
+            prevBills.filter((bill) => bill.id !== billId)
+        );
+
+        // Reset the active bill if the current one was finalized
+        const nextBillIndex = pendingBills.length - 2;
+        if (activeBillId === billId && pendingBills[nextBillIndex]) {
+            setActiveBillId(pendingBills[nextBillIndex].id);
+        }
+    }
+
+    const sendBackToDoctor = (billId: number) => {
+        setIsLoading(true)
+        try {
+            axios.put(`/bills/${billId}/status`, {
+                status: 'doctor',
+            }).then(() => {
+                removeCurrentBillAndFocusNext(billId);
+            }).finally(() => setIsLoading(false));
+        } catch (error) {
+            console.error('Error updating the bill status:', error);
+        }
+    }
 
     const fetchDrugsSaleForBill = () => {
         if (activeBillId) {
@@ -112,37 +129,6 @@ const PharmacyPortal: React.FC = () => {
     }
 
     const activeBill = pendingBills.find((bill) => bill.id === activeBillId);
-
-    const addDrugToList = () => {
-        if (!brand || !drugQuantity || !drugPrice) {
-            setDrugListAddError("Please fill all the fields")
-            return;
-        }
-        setDrugListAddError("")
-
-        axios.post(`sales`, {
-            bill_id: activeBillId, brand_id: brand?.value, quantity: drugQuantity, total_price: drugPrice
-        }).then(() => {
-            setDrugPrice("")
-            setDrugQuantity("1")
-            setDrugUnitPrice("")
-            setBrand({value: "0", label: "Select.."})
-            fetchDrugsSaleForBill()
-        }).catch(error => setDrugListAddError(error.response.data.message))
-
-    };
-
-    const handleExtraData = (item: string) => {
-        setDrugUnitPrice(item)
-    };
-
-    const removeDrug = (deletingDrug: Drug) => {
-        setDeleteError("")
-        axios.delete(`sales/${deletingDrug.id}`).then(() => {
-            if (drugList)
-                setDrugList(drugList.filter(drug => drug.id !== deletingDrug.id))
-        }).catch(error => setDeleteError(error.response.data.message));
-    };
 
     return (
         <div className="font-medium text-gray-400 border-gray-700 relative">
@@ -188,88 +174,19 @@ const PharmacyPortal: React.FC = () => {
                         </div>
                     </div>
                     <div>
-                        <div className="grid grid-cols-2 gap-12">
-                            <div className="mb-6">
-                                {activeBill && (
-                                    <Services
-                                        key="pharmacy-portal"
-                                        patientId={activeBill.patient_id}
-                                        onServiceStatusChange={handleOnServiceStatusChange}
-                                        resetBillItems={false}
-                                        initialBill={activeBill}
-                                        showMedicineTable={true}
-                                        medicineTotal={medicineTotal}
-                                    ></Services>
-                                )}
-                            </div>
-                            <div className="">
-                                <h3 className="text-xl font-semibold mb-4">Prepare the drug list</h3>
-                                <div className="grid gap-4 grid-cols-5 items-center">
-                                    <div className="col-span-2">
-                                        <SearchableSelect
-                                            placeholder="Drug/Brand"
-                                            apiUri="pharmacy-brands"
-                                            onChange={(option: any) => setBrand(option)}
-                                            value={brand}
-                                            id="DrugBrandSelect"
-                                            onExtraDataHas={handleExtraData}
-                                        />
-                                    </div>
-                                    <TextInput name="Quantity" onChange={setDrugQuantity} value={drugQuantity}/>
-                                    <TextInput name="Price" onChange={setDrugPrice} value={drugPrice}/>
-                                    <button
-                                        onClick={addDrugToList}
-                                        className="border border-green-600 bg-green-700 text-white rounded hover:border-green-500 p-2 mt-4"
-                                    >Add
-                                    </button>
-                                </div>
-                                {drugListAddError && <div className="mb-4 text-red-500">{drugListAddError}</div>}
-                                <div>
-                                    {(!drugList || (drugList && drugList.length === 0) || isDrugListLoading) && (
-                                        <div className="p-4 text-center text-sm border border-gray-800 rounded-lg">
-                                            {isDrugListLoading && <Loader/>}
-                                            {(drugList && drugList.length === 0) && !isDrugListLoading && (
-                                                <div className="text-gray-500 text-sm">Drugs list will appear here</div>
-                                            )}
-                                        </div>
-                                    )}
-                                    {!isDrugListLoading && drugList && drugList.length > 0 && <div>
-                                        <div className="relative overflow-x-auto sm:rounded-lg border border-gray-800">
-                                            <table className="w-full text-sm text-left text-gray-400">
-                                                <thead className="bg-gray-700">
-                                                <tr className="bg-gray-800">
-                                                    <th className="px-4 py-2">Brand Name</th>
-                                                    <th className="px-4 py-2 text-left">Drug Name</th>
-                                                    <th className="px-4 py-2 text-left">Quantity</th>
-                                                    <th className="px-4 py-2 text-left">Price</th>
-                                                    <th className="px-4 py-2 text-left w-16">Action</th>
-                                                </tr>
-                                                </thead>
-                                                <tbody>
-                                                {drugList.map((drug: Drug) => (
-                                                    <tr key={drug.id} className="border-t border-gray-800">
-                                                        <td className="px-4 py-2 border-r border-gray-800">{drug.brand}</td>
-                                                        <td className="px-4 py-2 border-r border-gray-800">{drug.drug}</td>
-                                                        <td className="px-4 py-2 border-r border-gray-800">{drug.quantity}</td>
-                                                        <td className="px-4 py-2 border-r border-gray-800">{drug.total_price}</td>
-                                                        <td className="px-4 py-2 hover:text-red-500">
-                                                            <DeleteIcon className="mx-auto cursor-pointer" onClick={() => removeDrug(drug)}/>
-                                                        </td>
-                                                    </tr>
-                                                ))}
-                                                </tbody>
-                                            </table>
-                                            <div className="border border-gray-800 border-t px-4 py-2 flex justify-between">
-                                                <div>Total : {medicineTotal.toFixed(2)}</div>
-                                                {deleteError && <div className="text-red-500 ml-3 text-right">{deleteError}</div>}
-                                            </div>
-                                        </div>
-                                    </div>}
-                                    {drugLisFetchError && <div className="text-red-500">{drugLisFetchError}</div>}
-                                </div>
-                            </div>
+                        <div className="mb-6">
+                            {activeBill && (
+                                <Services
+                                    key="pharmacy-portal"
+                                    patientId={activeBill.patient_id}
+                                    onServiceStatusChange={handleOnServiceStatusChange}
+                                    resetBillItems={false}
+                                    initialBill={activeBill}
+                                    showMedicineTable={true}
+                                ></Services>
+                            )}
                         </div>
-                        <div className="flex justify-between content-center">
+                        <div className="flex justify-between content-center gap-3">
                             <div className="text-lg flex grow text-right">
                                 {error && (
                                     <div className="mt-4 text-red-700 px-4 py-3 relative w-full" role="alert">
@@ -279,7 +196,14 @@ const PharmacyPortal: React.FC = () => {
                             </div>
                             <button
                                 type="button"
-                                className="mt-8 bg-blue-700 text-white py-2 px-4 rounded hover:bg-blue-600 mb-3"
+                                className="mt-8 bg-blue-800 text-gray-300 py-2 px-4 rounded hover:bg-blue-600 mb-3 border border-blue-700"
+                                onClick={() => sendBackToDoctor(activeBill.id)}
+                            >
+                                Send back to doctor
+                            </button>
+                            <button
+                                type="button"
+                                className="mt-8 bg-blue-800 text-gray-300 py-2 px-4 rounded hover:bg-blue-600 mb-3 border border-blue-700"
                                 onClick={() => handleFinalizeBill(activeBill.id)}
                             >
                                 Finalize & send to reception

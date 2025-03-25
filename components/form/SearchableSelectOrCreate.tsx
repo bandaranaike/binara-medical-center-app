@@ -1,7 +1,8 @@
 import React, {useState, useEffect, useRef, KeyboardEvent} from 'react';
 import Loader from './Loader';
 import axios from "@/lib/axios";
-import {Option} from "@/types/interfaces"; // Assuming you have a Loader component
+import {Option} from "@/types/interfaces";
+import {XCircleIcon} from "@heroicons/react/24/outline"; // Assuming you have a Loader component
 
 interface SearchableSelectOrCreateProps {
     apiUri: string;
@@ -10,9 +11,11 @@ interface SearchableSelectOrCreateProps {
     onSelect: (selectedItem: Option) => void;
     onNotSelect?: (typedText: string) => void;
     resetTrigger?: any;
+    extraParams?: any;
+    creatable?: boolean;
 }
 
-const SearchableSelectOrCreate: React.FC<SearchableSelectOrCreateProps> = ({apiUri, apiUriType, onSelect, onNotSelect, placeholder, resetTrigger}) => {
+const SearchableSelectOrCreate: React.FC<SearchableSelectOrCreateProps> = ({apiUri, apiUriType, onSelect, onNotSelect, placeholder, resetTrigger, extraParams, creatable}) => {
     const [query, setQuery] = useState<string>('');
     const [selectedValue, setSelectedValue] = useState<Option>();
     const [results, setResults] = useState<Option[]>([]);
@@ -30,7 +33,9 @@ const SearchableSelectOrCreate: React.FC<SearchableSelectOrCreateProps> = ({apiU
                 setLoading(true);
                 const typeUri = apiUriType ? `&type=${apiUriType}` : "";
                 axios
-                    .get(`/dropdown/${apiUri}?search=${query}${typeUri}`)
+                    .get(`/dropdown/${apiUri}?search=${query}${typeUri}`, {
+                        params: extraParams
+                    })
                     .then((response) => {
                         setResults(response.data);
                         setLoading(false);
@@ -48,7 +53,7 @@ const SearchableSelectOrCreate: React.FC<SearchableSelectOrCreateProps> = ({apiU
         }, 200);
 
         return () => clearTimeout(delayDebounceFn);
-    }, [query, apiUri, initialSearch]);
+    }, [query, apiUri, initialSearch, extraParams]);
 
     useEffect(() => {
         setQuery('');
@@ -99,7 +104,7 @@ const SearchableSelectOrCreate: React.FC<SearchableSelectOrCreateProps> = ({apiU
     };
 
     const handleBlur = () => {
-        setTimeout(() => setIsFocused(false), 200); // Delay to allow click events on dropdown
+        setTimeout(() => setIsFocused(false), 100); // Delay to allow click events on dropdown
     };
 
     const borderColor = () => {
@@ -114,6 +119,13 @@ const SearchableSelectOrCreate: React.FC<SearchableSelectOrCreateProps> = ({apiU
         setInitialSearch(true);
         setIsFocused(true)
     };
+    const resetSelection = () => {
+        setQuery("")
+        setInitialSearch(true)
+        setSelectedValue(undefined);
+        onSelect({label: "", value: ""})
+    };
+
     return (
         <div className="relative">
             <div className="relative">
@@ -134,10 +146,11 @@ const SearchableSelectOrCreate: React.FC<SearchableSelectOrCreateProps> = ({apiU
                         <Loader size={`w-6 h-6`}/>
                     </div>
                 )}
+                {query && <div className="absolute top-3 right-3 cursor-pointer" onClick={() => resetSelection()}><XCircleIcon width={20}/></div>}
             </div>
             {(!onNotSelect && query && !selectedValue) && <div className="text-red-500 text-sm my-1">This value is invalid</div>}
 
-            {isFocused && results.length > 0 && (
+            {isFocused && (results.length > 0 || creatable && onNotSelect && query) && (
                 <ul className="absolute z-10 w-full mt-1 bg-gray-800 border border-gray-700 rounded-lg shadow-lg top-10">
                     {results.map((item: Option, index) => (
                         <li
@@ -151,6 +164,14 @@ const SearchableSelectOrCreate: React.FC<SearchableSelectOrCreateProps> = ({apiU
                             {item.extra && <span className="text-xs block text-gray-500">{item.extra}</span>}
                         </li>
                     ))}
+
+                    {(creatable && onNotSelect && query && !selectedValue) && <li
+                        key={0}
+                        className={`p-2 hover:bg-gray-700 cursor-pointer text-gray-400 border-b border-gray-700 last:border-b-0`}
+                        onClick={() => onNotSelect(query)}
+                    >
+                        Create <span className="italic">{query}</span>
+                    </li>}
                 </ul>
             )}
         </div>

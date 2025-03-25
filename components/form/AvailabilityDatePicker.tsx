@@ -8,9 +8,10 @@ interface DatePickerProps {
     onDateChange?: (date: Date | null) => void;
     availableDates?: string[]; // Array of ISO date strings
     disabled?: boolean; // Array of ISO date strings
+    hasDoctorLock?: boolean;
 }
 
-const AvailabilityDatePicker: React.FC<DatePickerProps> = ({selectedDate, onDateChange, availableDates = [], disabled = false}) => {
+const AvailabilityDatePicker: React.FC<DatePickerProps> = ({selectedDate, onDateChange, availableDates = [], disabled = false, hasDoctorLock = false}) => {
     const [isOpen, setIsOpen] = useState(false);
     const [currentMonth, setCurrentMonth] = useState(selectedDate ? startOfMonth(selectedDate) : startOfMonth(new Date()));
     const datePickerRef = useRef<HTMLDivElement>(null);
@@ -22,8 +23,8 @@ const AvailabilityDatePicker: React.FC<DatePickerProps> = ({selectedDate, onDate
     };
 
     const handleDateClick = (date: Date) => {
-        if (isDateAvailable(date)) {
-            if(onDateChange) onDateChange(date);
+        if ((hasDoctorLock && isDateAvailable(date)) || !hasDoctorLock) {
+            if (onDateChange) onDateChange(date);
             setIsOpen(false);
         }
     };
@@ -68,7 +69,7 @@ const AvailabilityDatePicker: React.FC<DatePickerProps> = ({selectedDate, onDate
                 const cloneDay = day;
                 const isSelected = selectedDate && isSameDay(day, selectedDate);
                 const isCurrentMonthDay = isSameMonth(day, currentMonth);
-                const isDisabled = !isDateAvailable(day);
+                const isDisabled = hasDoctorLock && !isDateAvailable(day);
 
                 days.push(
                     <td
@@ -88,7 +89,7 @@ const AvailabilityDatePicker: React.FC<DatePickerProps> = ({selectedDate, onDate
                                     ? 'text-gray-400 dark:text-gray-500' // Not current month but selectable
                                     : 'text-gray-600  dark:text-gray-400'} 
                                 `}
-                             onClick={() => !isDisabled && handleDateClick(cloneDay)}> {format(day, 'd')}</div>
+                            onClick={() => !isDisabled && handleDateClick(cloneDay)}> {format(day, 'd')}</div>
                     </td>
                 );
                 day = addDays(day, 1);
@@ -106,7 +107,7 @@ const AvailabilityDatePicker: React.FC<DatePickerProps> = ({selectedDate, onDate
                 disabled={disabled}
                 type="button"
                 className={`min-w-72 text-sm border border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 rounded-lg py-2.5 px-3 w-full text-left flex gap-2 
-                ${disabled ? 'cursor-not-allowed dark:text-gray-500 text-gray-300':''}`}
+                ${disabled ? 'cursor-not-allowed dark:text-gray-500 text-gray-300' : ''}`}
                 onClick={handleToggle}
             >
                 <CalendarIcon width={20} className=""/> {selectedDate ? format(selectedDate, 'yyyy-MM-dd') : 'Select date'}

@@ -7,15 +7,17 @@ import {randomString} from "@/lib/strings";
 import {DeleteIcon} from "@nextui-org/shared-icons";
 import DeleteConfirm from "@/components/popup/DeleteConfirm";
 import SearchableSelectOrCreate from "@/components/form/SearchableSelectOrCreate";
+import {InformationCircleIcon} from "@heroicons/react/24/outline";
 
 interface PatientMedicineProps {
     patientId: number;
     billId: string | number;
     editable?: boolean;
     onNewServiceAdded?: (addedMedicineItem: any) => void;
+    onMedicineTotalChange?: (medicineTotal: number) => void;
 }
 
-const PatientMedicineManager: React.FC<PatientMedicineProps> = ({patientId, billId, onNewServiceAdded, editable = true}) => {
+const PatientMedicineManager: React.FC<PatientMedicineProps> = ({patientId, billId, onNewServiceAdded, editable = true, onMedicineTotalChange}) => {
     const [patientMedicineHistories, setPatientMedicineHistories] = useState<HistoryItem[]>([]);
     const [selectedMedicine, setSelectedMedicine] = useState<Option>();
     const [medicationFrequency, setMedicationFrequency] = useState<Option>();
@@ -57,7 +59,7 @@ const PatientMedicineManager: React.FC<PatientMedicineProps> = ({patientId, bill
 
     useEffect(() => {
         calculateCountAndTotal();
-    }, [patientMedicineHistories]);
+    }, [patientMedicineHistories, historyUpdatedVersion]);
 
 
     const handleCreateNewMedicationFrequency = (item: any) => {
@@ -117,6 +119,9 @@ const PatientMedicineManager: React.FC<PatientMedicineProps> = ({patientId, bill
 
         setTotal(total);
         setCount(count);
+        if (onMedicineTotalChange) {
+            onMedicineTotalChange(total)
+        }
     }
 
     const medicineDeleted = () => {
@@ -154,7 +159,7 @@ const PatientMedicineManager: React.FC<PatientMedicineProps> = ({patientId, bill
                 {editable && <form onSubmit={handleAddMedicine}>
                     <div className="grid grid-cols-1 lg:grid-cols-6 gap-3 max-w-4xl">
                         <div className="col-span-2">
-                            <label className="block mb-2 text-left">Medicine/Treatment:</label>
+                            <label className="block mb-2 text-left">Brand/Drug:</label>
                             <SearchableSelectOrCreate
                                 apiUri={'medicines'}
                                 onSelect={setSelectedMedicine}
@@ -256,6 +261,10 @@ const PatientMedicineManager: React.FC<PatientMedicineProps> = ({patientId, bill
                         {(patientMedicineHistories.length == 0) && <div className="p-4 text-gray-500 text-xs text-center">Medicine list will appear here</div>}
                     </div>
                     {loading && <div className="my-1 text-center"><Loader/></div>}
+                    {!editable && <div className="text-sm text-gray-500 pt-6 flex gap-2 content-center items-center">
+                        <InformationCircleIcon width={20} className="text-blue-800"/>
+                        List modifications require doctor authorization. Please return the list to the doctor for editing.
+                    </div>}
                 </div>
             </div>
             {deleteId > 0 &&
