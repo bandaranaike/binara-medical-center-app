@@ -12,6 +12,7 @@ import customStyles from "@/lib/custom-styles";
 import AvailabilityDatePicker from "@/components/form/AvailabilityDatePicker";
 import debounce from "lodash.debounce";
 import axios from "@/lib/axios";
+import {useUserContext} from "@/context/UserContext";
 
 interface WithBillingComponentProps {
     validation: any;
@@ -63,6 +64,7 @@ const withBillingComponent = <P extends object>(
 
         const [date, setDate] = useState<Date | null>(new Date());
         const [availableDates, setAvailableDates] = useState([]);
+        const {shift} = useUserContext()
 
         useEffect(() => {
             const getTotalAmount = (flag: string) => {
@@ -194,6 +196,7 @@ const withBillingComponent = <P extends object>(
                     system_amount: systemAmount,
                     bill_id: billNumber,
                     payment_type: paymentType?.value,
+                    shift,
                     date
                 }).then(async billSaveResponse => {
                     const data = billSaveResponse.data;

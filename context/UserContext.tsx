@@ -7,6 +7,8 @@ interface UserContextType {
     user: LoggedUser | null;
     setUser: (user: LoggedUser | null) => void;
     logout: () => void;
+    shift: string;
+    setShift: (shift: string) => void;
 }
 
 // Create the context
@@ -24,11 +26,17 @@ export const useUserContext = () => {
 // Create the Provider component
 const UserProvider: React.FC<{ children: React.ReactNode }> = ({children}) => {
     const [user, setUser] = useState<LoggedUser | null>(null);
+    const [shift, setShift] = useState("morning");
 
     useEffect(() => {
         const storedUser = localStorage.getItem("user");
+        const shift = localStorage.getItem("shift");
         if (storedUser) {
             setUser(JSON.parse(storedUser));
+        }
+
+        if (shift) {
+            setShift(shift);
         }
     }, []);
 
@@ -42,6 +50,11 @@ const UserProvider: React.FC<{ children: React.ReactNode }> = ({children}) => {
         setUser(user);
     };
 
+    const setShiftWithStorage = (shift: string) => {
+        localStorage.setItem("shift", shift);
+        setShift(shift);
+    }
+
     // Logout function
     const logout = () => {
         axios.post('logout')
@@ -49,7 +62,7 @@ const UserProvider: React.FC<{ children: React.ReactNode }> = ({children}) => {
     };
 
     return (
-        <UserContext.Provider value={{user, setUser: setUserWithStorage, logout}}>
+        <UserContext.Provider value={{user, setUser: setUserWithStorage, logout, shift, setShift: setShiftWithStorage}}>
             {children}
         </UserContext.Provider>
     );

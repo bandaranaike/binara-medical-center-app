@@ -17,6 +17,7 @@ import OPDPortal from "@/components/OPDPortal";
 import PharmacyAdminPortal from "@/components/pharmacy-admin/PharmacyAdminPortal";
 import Welcome from "@/components/table/Welcome";
 import ReceptionAdmin from "@/components/reception/ReceptionAdmin";
+import CustomRadio from "@/components/form/CustomRadio";
 
 interface Tab {
     id: string;
@@ -27,7 +28,7 @@ interface Tab {
 
 const Main = () => {
 
-    const {setUser, user, logout} = useUserContext()
+    const {setUser, user, logout, shift, setShift} = useUserContext()
 
     useEffect(() => {
         // Dynamically set token for Axios
@@ -71,6 +72,10 @@ const Main = () => {
         return activeTabData ? activeTabData.component : null;
     };
 
+    const handleShiftChange = (value: string) => {
+        setShift(value);
+    };
+
     return (
         <div>
             {user && (<div className="min-h-screen">
@@ -80,8 +85,12 @@ const Main = () => {
                         </h1>
                         <div className="mx-6">
                             {user && (
-                                <div className="mt-4">
-                                    <span className="mr-3">Welcome {user?.name}</span>
+                                <div className="mt-4 flex gap-2 items-center">
+                                    <div className="flex gap-1 border border-gray-800 rounded-lg py-2 px-3 text-xs mr-6">
+                                        <CustomRadio size={4} label="Morning shift" value="morning" groupValue={shift} onChange={handleShiftChange}/>
+                                        <CustomRadio size={4} label="Evening shift" value="evening" groupValue={shift} onChange={handleShiftChange}/>
+                                    </div>
+                                    <span className="mr-3">Welcome {user.name}</span>
                                     <button className="text-blue-400 hover:text-blue-500" onClick={() => logout()}>Logout</button>
                                 </div>
                             )}
