@@ -12,6 +12,7 @@ import customStyles from "@/lib/custom-styles";
 import AvailabilityDatePicker from "@/components/form/AvailabilityDatePicker";
 import debounce from "lodash.debounce";
 import axios from "@/lib/axios";
+import {useUserContext} from "@/context/UserContext";
 
 interface WithBillingComponentProps {
     validation: any;
@@ -63,6 +64,7 @@ const withBillingComponent = <P extends object>(
 
         const [date, setDate] = useState<Date | null>(new Date());
         const [availableDates, setAvailableDates] = useState([]);
+        const {shift} = useUserContext()
 
         useEffect(() => {
             const getTotalAmount = (flag: string) => {
@@ -77,6 +79,10 @@ const withBillingComponent = <P extends object>(
                 fetchDoctorDates(formData.doctor_id)
             }
         }, [formData]);
+
+        useEffect(() => {
+            if (isBooking) setDate(null)
+        }, [isBooking]);
 
         const fetchDoctorDates = useCallback(debounce(async (doctorId) => {
             try {
@@ -190,6 +196,7 @@ const withBillingComponent = <P extends object>(
                     system_amount: systemAmount,
                     bill_id: billNumber,
                     payment_type: paymentType?.value,
+                    shift,
                     date
                 }).then(async billSaveResponse => {
                     const data = billSaveResponse.data;
@@ -198,7 +205,6 @@ const withBillingComponent = <P extends object>(
                     setSuccessMessage(`Invoice #${data.bill_id} successfully generated! Queue id: ${data.queue_id}`);
 
                     if (["specialist", "dental"].includes(formData.service_type) && !isBooking) {
-
                         try {
                             await printService.sendPrintRequest({
                                 bill_reference: data.bill_reference,
@@ -207,7 +213,7 @@ const withBillingComponent = <P extends object>(
                                 customer_name: patient ? patient.name : "Customer 001",
                                 doctor_name: doctorName,
                                 items: data.bill_items,
-                                total: Number(data.total).toFixed(2),
+                                total: Number(data.total) ? Number(data.total).toFixed(2) : data.total,
                             });
 
                         } catch (e: any) {
@@ -217,7 +223,7 @@ const withBillingComponent = <P extends object>(
                     setTimeout(() => setSuccessMessage(""), 20000);
                     resetFormData()
                 }).catch(error => {
-                    setBillCreateError(error);
+                    setBillCreateError(error.response.data.message);
                 });
             } catch (error) {
                 console.error(error)
@@ -228,12 +234,18 @@ const withBillingComponent = <P extends object>(
 
         return (<>
             <div className="bg-gray-900 text-white">
-                <div className="flex justify-between items-center mb-1 pb-4 mt-4">
+                <div className="flex items-center mb-1 pb-4 mt-4 gap-5">
                     <div className="">
                         {props.enableBooking && <CustomCheckbox label="Booking" checked={isBooking} setChecked={handleCheckboxChange}/>}
                     </div>
                     <div className="flex gap-4 items-center content-center">
-                        <AvailabilityDatePicker disabled={!isBooking} availableDates={availableDates} onDateChange={setDate} selectedDate={date}/>
+                        {props.enableBooking && <AvailabilityDatePicker
+                            disabled={!isBooking}
+                            availableDates={availableDates}
+                            onDateChange={setDate}
+                            selectedDate={date}
+                            hasDoctorLock={!!formData.doctor_id}
+                        />}
                         {billNumber > 0 && <span className="text-lg">Bill No : <span className="font-bold">{billNumber}</span></span>}
                     </div>
                 </div>
@@ -253,6 +265,7 @@ const withBillingComponent = <P extends object>(
                                 resetData={resetForm}
                                 patientId={patientId}
                                 isBooking={isBooking}
+                                doctorDate={date}
                                 onBillIdAdded={setBillNumber}
                             />
                         </div>
@@ -275,7 +288,7 @@ const withBillingComponent = <P extends object>(
 
                 <div className="flex justify-between mt-4">
                     <div className="flex items-center">
-                        <div className="text-lg mr-12">Total : LKR {(systemAmount + billAmount).toFixed(2)}</div>
+                        <div className="text-lg mr-12"><span className="text-sm text-gray-400">Total : </span> {(systemAmount + billAmount).toFixed(2)}</div>
                     </div>
                     <div className="mt-3">
                         {billCreateError && <span className="text-red-500 mr-4">{billCreateError}</span>}
@@ -284,7 +297,7 @@ const withBillingComponent = <P extends object>(
                     <div className="flex items-center">
                         {isLoading && (<div className="mr-4 mt-1"><Loader/></div>)}
                         <div className="mr-6 flex">
-                            <label className="mr-2 mt-2">Payment type</label>
+                            <label className="mr-3 mt-2 text-sm text-gray-400">Payment type</label>
                             <Select
                                 instanceId="PaymentTypeSelect"
                                 placeholder="Payment Type"

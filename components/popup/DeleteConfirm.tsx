@@ -23,7 +23,6 @@ const DeleteConfirm: React.FC<DeleteConfirmProps> = ({deleteApiUrl, onClose, onD
             if (onDeleteSuccess) onDeleteSuccess();
             onClose(); // Close the modal after successful deletion.
         } catch (error: any) {
-            console.log(error)
             let errorMessage = error?.response?.data ? error.response.data.message : error.message ? error.message : "There was an error";
             if (onDeleteError)
                 onDeleteError(errorMessage)

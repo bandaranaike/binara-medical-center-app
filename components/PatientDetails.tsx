@@ -95,7 +95,7 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, patientNam
     useEffect(() => {
         if (debouncedName && originalName && debouncedName !== originalName) {
             const similarity = getSimilarity(originalName, debouncedName)
-            setIsNew(similarity < 0.8)
+            // setIsNew(similarity < 0.8)
             setNameChangeIndex(round((1 - similarity) * 10))
         }
     }, [debouncedName, originalName]);
@@ -206,13 +206,13 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, patientNam
         }
     }
 
-    const savePatientData = () => {
+    const savePatientData = (isNewPatient: boolean) => {
         setSavedMessage({message: "", isSuccess: false});
         if (!validateInputs()) return;
 
         setIsLoading(true);
 
-        const isCreate = isNew && isEmpty(id);
+        const isCreate = isNewPatient || (isNew && isEmpty(id));
         const birthday = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
 
         const uri = isCreate ? "" : `/${id}`;
@@ -271,15 +271,15 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, patientNam
             <div className="flex mt-6 space-x-4 items-center">
 
                 {isNew && <button
-                    onClick={savePatientData}
+                    onClick={() => savePatientData(false)}
                     className="bg-green-600 border-green-700 py-2 px-4 rounded border"> Create patient </button>}
 
                 {!isNew && nameChangeIndex > 2 && <button
-                    onClick={savePatientData}
+                    onClick={() => savePatientData(true)}
                     className="bg-green-600 border-green-700 py-2 px-4 rounded border"> Create new patient </button>}
 
-                {!isNew && nameChangeIndex < 8 && <button
-                    onClick={savePatientData}
+                {!isNew && <button
+                    onClick={() => savePatientData(false)}
                     className="bg-blue-800 border-blue-700 py-2 px-4 rounded border">Save patient</button>}
 
                 <button

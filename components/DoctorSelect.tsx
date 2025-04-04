@@ -3,15 +3,18 @@ import SearchableSelect from "@/components/form/SearchableSelect";
 import {DoctorFee, Option} from "@/types/interfaces";
 import CreateNewDoctor from "@/components/CreateNewDoctor";
 import axiosLocal from "@/lib/axios";
+import {dateToYmdFormat} from "@/lib/readbale-date";
+import SearchableSelectOrCreate from "@/components/form/SearchableSelectOrCreate";
 
 interface DoctorSelectProps {
     resetSelection: string
     doctorType: string
     onDoctorSelect: (data: DoctorFee) => void;
     isBooking?: boolean
+    date?: Date | null
 }
 
-const DoctorSelect: React.FC<DoctorSelectProps> = ({onDoctorSelect, resetSelection, doctorType, isBooking}) => {
+const DoctorSelect: React.FC<DoctorSelectProps> = ({onDoctorSelect, resetSelection, doctorType, isBooking, date}) => {
 
     const [doctor, setDoctor] = useState<Option>();
     const [errors, setErrors] = useState<any>({});
@@ -70,17 +73,28 @@ const DoctorSelect: React.FC<DoctorSelectProps> = ({onDoctorSelect, resetSelecti
 
     return (
         <div>
-            <SearchableSelect
-                placeholder="Doctor Name"
-                apiUri={'doctors'}
-                type={doctorType}
-                value={doctor}
-                onChange={handleDoctorChangeOption}
-                onCreateOption={handleOpenCreateDoctor}
-                id={'DoctorNameSelect'}
-                resetValue={!doctor}
-                extraParams={{"is-booking": isBooking}}
-            />
+            {/*<SearchableSelect*/}
+            {/*    placeholder="Doctor Name"*/}
+            {/*    apiUri={'doctors'}*/}
+            {/*    type={doctorType}*/}
+            {/*    value={doctor}*/}
+            {/*    onChange={handleDoctorChangeOption}*/}
+            {/*    onCreateOption={handleOpenCreateDoctor}*/}
+            {/*    id={'DoctorNameSelect'}*/}
+            {/*    resetValue={!doctor}*/}
+            {/*    extraParams={{"is-booking": isBooking, date: date ? dateToYmdFormat(date) : ""}}*/}
+            {/*/>*/}
+            <div className="mb-3">
+                <div className="pb-3">Doctor</div>
+                <SearchableSelectOrCreate
+                    extraParams={{"is-booking": isBooking, date: date ? dateToYmdFormat(date) : "", type: doctorType}}
+                    onSelect={handleDoctorChangeOption}
+                    onNotSelect={handleOpenCreateDoctor}
+                    apiUri={'doctors'}
+                    creatable={true}
+                />
+            </div>
+
             {errors.doctor && <span className="text-red-500">{errors.doctor}</span>}
 
             <CreateNewDoctor

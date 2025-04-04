@@ -3,8 +3,9 @@ import TextInput from "@/components/form/TextInput";
 import {BillingPageProps, DoctorFee} from "@/types/interfaces";
 import withBillingComponent from "@/components/high-order-components/withBillingComponent";
 import DoctorSelect from "@/components/DoctorSelect";
+import SearchableSelectOrCreate from "@/components/form/SearchableSelectOrCreate";
 
-const Channel: React.FC<BillingPageProps> = ({handleFormChange, onDoctorNameChange, resetData, isBooking}) => {
+const Channel: React.FC<BillingPageProps> = ({handleFormChange, onDoctorNameChange, resetData, isBooking, doctorDate}) => {
     const [channelingFee, setChannelingFee] = useState("");
     const [institutionFee, setInstitutionFee] = useState("");
 
@@ -39,7 +40,7 @@ const Channel: React.FC<BillingPageProps> = ({handleFormChange, onDoctorNameChan
 
     return (
         <div>
-            <DoctorSelect isBooking={isBooking} doctorType="specialist" resetSelection={resetData} onDoctorSelect={handleDoctorChangeOption}/>
+            <DoctorSelect date={doctorDate} isBooking={isBooking} doctorType="specialist" resetSelection={resetData} onDoctorSelect={handleDoctorChangeOption}/>
             <TextInput name="Channeling Fee" value={channelingFee} onChange={handleChannelingFeeChange}/>
             <TextInput name="Institution Fee" value={institutionFee} onChange={handleInstitutionFeeChange}/>
         </div>
