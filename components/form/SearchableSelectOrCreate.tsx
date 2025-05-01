@@ -158,7 +158,7 @@ const SearchableSelectOrCreate: React.FC<SearchableSelectOrCreateProps> = ({apiU
                             className={`p-2 hover:bg-gray-700 cursor-pointer text-gray-400 border-b border-gray-700 last:border-b-0 ${
                                 selectedIndex === index ? 'bg-gray-600' : ''
                             }`}
-                            onClick={() => handleSelect(item)}
+                            onMouseDown={() => handleSelect(item)}
                         >
                             {item.label}
                             {item.extra && <span className="text-xs block text-gray-500">{item.extra}</span>}
