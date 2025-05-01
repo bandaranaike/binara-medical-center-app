@@ -7,6 +7,7 @@ const ResetPasswordPage: FC = () => {
             <div className="relative rounded-lg shadow bg-gray-800">
                 <ResetPasswordWindow/>
             </div>
+            Copyright © 2025 All rights reserved.
         </div>
     </div>
 }
