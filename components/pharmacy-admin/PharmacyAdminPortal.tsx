@@ -123,7 +123,7 @@ const PharmacyAdminPortal: React.FC = () => {
                         </thead>
                         <tbody>
                         {drugStockSaleData && drugStockSaleData.length > 0 && drugStockSaleData.map((item) => (
-                            <tr key={item.id} className="border-t border-gray-800">
+                            <tr key={`${item.id}-${item.brand_name}`} className="border-t border-gray-800">
                                 <td className="px-4 py-2 border-r border-gray-800">{item.drug_name}</td>
                                 <td className="px-4 py-2 border-r border-gray-800">{item.brand_name}</td>
                                 <td className="px-4 py-2 border-r  border-gray-800">{item.stock_quantity}</td>
