@@ -3,6 +3,7 @@ import TableComponent from "@/components/TableComponent";
 
 export interface AdminTab {
     id: string,
+    title?: string,
     fields: string[]
     dropdowns?: any
     readonly?: boolean
@@ -50,7 +51,7 @@ const AdminTabs: React.FC<ActiveTabsProps> = ({tabs, onSelectActiveTab}) => {
                                     className={`inline-block p-4 border-b-2 rounded-t-lg capitalize ${
                                         activeTab.id === tab.id ? activeTabClass : inactiveTabClass
                                     }`}
-                                >{tab.id.replace('-', ' ')}</a>
+                                >{tab.title ?? tab.id.replace('-', ' ')}</a>
                             </li>
                         ))}
                     </ul>
