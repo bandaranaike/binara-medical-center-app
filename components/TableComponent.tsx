@@ -21,6 +21,7 @@ import DeleteConfirm from "@/components/popup/DeleteConfirm";
 
 interface TableComponentProps {
     tab: AdminTab;
+    onLoaded?: (status: boolean) => void;
 }
 
 interface FormData {
@@ -29,7 +30,7 @@ interface FormData {
     id?: number;
 }
 
-export default function TableComponent({tab}: TableComponentProps) {
+export default function TableComponent({tab, onLoaded}: TableComponentProps) {
     const [data, setData] = useState<FormData[]>([]);
     const [formData, setFormData] = useState<FormData>({});
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -170,6 +171,11 @@ export default function TableComponent({tab}: TableComponentProps) {
     useEffect(() => {
         resetSearch()
     }, [filters]);
+
+
+    useEffect(() => {
+        if (onLoaded) onLoaded(loading)
+    }, [loading]);
 
     const toggleSelectRow = (id: number | string | undefined) => {
         const newSelectedRows = new Set(selectedRows);
