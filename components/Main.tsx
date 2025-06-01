@@ -18,6 +18,7 @@ import PharmacyAdminPortal from "@/components/pharmacy-admin/PharmacyAdminPortal
 import Welcome from "@/components/table/Welcome";
 import ReceptionAdmin from "@/components/reception/ReceptionAdmin";
 import CustomRadio from "@/components/form/CustomRadio";
+import Reports from "@/components/admin/Reports";
 
 interface Tab {
     id: string;
@@ -42,12 +43,13 @@ const Main = () => {
         {id: "services", label: "Treatments", component: <TreatmentsPortal/>, roles: ["reception"]},
         {id: "doctor-portal", label: "Doctor Portal", component: <DoctorsPatientQueue/>, roles: ["doctor"]},
         {id: "pharmacy-portal", label: "Pharmacy Portal", component: <PharmacyPortal/>, roles: ["pharmacy", "pharmacy_admin", "doctor"]},
+        {id: "stat-summary", label: "Stat Summary", component: <StatSummary/>, roles: ["admin"]},
         {id: "bookings", label: "Bookings", component: <Bookings/>, roles: ["reception", "admin"]},
         {id: "today-list", label: "Today List", component: <TodayList/>, roles: ["reception", "admin"]},
         {id: "reception-admin", label: "Reception Admin", component: <ReceptionAdmin/>, roles: ["reception"]},
-        {id: "stat-summary", label: "Stat Summary", component: <StatSummary/>, roles: ["admin"]},
         {id: "admin", label: "Admin", component: <Admin/>, roles: ["admin"]},
         {id: "pharmacy-admin", label: "Pharmacy Admin", component: <PharmacyAdminPortal/>, roles: ["pharmacy_admin", "admin"]},
+        {id: "reports", label: "Reports", component: <Reports/>, roles: ["admin"]},
         {id: "welcome", label: "Welcome", component: <Welcome/>, roles: ["patient"]},
     ];
 
