@@ -2,6 +2,7 @@ import React, {useState, useEffect} from 'react';
 import {AxiosError} from 'axios';
 import {format, subDays} from 'date-fns';
 import axios from "@/lib/axios";
+import printService from "@/lib/printService";
 
 interface ServiceCostItem {
     service_id: number;
@@ -49,6 +50,7 @@ const ServiceCostReport = () => {
         } catch (err) {
             const error = err as AxiosError;
             setError(
+                // @ts-ignore
                 error.response?.data?.message ||
                 error.message ||
                 'Failed to fetch report'
@@ -57,6 +59,33 @@ const ServiceCostReport = () => {
             setLoading(false);
         }
     };
+
+    const generateReport = async () => {
+        try {
+            // Step 1: Get report data from Laravel backend
+            const reportResponse = await axios.get('/reports/services-with-positive-system-amount', {
+                params: {
+                    start_date: dateRange.startDate,
+                    end_date: dateRange.endDate,
+                },
+            });
+
+            const reportData = reportResponse.data;
+
+            // Step 2: Send data to the local Python printer app using printService
+            try {
+                await printService.sendPrintSummaryRequest(reportData);
+                console.log('Report sent to printer successfully!');
+            } catch (e: any) {
+                console.error('Print error:', e);
+                console.log(`Printing error: ${e.message}`);
+            }
+        } catch (error: any) {
+            console.error('Fetch error:', error);
+            console.log(`Error: ${error.response?.data?.detail || error.message}`);
+        }
+    };
+
 
     useEffect(() => {
         fetchReport();
@@ -93,7 +122,9 @@ const ServiceCostReport = () => {
                     <h1 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Service Cost Report</h1>
                 </div>
                 <div className="">
-                    <button className='px-4 py-2 bg-blue-100 rounded text-blue-700 hover:bg-blue-200 dark:bg-blue-700 dark:text-blue-100 dark:hover:bg-blue-800'>Export</button>
+                    <button onClick={generateReport}
+                            className='px-4 py-2 bg-blue-100 rounded text-blue-700 hover:bg-blue-200 dark:bg-blue-700 dark:text-blue-100 dark:hover:bg-blue-800'>Export
+                    </button>
                 </div>
             </div>
 
