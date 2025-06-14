@@ -2,7 +2,8 @@ import React from "react";
 import {Booking} from "@/types/interfaces";
 
 const BookingsTable: React.FC<{
-    bookings: Booking[]; isTodayTab: boolean;
+    bookings: Booking[];
+    isTodayTab: boolean;
     handleShowBooking: (booking: Booking) => void;
     showDeleteConfirmation: (booking: Booking) => void;
 }> = ({bookings, handleShowBooking, showDeleteConfirmation}) => (

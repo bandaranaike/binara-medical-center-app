@@ -89,7 +89,7 @@ const withBillingComponent = <P extends object>(
                 axios.get(`doctor-availabilities/doctor/${doctorId}/get-dates`).then(response => {
                     const availableDates = response.data.map((dateData: { date: string }) => dateData.date);
                     setAvailableDates(availableDates)
-                    setDate(availableDates[0])
+                    if (!date) setDate(availableDates[0])
                 }).catch(error => {
                     console.error('Error fetching data:' + error.response.data.message);
                 });
