@@ -4,8 +4,8 @@ import {ArrowLeftIcon} from "@heroicons/react/24/solid";
 import {ArrowRightIcon, CalendarIcon} from "@heroicons/react/24/outline";
 
 interface DatePickerProps {
-    selectedDate?: Date | null;
-    onDateChange?: (date: Date | null) => void;
+    selectedDate?: Date | null | string; // Accepts Date object, null, or ISO date string
+    onDateChange?: (date: Date | null | string) => void;
     availableDates?: string[]; // Array of ISO date strings
     disabled?: boolean; // Array of ISO date strings
     hasDoctorLock?: boolean;
@@ -24,7 +24,8 @@ const AvailabilityDatePicker: React.FC<DatePickerProps> = ({selectedDate, onDate
 
     const handleDateClick = (date: Date) => {
         if ((hasDoctorLock && isDateAvailable(date)) || !hasDoctorLock) {
-            if (onDateChange) onDateChange(date);
+            console.log(date);
+            if (onDateChange) onDateChange(format(date, 'yyyy-MM-dd'));
             setIsOpen(false);
         }
     };
@@ -86,7 +87,7 @@ const AvailabilityDatePicker: React.FC<DatePickerProps> = ({selectedDate, onDate
                                         : 'cursor-pointer bg-purple-100 hover:bg-purple-200 dark:bg-purple-500 dark:bg-opacity-20 dark:hover:bg-opacity-40' // Default selectable state
                                 } 
                                 ${!isCurrentMonthDay
-                                    ? 'text-gray-400 dark:text-gray-500' // Not current month but selectable
+                                    ? 'text-gray-400 dark:text-gray-500' // Not the current month but selectable
                                     : 'text-gray-600  dark:text-gray-400'} 
                                 `}
                             onClick={() => !isDisabled && handleDateClick(cloneDay)}> {format(day, 'd')}</div>

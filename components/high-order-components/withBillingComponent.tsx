@@ -62,7 +62,7 @@ const withBillingComponent = <P extends object>(
         const [systemAmount, setSystemAmount] = useState(0);
         const [paymentType, setPaymentType] = useState<Option | null>({value: 'cash', label: 'Cash'})
 
-        const [date, setDate] = useState<Date | null>(new Date());
+        const [date, setDate] = useState<Date | null | string>(new Date());
         const [availableDates, setAvailableDates] = useState([]);
         const {shift} = useUserContext()
 
