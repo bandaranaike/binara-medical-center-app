@@ -24,7 +24,6 @@ const AvailabilityDatePicker: React.FC<DatePickerProps> = ({selectedDate, onDate
 
     const handleDateClick = (date: Date) => {
         if ((hasDoctorLock && isDateAvailable(date)) || !hasDoctorLock) {
-            console.log(date);
             if (onDateChange) onDateChange(format(date, 'yyyy-MM-dd'));
             setIsOpen(false);
         }

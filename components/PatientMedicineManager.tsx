@@ -63,6 +63,7 @@ const PatientMedicineManager: React.FC<PatientMedicineProps> = ({patientId, bill
 
 
     const handleCreateNewMedicationFrequency = (item: any) => {
+        console.log("item", item)
         setMedicationFrequency({label: item, value: "-1"})
     }
 
@@ -176,6 +177,7 @@ const PatientMedicineManager: React.FC<PatientMedicineProps> = ({patientId, bill
                                 onNotSelect={handleCreateNewMedicationFrequency}
                                 resetTrigger={medicineFrequencyResetter}
                                 placeholder={`Frequency`}
+                                creatable={true}
                             />
 
                         </div>
