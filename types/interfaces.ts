@@ -177,6 +177,7 @@ export interface PatientMedicineHistory {
 export interface Sale {
     id: number;
     quantity: number;
+    total_quantity: number;
     total_price: number;
     brand: {
         name: string;
