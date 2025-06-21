@@ -1,6 +1,5 @@
 import React, {useState, useEffect, useRef} from 'react';
 import axios from '@/lib/axios';
-import SearchableSelect from '@/components/form/SearchableSelect';
 import {HistoryItem, Option} from '@/types/interfaces';
 import Loader from "@/components/form/Loader";
 import {randomString} from "@/lib/strings";
@@ -260,7 +259,6 @@ const PatientMedicineManager: React.FC<PatientMedicineProps> = ({
                                     <th className="px-4 py-2 text-left">Frequency</th>
                                     <th className="px-4 py-2 text-left">Duration</th>
                                     <th className="px-4 py-2 text-left">Quantity</th>
-                                    <th className="px-4 py-2 text-left">Total Qty</th>
                                     <th className="px-4 py-2 text-left">Price</th>
                                     {editable && <th className="px-4 py-2 text-left w-16">Action</th>}
                                 </tr>
@@ -282,15 +280,8 @@ const PatientMedicineManager: React.FC<PatientMedicineProps> = ({
                                                 onChange={(e) => handleQuantityChange(e.target.value, medicine.id, medicine.sale.id)}
                                             />
                                             {quantityChangingId == medicine.id &&
-                                                <div className="absolute right-2 top-3"><Loader size={'w-4 h-4'}/>
-                                                </div>}
-                                        </td>
-                                        <td className="p-1 border-r border-gray-800 pr-4 relative">
-                                            <input
-                                                className="w-20 block px-2 py-1 border border-gray-700 rounded bg-gray-800 focus:outline-none focus:border-blue-600"
-                                                value={medicine.sale?.total_quantity}
-                                                onChange={(e) => handleTotalQuantityChange(e.target.value, medicine.id, medicine.sale.id)}
-                                            />
+                                                <span className="absolute right-2 top-3"><Loader
+                                                    size={'w-4 h-4'}/></span>}
                                         </td>
                                         <td className="px-4 py-2 border-r border-gray-800">{medicine.sale.total_price}</td>
                                         {editable && <td className="px-4 py-2">
