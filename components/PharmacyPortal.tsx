@@ -177,7 +177,6 @@ const PharmacyPortal: React.FC = () => {
                         <div className="mb-6">
                             {activeBill && (
                                 <Services
-                                    key="pharmacy-portal"
                                     patientId={activeBill.patient_id}
                                     onServiceStatusChange={handleOnServiceStatusChange}
                                     resetBillItems={false}

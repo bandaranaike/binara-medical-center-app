@@ -1,6 +1,5 @@
 import React, {useState, useEffect, useRef} from 'react';
 import axios from '@/lib/axios';
-import SearchableSelect from '@/components/form/SearchableSelect';
 import {HistoryItem, Option} from '@/types/interfaces';
 import Loader from "@/components/form/Loader";
 import {randomString} from "@/lib/strings";
@@ -17,7 +16,13 @@ interface PatientMedicineProps {
     onMedicineTotalChange?: (medicineTotal: number) => void;
 }
 
-const PatientMedicineManager: React.FC<PatientMedicineProps> = ({patientId, billId, onNewServiceAdded, editable = true, onMedicineTotalChange}) => {
+const PatientMedicineManager: React.FC<PatientMedicineProps> = ({
+                                                                    patientId,
+                                                                    billId,
+                                                                    onNewServiceAdded,
+                                                                    editable = true,
+                                                                    onMedicineTotalChange
+                                                                }) => {
     const [patientMedicineHistories, setPatientMedicineHistories] = useState<HistoryItem[]>([]);
     const [selectedMedicine, setSelectedMedicine] = useState<Option>();
     const [medicationFrequency, setMedicationFrequency] = useState<Option>();
@@ -154,6 +159,39 @@ const PatientMedicineManager: React.FC<PatientMedicineProps> = ({patientId, bill
         }, 800);
     };
 
+    const handleTotalQuantityChange = (value: string, id: number, saleId: number) => {
+        setPatientMedicineHistories(prevHistories =>
+            prevHistories.map(medicine =>
+                medicine.id === id ? {
+                    ...medicine,
+                    sale: {
+                        ...medicine.sale,
+                        total_quantity: Number(value)
+                    }
+                } : medicine
+            )
+        );
+
+        if (debounceRef.current) {
+            clearTimeout(debounceRef.current);
+        }
+
+        debounceRef.current = setTimeout(() => {
+            setQuantityChangingId(id);
+            axios.put(`/sales/update-total-quantity`, {
+                sale_id: saleId,
+                total_quantity: Number(value)
+            })
+                .then(() => {
+                    setHistoryUpdatedVersion(randomString());
+                })
+                .catch(error => {
+                    console.error('Error updating total quantity:', error);
+                });
+        }, 800);
+    };
+
+
     return (
         <div className="my-4">
             <div className="text-left">
@@ -215,57 +253,64 @@ const PatientMedicineManager: React.FC<PatientMedicineProps> = ({patientId, bill
                 </form>}
                 <div className="max-w-4xl">
                     <div className="relative overflow-x-auto sm:rounded-lg border border-gray-800">
-                        {(patientMedicineHistories.length > 0) && <table className="w-full text-sm text-left text-gray-400">
-                            <thead className="bg-gray-700">
-                            <tr className="bg-gray-800">
-                                <th className="px-4 py-2">Medicine/Treatment</th>
-                                <th className="px-4 py-2 text-left">Frequency</th>
-                                <th className="px-4 py-2 text-left">Duration</th>
-                                <th className="px-4 py-2 text-left">Quantity</th>
-                                <th className="px-4 py-2 text-left">Price</th>
-                                {editable && <th className="px-4 py-2 text-left w-16">Action</th>}
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {patientMedicineHistories && patientMedicineHistories.map((medicine: HistoryItem) => (
-                                <tr key={medicine.id} className="border-t border-gray-800">
-                                    <td className="px-4 py-2 border-r border-gray-800">
-                                        {medicine.sale.brand.name}
-                                        <span className="text-gray-500 text-xs pl-1">- {medicine.sale.brand.drug.name}</span>
-                                    </td>
-                                    <td className="px-4 py-2 border-r border-gray-800">{medicine.medication_frequency.name}</td>
-                                    <td className="px-4 py-2 border-r border-gray-800">{medicine.duration}</td>
-                                    <td className="p-1 border-r border-gray-800 pr-4 relative">
-                                        <input
-                                            className="w-16 block px-2 py-1 border border-gray-700 rounded bg-gray-800 focus:outline-none focus:border-blue-600"
-                                            value={medicine.sale?.quantity}
-                                            onChange={(e) => handleQuantityChange(e.target.value, medicine.id, medicine.sale.id)}
-                                        />
-                                        {quantityChangingId == medicine.id && <div className="absolute right-2 top-3"><Loader size={'w-4 h-4'}/></div>}
-                                    </td>
-                                    <td className="px-4 py-2 border-r border-gray-800">{medicine.sale.total_price}</td>
-                                    {editable && <td className="px-4 py-2">
-                                        <DeleteIcon
-                                            onClick={() => setDeleteId(medicine.id)}
-                                            className="mx-auto hover:text-red-500 cursor-pointer"
-                                        />
-                                    </td>}
+                        {(patientMedicineHistories.length > 0) &&
+                            <table className="w-full text-sm text-left text-gray-400">
+                                <thead className="bg-gray-700">
+                                <tr className="bg-gray-800">
+                                    <th className="px-4 py-2">Medicine/Treatment</th>
+                                    <th className="px-4 py-2 text-left">Frequency</th>
+                                    <th className="px-4 py-2 text-left">Duration</th>
+                                    <th className="px-4 py-2 text-left">Quantity</th>
+                                    <th className="px-4 py-2 text-left">Price</th>
+                                    {editable && <th className="px-4 py-2 text-left w-16">Action</th>}
                                 </tr>
-                            ))}
-                            </tbody>
-                        </table>}
+                                </thead>
+                                <tbody>
+                                {patientMedicineHistories && patientMedicineHistories.map((medicine: HistoryItem) => (
+                                    <tr key={medicine.id} className="border-t border-gray-800">
+                                        <td className="px-4 py-2 border-r border-gray-800">
+                                            {medicine.sale.brand.name}
+                                            <span
+                                                className="text-gray-500 text-xs pl-1">- {medicine.sale.brand.drug.name}</span>
+                                        </td>
+                                        <td className="px-4 py-2 border-r border-gray-800">{medicine.medication_frequency.name}</td>
+                                        <td className="px-4 py-2 border-r border-gray-800">{medicine.duration}</td>
+                                        <td className="p-1 border-r border-gray-800 pr-4 relative">
+                                            <input
+                                                className="w-16 block px-2 py-1 border border-gray-700 rounded bg-gray-800 focus:outline-none focus:border-blue-600"
+                                                value={medicine.sale?.quantity}
+                                                onChange={(e) => handleQuantityChange(e.target.value, medicine.id, medicine.sale.id)}
+                                            />
+                                            {quantityChangingId == medicine.id &&
+                                                <span className="absolute right-2 top-3"><Loader
+                                                    size={'w-4 h-4'}/></span>}
+                                        </td>
+                                        <td className="px-4 py-2 border-r border-gray-800">{medicine.sale.total_price}</td>
+                                        {editable && <td className="px-4 py-2">
+                                            <DeleteIcon
+                                                onClick={() => setDeleteId(medicine.id)}
+                                                className="mx-auto hover:text-red-500 cursor-pointer"
+                                            />
+                                        </td>}
+                                    </tr>
+                                ))}
+                                </tbody>
+                            </table>}
                         {count > 0 &&
                             <div className="border-t border-gray-800 p-4 font-semibold flex justify-between">
-                                <div className="text-sm text-gray-500"> {`${count} medicine${count > 1 ? 's' : ''}`} </div>
+                                <div
+                                    className="text-sm text-gray-500"> {`${count} medicine${count > 1 ? 's' : ''}`} </div>
                                 <div>Total : {total.toFixed(2)} </div>
                             </div>
                         }
-                        {(patientMedicineHistories.length == 0) && <div className="p-4 text-gray-500 text-xs text-center">Medicine list will appear here</div>}
+                        {(patientMedicineHistories.length == 0) &&
+                            <div className="p-4 text-gray-500 text-xs text-center">Medicine list will appear here</div>}
                     </div>
                     {loading && <div className="my-1 text-center"><Loader/></div>}
                     {!editable && <div className="text-sm text-gray-500 pt-6 flex gap-2 content-center items-center">
                         <InformationCircleIcon width={20} className="text-blue-800"/>
-                        List modifications require doctor authorization. Please return the list to the doctor for editing.
+                        List modifications require doctor authorization. Please return the list to the doctor for
+                        editing.
                     </div>}
                 </div>
             </div>

@@ -7,6 +7,7 @@ import Loader from "@/components/form/Loader";
 // import DoctorPatientMedicineHistory from "@/components/doctor/DoctorPatientMedicineHistory";
 import {DeleteIcon} from "@nextui-org/shared-icons";
 import PatientMedicineManager from "@/components/PatientMedicineManager";
+import Services from "@/components/Services";
 
 const DoctorPortal: React.FC = () => {
 
@@ -304,7 +305,16 @@ const DoctorPortal: React.FC = () => {
                     />
 
                     {activePatientBill &&
+                        <div>
                         <PatientMedicineManager patientId={activePatientId} billId={activePatientBill?.id.toString()}/>
+                            <Services
+                                patientId={activePatientBill.patient_id}
+                                onServiceStatusChange={handleOnServiceStatusChange}
+                                resetBillItems={false}
+                                initialBill={activePatientBill}
+                                showMedicineTable={true}
+                            ></Services>
+                        </div>
                     }
 
                     {/*<div className="border border-dashed rounded-xl p-3 min-h-48 my-6">*/}
