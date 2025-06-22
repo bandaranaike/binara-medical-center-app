@@ -69,6 +69,7 @@ const PatientMedicineManager: React.FC<PatientMedicineProps> = ({
 
 
     const handleCreateNewMedicationFrequency = (item: any) => {
+        console.log("item", item)
         setMedicationFrequency({label: item, value: "-1"})
     }
 

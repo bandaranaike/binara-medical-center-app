@@ -5,6 +5,12 @@ interface PrintItem {
     price: string;
 }
 
+interface PrintSummaryItem {
+    service_name: string;
+    quantity: string;
+    total: string;
+}
+
 export interface PrintRequest {
     bill_reference: string;
     payment_type: string;
@@ -13,6 +19,12 @@ export interface PrintRequest {
     doctor_name: string;
     items: PrintItem[];
     total: string;
+}
+
+export interface PrintSummaryRequest {
+    start_date: string;
+    end_date: string;
+    items: PrintSummaryItem[];
 }
 
 class PrintService {
@@ -36,6 +48,19 @@ class PrintService {
     async sendPrintRequest(printData: PrintRequest): Promise<void> {
         try {
             await this.axiosInstance.post("/print", printData);
+        } catch (error: any) {
+            throw error;
+        }
+    }
+
+    /**
+     * Sends a print request to the Python app for printing the summary
+     * @param printData - The data to send for printing
+     * @returns A promise with the server response
+     */
+    async sendPrintSummaryRequest(printData: PrintRequest): Promise<void> {
+        try {
+            await this.axiosInstance.post("/print-summary", printData);
         } catch (error: any) {
             throw error;
         }

@@ -47,7 +47,6 @@ const DoctorPatientHistory: React.FC<DoctorPatientHistoryProps> = ({patientId}) 
 
                 try {
                     // Send the new history to the API
-                    // Send the new history to the API
                     const response = await axios.post('/patients/add-history', {
                         note: newNote,
                         patient_id: patientId,

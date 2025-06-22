@@ -53,7 +53,8 @@ const withBillingComponent = <P extends object>(
 
         const [errors, setErrors] = useState<any>();
         const [billCreateError, setBillCreateError] = useState<string>("");
-        const [successMessage, setSuccessMessage] = useState<string>(""); // State for success message
+        const [billCreateWarning, setBillCreateWarning] = useState<string>("");
+        const [successMessage, setSuccessMessage] = useState<string>(""); // State for a success message
 
         const [isBooking, setIsBooking] = useState(false);
         const [isLoading, setIsLoading] = useState(false);
@@ -62,7 +63,7 @@ const withBillingComponent = <P extends object>(
         const [systemAmount, setSystemAmount] = useState(0);
         const [paymentType, setPaymentType] = useState<Option | null>({value: 'cash', label: 'Cash'})
 
-        const [date, setDate] = useState<Date | null>(new Date());
+        const [date, setDate] = useState<Date | null | string>(new Date());
         const [availableDates, setAvailableDates] = useState([]);
         const {shift} = useUserContext()
 
@@ -89,7 +90,7 @@ const withBillingComponent = <P extends object>(
                 axios.get(`doctor-availabilities/doctor/${doctorId}/get-dates`).then(response => {
                     const availableDates = response.data.map((dateData: { date: string }) => dateData.date);
                     setAvailableDates(availableDates)
-                    setDate(availableDates[0])
+                    if (!date) setDate(availableDates[0])
                 }).catch(error => {
                     console.error('Error fetching data:' + error.response.data.message);
                 });
@@ -204,6 +205,10 @@ const withBillingComponent = <P extends object>(
                     setBillNumber(data.bill_number);
                     setSuccessMessage(`Invoice #${data.bill_id} successfully generated! Queue id: ${data.queue_id}`);
 
+                    if (data.warning) {
+                        setBillCreateWarning(data.warning)
+                    }
+
                     if (["specialist", "dental"].includes(formData.service_type) && !isBooking) {
                         try {
                             await printService.sendPrintRequest({
@@ -220,7 +225,6 @@ const withBillingComponent = <P extends object>(
                             setBillCreateError(`Bill printing error: ${e.message}`)
                         }
                     }
-                    setTimeout(() => setSuccessMessage(""), 20000);
                     resetFormData()
                 }).catch(error => {
                     setBillCreateError(error.response.data.message);
@@ -228,7 +232,13 @@ const withBillingComponent = <P extends object>(
             } catch (error) {
                 console.error(error)
             } finally {
+                handleCheckboxChange(false)
                 setIsLoading(false)
+                setTimeout(() => {
+                    setSuccessMessage("");
+                    setBillCreateWarning("");
+                    setBillCreateError("");
+                }, 20000);
             }
         };
 
@@ -291,8 +301,9 @@ const withBillingComponent = <P extends object>(
                         <div className="text-lg mr-12"><span className="text-sm text-gray-400">Total : </span> {(systemAmount + billAmount).toFixed(2)}</div>
                     </div>
                     <div className="mt-3">
-                        {billCreateError && <span className="text-red-500 mr-4">{billCreateError}</span>}
-                        {successMessage && <span className="text-green-500 mr-4">{successMessage}</span>}
+                        {billCreateError && <div className="text-red-500 mr-4">{billCreateError}</div>}
+                        {billCreateWarning && <div className="text-yellow-500 mr-4">{billCreateWarning}</div>}
+                        {successMessage && <div className="text-green-500 mr-4">{successMessage}</div>}
                     </div>
                     <div className="flex items-center">
                         {isLoading && (<div className="mr-4 mt-1"><Loader/></div>)}

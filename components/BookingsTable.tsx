@@ -2,7 +2,8 @@ import React from "react";
 import {Booking} from "@/types/interfaces";
 
 const BookingsTable: React.FC<{
-    bookings: Booking[]; isTodayTab: boolean;
+    bookings: Booking[];
+    isTodayTab: boolean;
     handleShowBooking: (booking: Booking) => void;
     showDeleteConfirmation: (booking: Booking) => void;
 }> = ({bookings, handleShowBooking, showDeleteConfirmation}) => (
@@ -10,6 +11,7 @@ const BookingsTable: React.FC<{
         <table className="w-full text-sm text-left text-gray-400">
             <thead className="font-bold">
             <tr className="bg-gray-800">
+                <th className="px-4 py-4">Bill Id</th>
                 <th className="px-4 py-4">Booking Number</th>
                 <th className="px-4 py-4">Doctor Name</th>
                 <th className="px-4 py-4">Appointment Type</th>
@@ -22,6 +24,7 @@ const BookingsTable: React.FC<{
             <tbody>
             {bookings.map((booking) => (
                 <tr key={booking.id} className="border-t border-gray-800">
+                    <td className="px-4 py-2 border-r border-gray-800">{booking.id}</td>
                     <td className="px-4 py-2 border-r border-gray-800">{booking.queue_number}</td>
                     <td className="px-4 py-2 border-r border-gray-800">{booking.doctor_name ?? 'No doctor assigned'}</td>
                     <td className="px-4 py-2 border-r border-gray-800">{booking.appointment_type}</td>
