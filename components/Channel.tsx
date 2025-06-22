@@ -3,7 +3,6 @@ import TextInput from "@/components/form/TextInput";
 import {BillingPageProps, DoctorFee} from "@/types/interfaces";
 import withBillingComponent from "@/components/high-order-components/withBillingComponent";
 import DoctorSelect from "@/components/DoctorSelect";
-import SearchableSelectOrCreate from "@/components/form/SearchableSelectOrCreate";
 
 const Channel: React.FC<BillingPageProps> = ({handleFormChange, onDoctorNameChange, resetData, isBooking, doctorDate}) => {
     const [channelingFee, setChannelingFee] = useState("");
