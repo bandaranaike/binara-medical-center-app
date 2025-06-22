@@ -11,7 +11,7 @@ interface DoctorSelectProps {
     doctorType: string
     onDoctorSelect: (data: DoctorFee) => void;
     isBooking?: boolean
-    date?: Date | null
+    date?: Date | null | undefined | string;
 }
 
 const DoctorSelect: React.FC<DoctorSelectProps> = ({onDoctorSelect, resetSelection, doctorType, isBooking, date}) => {
