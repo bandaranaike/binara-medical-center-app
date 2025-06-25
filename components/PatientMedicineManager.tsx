@@ -264,7 +264,7 @@ const PatientMedicineManager: React.FC<PatientMedicineProps> = ({
                     {addMedicineError && <div className="text-red-500 mb-4">{addMedicineError}</div>}
                     {medicineFetchError && <div className="text-red-500">{medicineFetchError}</div>}
                 </form>}
-                <div className="max-w-4xl">
+                <div className="max-w-5xl">
                     <div className="relative overflow-x-auto sm:rounded-lg border border-gray-800">
                         {(patientMedicineHistories.length > 0) &&
                             <table className="w-full text-sm text-left text-gray-400">

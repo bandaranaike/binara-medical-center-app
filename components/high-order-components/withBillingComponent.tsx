@@ -56,6 +56,7 @@ const withBillingComponent = <P extends object>(
         const [successMessage, setSuccessMessage] = useState<string>(""); // State for success message
 
         const [isBooking, setIsBooking] = useState(false);
+        const [isTreatmentContinue, setIsTreatmentContinue] = useState(false);
         const [isLoading, setIsLoading] = useState(false);
         const [resetForm, setResetForm] = useState("");
         const [billAmount, setBillAmount] = useState(0);
@@ -173,6 +174,11 @@ const withBillingComponent = <P extends object>(
             handleFormChange('is_booking', checked);
         };
 
+        const handleTreatmentContinueChange = (checked: boolean) => {
+            setIsTreatmentContinue(checked)
+            handleFormChange('is_treatment_continue', checked);
+        };
+
         const resetFormData = () => {
             setFormData(defaultFormData)
             setResetForm(randomString());
@@ -236,7 +242,8 @@ const withBillingComponent = <P extends object>(
             <div className="bg-gray-900 text-white">
                 <div className="flex items-center mb-1 pb-4 mt-4 gap-5">
                     <div className="">
-                        {props.enableBooking && <CustomCheckbox label="Booking" checked={isBooking} setChecked={handleCheckboxChange}/>}
+                        {props.enableBooking &&
+                            <CustomCheckbox label="Booking" checked={isBooking} setChecked={handleCheckboxChange}/>}
                     </div>
                     <div className="flex gap-4 items-center content-center">
                         {props.enableBooking && <AvailabilityDatePicker
@@ -246,14 +253,20 @@ const withBillingComponent = <P extends object>(
                             selectedDate={date}
                             hasDoctorLock={!!formData.doctor_id}
                         />}
-                        {billNumber > 0 && <span className="text-lg">Bill No : <span className="font-bold">{billNumber}</span></span>}
+                        {billNumber > 0 &&
+                            <span className="text-lg">Bill No : <span className="font-bold">{billNumber}</span></span>}
                     </div>
                 </div>
                 <div className="grid grid-cols-3 gap-8">
                     <div>
                         <div className="border-b border-dashed border-gray-700 pb-6 mb-6 bg-gray-900">
                             <div className="mb-2">Search patient :</div>
-                            <SearchablePatientSelect onCreateNew={handlePatientOnCreate} onPatientSelect={handlePatientSelect}/>
+                            <SearchablePatientSelect onCreateNew={handlePatientOnCreate}
+                                                     onPatientSelect={handlePatientSelect}/>
+                        </div>
+                        <div className="my-4">
+                            <CustomCheckbox label="Is treatment continue?" setChecked={handleTreatmentContinueChange}
+                                            checked={isTreatmentContinue}/>
                         </div>
 
                         <div className="my-4">
@@ -271,7 +284,8 @@ const withBillingComponent = <P extends object>(
                         </div>
 
                         {errors && Object.keys(errors).map((errorKey) => (
-                            <span key={errorKey} className="text-red-500 mb-3 block first-letter:uppercase">{errors[errorKey]}</span>
+                            <span key={errorKey}
+                                  className="text-red-500 mb-3 block first-letter:uppercase">{errors[errorKey]}</span>
                         ))}
                     </div>
                     <div className="p-8 pb-5 col-span-2">
@@ -288,7 +302,9 @@ const withBillingComponent = <P extends object>(
 
                 <div className="flex justify-between mt-4">
                     <div className="flex items-center">
-                        <div className="text-lg mr-12"><span className="text-sm text-gray-400">Total : </span> {(systemAmount + billAmount).toFixed(2)}</div>
+                        <div className="text-lg mr-12"><span
+                            className="text-sm text-gray-400">Total : </span> {(systemAmount + billAmount).toFixed(2)}
+                        </div>
                     </div>
                     <div className="mt-3">
                         {billCreateError && <span className="text-red-500 mr-4">{billCreateError}</span>}
@@ -301,13 +317,18 @@ const withBillingComponent = <P extends object>(
                             <Select
                                 instanceId="PaymentTypeSelect"
                                 placeholder="Payment Type"
-                                options={[{label: 'Cash', value: 'cash'}, {label: 'Card', value: 'card'}, {label: 'Online', value: 'online'}]}
+                                options={[{label: 'Cash', value: 'cash'}, {
+                                    label: 'Card',
+                                    value: 'card'
+                                }, {label: 'Online', value: 'online'}]}
                                 styles={customStyles}
                                 value={paymentType}
                                 onChange={setPaymentType}
                             />
                         </div>
-                        <button className={`text-white px-5 py-2 rounded-md w-60 ${isBooking ? 'bg-blue-700' : 'bg-green-700'}`} onClick={createInvoiceBill}>
+                        <button
+                            className={`text-white px-5 py-2 rounded-md w-60 ${isBooking ? 'bg-blue-700' : 'bg-green-700'}`}
+                            onClick={createInvoiceBill}>
                             {isBooking ? 'Create a booking' : 'Create invoice and print'}
                         </button>
                     </div>
