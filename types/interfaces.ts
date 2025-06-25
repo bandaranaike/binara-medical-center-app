@@ -88,6 +88,7 @@ export interface History {
     id: number;
     date: string;
     note: string;
+    doctor: Doctor;
 }
 
 export interface HistoryItem {
