@@ -13,6 +13,7 @@ import AvailabilityDatePicker from "@/components/form/AvailabilityDatePicker";
 import debounce from "lodash.debounce";
 import axios from "@/lib/axios";
 import {useUserContext} from "@/context/UserContext";
+import OldBillContinue from "@/components/reception/OldBillContinue";
 
 interface WithBillingComponentProps {
     validation: any;
@@ -57,7 +58,7 @@ const withBillingComponent = <P extends object>(
         const [successMessage, setSuccessMessage] = useState<string>(""); // State for a success message
 
         const [isBooking, setIsBooking] = useState(false);
-        const [isTreatmentContinue, setIsTreatmentContinue] = useState(false);
+        const [isPrinting, setIsPrinting] = useState(true);
         const [isLoading, setIsLoading] = useState(false);
         const [resetForm, setResetForm] = useState("");
         const [billAmount, setBillAmount] = useState(0);
@@ -131,6 +132,7 @@ const withBillingComponent = <P extends object>(
         const handleOnPatientCreateOrSelect = (patientData: Patient) => {
             setPatient(patientData)
             setPatientId(patientData.id);
+
             handleFormChange('patient_id', patientData.id);
             if (errors && errors.patient && patientData.id !== patientId) {
                 removeError('patient');
@@ -175,9 +177,12 @@ const withBillingComponent = <P extends object>(
             handleFormChange('is_booking', checked);
         };
 
-        const handleTreatmentContinueChange = (checked: boolean) => {
-            setIsTreatmentContinue(checked)
-            handleFormChange('is_treatment_continue', checked);
+        const handleIsPrintCheckboxChange = (checked: boolean) => {
+            setIsPrinting(checked)
+        };
+
+        const handleTreatmentContinueChange = (billId: number) => {
+            handleFormChange('bill_reference', billId);
         };
 
         const resetFormData = () => {
@@ -215,7 +220,7 @@ const withBillingComponent = <P extends object>(
                         setBillCreateWarning(data.warning)
                     }
 
-                    if (["specialist", "dental"].includes(formData.service_type) && !isBooking) {
+                    if (["specialist", "dental"].includes(formData.service_type) && !isBooking && isPrinting) {
                         try {
                             await printService.sendPrintRequest({
                                 bill_reference: data.bill_reference,
@@ -275,8 +280,8 @@ const withBillingComponent = <P extends object>(
                                                      onPatientSelect={handlePatientSelect}/>
                         </div>
                         <div className="my-4">
-                            <CustomCheckbox label="Is treatment continue?" setChecked={handleTreatmentContinueChange}
-                                            checked={isTreatmentContinue}/>
+                            <OldBillContinue disabled={!patient?.id} patientId={patient?.id}
+                                             onSelectReferredBillId={handleTreatmentContinueChange}/>
                         </div>
 
                         <div className="my-4">
@@ -337,10 +342,14 @@ const withBillingComponent = <P extends object>(
                                 onChange={setPaymentType}
                             />
                         </div>
+                        <div className="mr-6 flex items-center">
+                            <label className="mr-3 text-sm text-gray-400">Print bill ?</label>
+                            <CustomCheckbox checked={isPrinting} setChecked={handleIsPrintCheckboxChange}/>
+                        </div>
                         <button
                             className={`text-white px-5 py-2 rounded-md w-60 ${isBooking ? 'bg-blue-700' : 'bg-green-700'}`}
                             onClick={createInvoiceBill}>
-                            {isBooking ? 'Create a booking' : 'Create invoice and print'}
+                            {isBooking ? 'Create a booking' : isPrinting ? 'Create invoice and print' : 'Create invoice'}
                         </button>
                     </div>
                 </div>

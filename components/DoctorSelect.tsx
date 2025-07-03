@@ -1,5 +1,4 @@
 import React, {useEffect, useState} from "react";
-import SearchableSelect from "@/components/form/SearchableSelect";
 import {DoctorFee, Option} from "@/types/interfaces";
 import CreateNewDoctor from "@/components/CreateNewDoctor";
 import axiosLocal from "@/lib/axios";
