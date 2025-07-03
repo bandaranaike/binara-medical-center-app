@@ -66,7 +66,7 @@ const AdminTabs: React.FC<ActiveTabsProps> = ({tabs, onSelectActiveTab}) => {
                         )
                     }
                     {
-                        loading && <div className="p-6 my-24 min-w-max border-gray-800"><Loader/></div>
+                        (activeTab.id !== "summary" &&  loading) && <div className="p-6 my-24 min-w-max border-gray-800"><Loader/></div>
                     }
                 </div>
             </div>
