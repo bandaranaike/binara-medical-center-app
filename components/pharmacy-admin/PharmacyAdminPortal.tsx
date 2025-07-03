@@ -71,7 +71,8 @@ const PharmacyAdminPortal: React.FC = () => {
                     {label: "Batch number", value: 'batch_number'},
                     {label: "Supplier", value: 'supplier:name'},
                 ]
-            }
+            },
+            types: {expire_date: "date"}
         },
         {
             id: "suppliers",

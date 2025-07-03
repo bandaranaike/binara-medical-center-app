@@ -14,7 +14,8 @@ export interface AdminTab {
         options: { value: string, label: string }[],
         types?: any
     },
-    labels?: string[]
+    labels?: string[],
+    types?: { [key: string]: string },
 }
 
 export interface AdminTabActions {
