@@ -20,6 +20,7 @@ export interface SearchableSelectProps {
     options?: Option[];
     resetValue?: boolean
     extraParams?: any
+    className?: string
 }
 
 const SearchableSelect: React.FC<SearchableSelectProps> = (
@@ -33,7 +34,8 @@ const SearchableSelect: React.FC<SearchableSelectProps> = (
         value,
         resetValue,
         onExtraDataHas,
-        extraParams
+        extraParams,
+        className = 'mb-4'
     }) => {
     const [selectedValue, setSelectedValue] = useState<Option | undefined>(value);
     const [extraData, setExtraData] = useState<any>();
@@ -99,7 +101,7 @@ const SearchableSelect: React.FC<SearchableSelectProps> = (
     };
 
     return (
-        <div className="mb-4">
+        <div className={className}>
             <label className="flex-grow-1">
                 <span className="block mb-2 first-letter:uppercase">{placeholder}</span>
                 <AsyncCreatableSelect

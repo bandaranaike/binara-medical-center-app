@@ -80,7 +80,8 @@ const Admin = () => {
                 ],
                 types: {date: "date"}
             },
-            labels: ['status']
+            labels: ['status'],
+            types: {date: "date"}
         },
         {
             id: "roles", fields: ["name", "key", "description"],

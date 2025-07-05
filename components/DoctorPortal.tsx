@@ -209,7 +209,7 @@ const DoctorPortal: React.FC = () => {
                                 } rounded-t-lg`}
                                 onClick={() => setActiveItems(patientBill)}
                             >
-                                #{patientBill.queue_number}
+                                #{patientBill.queue_number}-{patientBill.id}
                             </button>
                         </li>
                     ))}
@@ -314,7 +314,7 @@ const DoctorPortal: React.FC = () => {
                     />
 
                     {activePatientBill &&
-                        <div className="flex gap-6 mb-12">
+                        <div className="grid grid-cols-2 gap-6 mb-12">
                             <PatientMedicineManager
                                 onMedicineTotalChange={setMedicineTotal}
                                 patientId={activePatientId}
