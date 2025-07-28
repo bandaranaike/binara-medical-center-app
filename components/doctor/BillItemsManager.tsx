@@ -59,7 +59,7 @@ const BillItemsManager: React.FC<Props> = ({billId, medicineTotal}) => {
 
     const handleAdd = () => {
         setError("");
-        if (!selectedService || !servicePrice) {
+        if ((selectedService && selectedService.value !== '-1') || !selectedService || !servicePrice) {
             setError("Please select a service and enter fee.");
             return;
         }

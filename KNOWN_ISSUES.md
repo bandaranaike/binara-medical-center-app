@@ -10,11 +10,11 @@ The minimum stock level should be coming to the drug, not the brand
 
 Services do not have the search functionality.
  
-Treatments should be able to be created in the doctor's area.
+Treatments should be able to be created in the doctor's area. - done
 
-Total in the doctor's service is not working.
+Total in the doctor's service is not working. - done
 
-Need a button to send directly to reception from the doctor area.
+Need a button to send directly to reception from the doctor area. -done
 
-Doctor medicine adding is not working. 
+Doctor medicine adding is not working. - done
 

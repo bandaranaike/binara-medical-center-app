@@ -168,7 +168,7 @@ const SearchableSelectOrCreate: React.FC<SearchableSelectOrCreateProps> = ({apiU
                     {(creatable && onNotSelect && query && !selectedValue) && <li
                         key={0}
                         className={`p-2 hover:bg-gray-700 cursor-pointer text-gray-400 border-b border-gray-700 last:border-b-0`}
-                        onClick={() => onNotSelect(query)}
+                        onPointerDown={() => onNotSelect(query)}
                     >
                         Create <span className="italic">{query}</span>
                     </li>}
