@@ -174,12 +174,12 @@ const DoctorPortal: React.FC = () => {
         }
     };
 
-    const changeBillStatus = () => {
+    const changeBillStatus = (status = 'pharmacy') => {
         setLoading(true)
         try {
             setStatusChangeError("")
             axios.put(`/bills/${activePatientBill?.id}/status`, {
-                status: 'pharmacy',
+                status,
             }).then(() => {
                 setPatientBillsChanged((prev) => !prev);
             }).catch(error => {
@@ -328,7 +328,11 @@ const DoctorPortal: React.FC = () => {
                     }
                     <div className="flex justify-end">
                         {statusChangeError && <div className="text-red-500 mx-6 p-2">{statusChangeError}</div>}
-                        <button onClick={changeBillStatus}
+                        <button onClick={() => changeBillStatus('reception')}
+                                className="border-blue-600 border rounded px-4 py-2 bg-blue-700 text-gray-200 mr-4">Send to
+                            Reception
+                        </button>
+                        <button onClick={() => changeBillStatus()}
                                 className="border-green-600 border rounded px-4 py-2 bg-green-700 text-gray-200">Send to
                             pharmacy
                         </button>

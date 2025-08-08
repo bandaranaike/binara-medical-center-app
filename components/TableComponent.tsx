@@ -48,9 +48,10 @@ export default function TableComponent({tab, onLoaded}: TableComponentProps) {
     const [searchType, setSearchType] = useState('');
     const [selectAll, setSelectAll] = useState(false);
     const [selectedRows, setSelectedRows] = useState(new Set());
+    const [searchValue, setSearchValue] = useState<string>("")
+    const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState<boolean>(false)
 
     const {id: apiUrl, fields, dropdowns, select, actions, filters, labels, types, readonly = false} = tab;
-
 
     useEffect(() => {
         setData([])
@@ -76,11 +77,8 @@ export default function TableComponent({tab, onLoaded}: TableComponentProps) {
                 console.error(error);
             }
         }, 50),
-        [apiUrl, currentPage, searchField] // Dependencies
+        [apiUrl, currentPage, searchField, searchValue] // Dependencies
     );
-
-    const [searchValue, setSearchValue] = useState<string>("")
-    const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState<boolean>(false)
 
     useEffect(() => {
         setCurrentPage(1)
@@ -119,7 +117,7 @@ export default function TableComponent({tab, onLoaded}: TableComponentProps) {
         try {
             await axios.delete(`${apiUrl}/${id}`);
             setLoading(true);
-            fetchData();
+            fetchData(searchValue);
             setIsDeleteDialogOpen(false);
         } catch (error) {
             setDeleteError('Error deleting record' + error);
@@ -204,9 +202,10 @@ export default function TableComponent({tab, onLoaded}: TableComponentProps) {
         if (filters?.options) setSearchField(filters?.options[0].value)
         setSearchType("")
         setSearchValue("")
-        fetchData();
+        fetchData("");
     };
     const handleSearchChange = (searchValue: string) => {
+        console.log("Search value 4", searchValue)
         setSearchValue(searchValue)
         debounceSearchOnTable(searchValue)
     };
@@ -404,7 +403,7 @@ export default function TableComponent({tab, onLoaded}: TableComponentProps) {
 
             {showBulkDeleteConfirm &&
                 <DeleteConfirm
-                    onDeleteSuccess={fetchData}
+                    onDeleteSuccess={() => fetchData(searchValue)}
                     deleteApiUrl={apiUrl}
                     deleteId={Array.from(selectedRows)}
                     onClose={() => setShowBulkDeleteConfirm(false)}

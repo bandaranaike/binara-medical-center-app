@@ -36,19 +36,23 @@ const BillItemsManager: React.FC<Props> = ({billId, medicineTotal}) => {
         fetchBillItems();
     }, [billId, medicineTotal]);
 
+    useEffect(() => {
+        calculateTotal();
+    }, [billItems]);
+
     const fetchBillItems = () => {
         axios
             .get(`bills/${billId}/bill-items`)
             .then(res => setBillItems(res.data))
             .catch(() => setBillItems([]))
-            .finally(() => {
-                const total = billItems.reduce(
-                    (acc, item) => acc + parseFloat(item.bill_amount) + parseFloat(item.system_amount),
-                    0
-                );
-                setTotal(total);
-            });
     };
+
+    const calculateTotal = () => {
+        const total = billItems.reduce((acc, item) => {
+            return acc + parseFloat(item.bill_amount) + parseFloat(item.system_amount);
+        }, 0);
+        setTotal(total);
+    }
 
     const handleServiceChange = (option: Option) => {
         const [bill, system] = option.extra?.split('-') ?? ["", ""];
