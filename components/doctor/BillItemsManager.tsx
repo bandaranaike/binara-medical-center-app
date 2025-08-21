@@ -119,13 +119,13 @@ const BillItemsManager: React.FC<Props> = ({billId, medicineTotal}) => {
         <div className="mt-4">
             <div className="grid grid-cols-5 gap-4 items-end mb-4">
                 <div className="col-span-2">
-                    <label className="block mb-2 text-left">Service:</label>
+                    <label className="block mb-2 text-left">Treatment:</label>
                     <SearchableSelectOrCreate
                         resetTrigger={resetTrigger}
                         apiUri="services"
                         onSelect={handleServiceChange}
                         onNotSelect={label => setSelectedService({label, value: "-1"})}
-                        placeholder="Select service"
+                        placeholder="Select treatment"
                         creatable
                     />
                 </div>
