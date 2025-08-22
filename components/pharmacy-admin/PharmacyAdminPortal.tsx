@@ -11,6 +11,7 @@ export interface DrugStockSaleData {
     sale_quantity: number,
     unit_price: number,
     cost: number
+    minimum_quantity: number
     expire_date: string
 }
 
@@ -21,7 +22,6 @@ const PharmacyAdminPortal: React.FC = () => {
     const [stockError, setStockError] = useState<string | null>(null);
 
     const tabs: AdminTab[] = [
-        {id: "summary", fields: []},
         {
             id: "categories",
             fields: ["name"],
@@ -31,6 +31,7 @@ const PharmacyAdminPortal: React.FC = () => {
         },
         {
             id: "drugs",
+            title: "Drugs Generic Names",
             fields: ["category", "name", "minimum_quantity"],
             dropdowns: {category: 'categories'},
             filters: {
@@ -42,6 +43,7 @@ const PharmacyAdminPortal: React.FC = () => {
         },
         {
             id: "brands",
+            title: "Drug Brands",
             fields: ["drug", "name"],
             dropdowns: {drug: 'drugs'},
             filters: {
@@ -52,17 +54,8 @@ const PharmacyAdminPortal: React.FC = () => {
             }
         },
         {
-            id: "sales",
-            fields: ["brand", "bill_id", "quantity", "total_price", "brand_id"],
-            dropdowns: {brand: 'brands'},
-            filters: {
-                options: [
-                    {label: "Brand", value: 'brand:name'},
-                ]
-            }
-        },
-        {
             id: "stocks",
+            title: "Drug Brand Stocks",
             fields: ["brand", "supplier", "unit_price", "batch_number", "initial_quantity", "quantity", "expire_date", "cost"],
             dropdowns: {supplier: 'suppliers', brand: "brands"},
             filters: {
@@ -81,6 +74,17 @@ const PharmacyAdminPortal: React.FC = () => {
                 options: [{label: "Name", value: "name"}],
             }
         },
+        {
+            id: "sales",
+            fields: ["brand", "bill_id", "quantity", "total_price", "brand_id"],
+            dropdowns: {brand: 'brands'},
+            filters: {
+                options: [
+                    {label: "Brand", value: 'brand:name'},
+                ]
+            }
+        },
+        {id: "summary", fields: []},
     ];
 
     const [activeTab, setActiveTab] = useState<string>("");
@@ -127,7 +131,11 @@ const PharmacyAdminPortal: React.FC = () => {
                             <tr key={`${item.id}-${item.brand_name}`} className="border-t border-gray-800">
                                 <td className="px-4 py-2 border-r border-gray-800">{item.drug_name}</td>
                                 <td className="px-4 py-2 border-r border-gray-800">{item.brand_name}</td>
-                                <td className="px-4 py-2 border-r  border-gray-800">{item.stock_quantity}</td>
+                                <td className="px-4 py-2 border-r  border-gray-800">
+                                    {item.minimum_quantity >= item.stock_quantity && (<span><span
+                                        className="text-red-500">{item.stock_quantity}</span><span
+                                        className="text-xs text-gray-600">  (min {item.minimum_quantity})</span></span>) || item.stock_quantity}
+                                </td>
                                 <td className="px-4 py-2 border-r border-gray-800">{item.sale_quantity}</td>
                                 <td className="px-4 py-2 border-r border-gray-800">{item.unit_price}</td>
                                 <td className="px-4 py-2 border-r border-gray-800">{item.cost}</td>
