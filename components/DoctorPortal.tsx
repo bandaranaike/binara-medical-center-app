@@ -226,7 +226,7 @@ const DoctorPortal: React.FC = () => {
             {(patientsBills.length > 0 &&
                 <div className="mt-6 mx-3">
                     <div className="my-3 bg-gray-900 grid grid-cols-3 gap-3 text-left">
-                        <div className="border border-gray-800 rounded-lg py-4 px-5">
+                        <div className="border border-gray-800 rounded-lg py-4 px-5 col-span-2">
                             {activePatientBill && (
                                 <div>
                                     <div className="font-bold text-2xl mb-2">{activePatientBill.patient.name}</div>
@@ -237,41 +237,41 @@ const DoctorPortal: React.FC = () => {
                                 </div>
                             )}
                         </div>
-                        <div className="border border-gray-800 rounded-lg">
-                            <h3 className="font-bold text-xl border-b border-gray-800 px-4 py-3 flex justify-between items-center">
-                                Allergies
-                            </h3>
-                            <div className="px-3 mt-3">
-                                <SearchableSelect
-                                    placeholder="Add Allergy"
-                                    apiUri="allergies"
-                                    id="allergy"
-                                    value={allergy}
-                                    onChange={(item: any) => handleAddAllergy(item.label)}
-                                    onCreateOption={(value: any) => handleAddAllergy(value)}
-                                />
-                            </div>
-                            {activePatientBill && (activePatientBill.patient.allergies?.length || 0) > 0 ? (
-                                <ul key={activePatientBill.id} className="px-2 pb-2 ml-2">
-                                    {activePatientBill.patient.allergies?.map((allergy, index) => (
-                                        <li className="mb-1 flex content-center" key={index}>
-                                            {allergy.name}
-                                            <button
-                                                className="ml-2 hover:text-red-600 font-bold"
-                                                onClick={() => handleRemoveAllergy(allergy.id)}
-                                            >
-                                                <DeleteIcon/>
-                                            </button>
-                                        </li>
-                                    ))}
-                                </ul>
-                            ) : (
-                                <p className="p-3">No allergies listed.</p>
-                            )
-                            }
-                            {allergyAlreadyHaveMessage &&
-                                <div className="text-yellow-400 text-sm px-3 pb-3">{allergyAlreadyHaveMessage}</div>}
-                        </div>
+                        {/*<div className="border border-gray-800 rounded-lg">*/}
+                        {/*    <h3 className="font-bold text-xl border-b border-gray-800 px-4 py-3 flex justify-between items-center">*/}
+                        {/*        Allergies*/}
+                        {/*    </h3>*/}
+                        {/*    <div className="px-3 mt-3">*/}
+                        {/*        <SearchableSelect*/}
+                        {/*            placeholder="Add Allergy"*/}
+                        {/*            apiUri="allergies"*/}
+                        {/*            id="allergy"*/}
+                        {/*            value={allergy}*/}
+                        {/*            onChange={(item: any) => handleAddAllergy(item.label)}*/}
+                        {/*            onCreateOption={(value: any) => handleAddAllergy(value)}*/}
+                        {/*        />*/}
+                        {/*    </div>*/}
+                        {/*    {activePatientBill && (activePatientBill.patient.allergies?.length || 0) > 0 ? (*/}
+                        {/*        <ul key={activePatientBill.id} className="px-2 pb-2 ml-2">*/}
+                        {/*            {activePatientBill.patient.allergies?.map((allergy, index) => (*/}
+                        {/*                <li className="mb-1 flex content-center" key={index}>*/}
+                        {/*                    {allergy.name}*/}
+                        {/*                    <button*/}
+                        {/*                        className="ml-2 hover:text-red-600 font-bold"*/}
+                        {/*                        onClick={() => handleRemoveAllergy(allergy.id)}*/}
+                        {/*                    >*/}
+                        {/*                        <DeleteIcon/>*/}
+                        {/*                    </button>*/}
+                        {/*                </li>*/}
+                        {/*            ))}*/}
+                        {/*        </ul>*/}
+                        {/*    ) : (*/}
+                        {/*        <p className="p-3">No allergies listed.</p>*/}
+                        {/*    )*/}
+                        {/*    }*/}
+                        {/*    {allergyAlreadyHaveMessage &&*/}
+                        {/*        <div className="text-yellow-400 text-sm px-3 pb-3">{allergyAlreadyHaveMessage}</div>}*/}
+                        {/*</div>*/}
                         <div className="border border-gray-800 rounded-lg">
                             <h3 className="font-bold text-xl border-b border-gray-800 px-4 py-3 flex justify-between items-center">
                                 Diseases

@@ -90,6 +90,7 @@ const DoctorSelect: React.FC<DoctorSelectProps> = ({onDoctorSelect, resetSelecti
                     onSelect={handleDoctorChangeOption}
                     onNotSelect={handleOpenCreateDoctor}
                     apiUri={'doctors'}
+                    resetTrigger={resetSelection}
                     creatable={true}
                 />
             </div>

@@ -16,7 +16,8 @@ const SearchablePatientSelect: React.FC<SearchablePatientSelectProps> = ({onPati
     const [error, setError] = useState<string | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const listRef = useRef<HTMLUListElement>(null); // Reference to the <ul>
-    const [selectedIndex, setSelectedIndex] = useState(-1); // Track the selected item index
+    const [selectedIndex, setSelectedIndex] = useState(-1);
+    const [showFilteredPatients, setShowFilteredPatients] = useState<boolean>(false) // Track the selected item index
 
     useEffect(() => {
         if (query.trim() === "") {
@@ -30,6 +31,7 @@ const SearchablePatientSelect: React.FC<SearchablePatientSelectProps> = ({onPati
             setLoading(true);
             setError(null);
             setFilteredPatients([]);
+            setShowFilteredPatients(true)
 
             try {
                 const response = await axios.get(`/patients/search`, {
@@ -97,6 +99,7 @@ const SearchablePatientSelect: React.FC<SearchablePatientSelectProps> = ({onPati
     const selectPatientFromList = (patient: Patient) => {
         onPatientSelect(patient);
         setFilteredPatients([]);
+        setShowFilteredPatients(false)
     };
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -168,7 +171,7 @@ const SearchablePatientSelect: React.FC<SearchablePatientSelectProps> = ({onPati
                     </li>
                 </ul>
             )}
-            {filteredPatients && filteredPatients.length > 1 && (
+            {showFilteredPatients && filteredPatients && filteredPatients.length > 1 && (
                 <div className="border border-gray-700 bg-gray-800 rounded my-4 text-gray-400">
                     <div className="border-b border-gray-700 px-4 py-3">
                         There are {filteredPatients.length} patients for this user

@@ -112,8 +112,8 @@ const PatientMedicineManager: React.FC<PatientMedicineProps> = ({
                 setDuration("");
                 setQuantity("");
             }).catch(error => {
-                setAddMedicineError('Error adding medicine: ' + error.response.data.message)
-            });
+                setAddMedicineError('Error: ' + error.response.data.message)
+            }).finally(() => setLoading(false));
 
 
         } catch (error) {

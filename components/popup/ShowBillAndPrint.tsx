@@ -14,7 +14,13 @@ interface ShowBillAndPrintProps {
     status: string
 }
 
-const ShowBillAndPrint: FC<ShowBillAndPrintProps> = ({selectedBooking, onRemoveSelectedBooking, onCloseBooking, onConverted, status}) => {
+const ShowBillAndPrint: FC<ShowBillAndPrintProps> = ({
+                                                         selectedBooking,
+                                                         onRemoveSelectedBooking,
+                                                         onCloseBooking,
+                                                         onConverted,
+                                                         status
+                                                     }) => {
 
     const [isConverting, setIsConverting] = useState(false);
     const [printingError, setPrintingError] = useState("");
@@ -92,7 +98,8 @@ const ShowBillAndPrint: FC<ShowBillAndPrintProps> = ({selectedBooking, onRemoveS
                             </p>
                             <p className='pb-1'>
                                 <span>Doctor Name: </span>
-                                <span className='text-green-500 font-semibold'>{selectedBooking.doctor_name ?? 'No doctor assigned.'}</span>
+                                <span
+                                    className='text-green-500 font-semibold'>{selectedBooking.doctor_name ?? 'No doctor assigned.'}</span>
                             </p>
                             <p className='pb-1'>
                                 <span>Appointment Type: </span>
@@ -118,7 +125,8 @@ const ShowBillAndPrint: FC<ShowBillAndPrintProps> = ({selectedBooking, onRemoveS
                             </p>
                             <p className='pb-1'>
                                 <span>Bill Status: </span>
-                                <span className='text-green-500 font-semibold'>{selectedBooking.bill_id ? "Created" : "Not Created"}</span>
+                                <span
+                                    className='text-green-500 font-semibold'>{selectedBooking.bill_id ? "Created" : "Not Created"}</span>
                             </p>
                             {printingError && <div className="text-red-500 my-3">{printingError}</div>}
                             <div className="flex gap-3 mt-4 items-center justify-end">
@@ -128,9 +136,10 @@ const ShowBillAndPrint: FC<ShowBillAndPrintProps> = ({selectedBooking, onRemoveS
                                     className="rounded bg-blue-800 text-white px-3 py-2"
                                     onClick={() => handleConvertBill(selectedBooking)}
                                 >
-                                    {selectedBooking.status == "done" ? "Print the bill" : (status == "done" ? "Mark as done" : "Confirm the payment and create bill")}
+                                    {selectedBooking.status == "done" ? "Print the bill" : (status == "done" ? (printBill ? "Mark as done and Print Bill" : "Mark as done") : "Confirm the payment and create bill")}
                                 </button>
-                                <button className="rounded bg-gray-600 text-white px-3 py-2" onClick={() => onCloseBooking()}>
+                                <button className="rounded bg-gray-600 text-white px-3 py-2"
+                                        onClick={() => onCloseBooking()}>
                                     Cancel
                                 </button>
                             </div>
