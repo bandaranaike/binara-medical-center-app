@@ -24,7 +24,6 @@ const ExportSummaryReport = () => {
             // Step 2: Send data to the local Python printer app using printService
             try {
                 await printService.sendPrintSummaryRequest(reportData);
-                console.log('Report sent to printer successfully!');
             } catch (e: any) {
                 console.error('Print error:', e);
                 console.log(`Printing error: ${e.message}`);

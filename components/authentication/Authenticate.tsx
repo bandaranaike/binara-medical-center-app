@@ -31,7 +31,7 @@ const Authenticate: React.FC<{ onLoginStatusChange: (loggedUser: LoggedUser) => 
                 <div className="relative rounded-lg shadow bg-gray-800">
                     <div className="w-full">
                         {/* Tabs */}
-                        <div className="flex border-b border-gray-700 text-lg px-4 text-sm">
+                        <div className="flex border-b border-gray-700 px-4 text-sm">
                             {tabs.map(tab => (
                                 <button
                                     key={tab.key}

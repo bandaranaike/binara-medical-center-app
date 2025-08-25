@@ -53,7 +53,7 @@ const Admin = () => {
         {
             id: "doctors-schedules",
             fields: ["doctor", "weekday", "recurring", "status", "time", "seats"],
-            dropdowns: {doctor: 'doctors'},
+            dropdowns: {doctor: 'doctors-all'},
             select: {
                 weekday: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
                 recurring: ['Daily', 'Weekly', 'Bi-Weekly', 'Monthly', 'Bi-Monthly', 'Quarterly', 'Yearly', 'Once', 'As Needed', 'Variable'],
@@ -71,7 +71,7 @@ const Admin = () => {
         {
             id: "doctors-availabilities",
             fields: ['doctor', 'time', 'date', 'seats', 'available_seats', 'status'],
-            dropdowns: {doctor: "doctors"},
+            dropdowns: {doctor: "doctors-all"},
             select: {status: ['active', 'canceled']},
             filters: {
                 options: [

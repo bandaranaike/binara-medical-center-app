@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from "react";
 import TableComponent from "@/components/TableComponent";
 import Loader from "@/components/form/Loader";
+import Link from "next/link";
 
 export interface AdminTab {
     id: string,
@@ -48,13 +49,13 @@ const AdminTabs: React.FC<ActiveTabsProps> = ({tabs, onSelectActiveTab}) => {
                     <ul className="flex flex-wrap -mb-px">
                         {tabs.length > 0 && tabs.map((tab) => (
                             <li className="me-2" key={tab.id}>
-                                <a
-                                    href="#"
+                                <Link
+                                    href={`/dashboard/admin/${tab.id}`}
                                     onClick={() => setActiveTab(tab)}
                                     className={`inline-block p-4 border-b-2 rounded-t-lg capitalize ${
                                         activeTab.id === tab.id ? activeTabClass : inactiveTabClass
                                     }`}
-                                >{tab.title ?? tab.id.replace('-', ' ')}</a>
+                                >{tab.title ?? tab.id.replace('-', ' ')}</Link>
                             </li>
                         ))}
                     </ul>

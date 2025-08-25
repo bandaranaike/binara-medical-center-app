@@ -37,7 +37,6 @@ const ShowBillAndPrint: FC<ShowBillAndPrintProps> = ({
                 onConverted(booking.id)
 
                 if (printBill) {
-                    console.log('Printing bill for booking:', booking.id);
                     const data = response.data;
                     const printData: PrintRequest = {
                         bill_id: booking.id,

@@ -1,3 +1,4 @@
+"use client"
 import React, {useState, useEffect, Fragment, useCallback} from 'react';
 import {Dialog, Transition, TransitionChild} from '@headlessui/react';
 import axios from "@/lib/axios";
@@ -205,7 +206,6 @@ export default function TableComponent({tab, onLoaded}: TableComponentProps) {
         fetchData("");
     };
     const handleSearchChange = (searchValue: string) => {
-        console.log("Search value 4", searchValue)
         setSearchValue(searchValue)
         debounceSearchOnTable(searchValue)
     };
