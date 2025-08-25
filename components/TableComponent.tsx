@@ -101,7 +101,7 @@ export default function TableComponent({tab, onLoaded}: TableComponentProps) {
 
     const dataSaveSucceed = () => {
         setLoading(true);
-        fetchData();
+        fetchData(searchValue);
         setIsCreateOrUpdateDialogOpen(false);
     }
 
