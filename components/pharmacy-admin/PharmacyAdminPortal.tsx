@@ -1,7 +1,8 @@
 import React, {useEffect, useState} from "react";
 import axios from "@/lib/axios";
 import Loader from "@/components/form/Loader";
-import AdminTabs, {AdminTab} from "@/components/admin/AdminTabs";
+import AdminTabs from "@/components/admin/AdminTabs";
+import {AdminTab} from "@/types/admin";
 
 export interface DrugStockSaleData {
     id: number,
@@ -43,7 +44,7 @@ const PharmacyAdminPortal: React.FC = () => {
             ,
             sort: {
                 name: {
-                    type: 'string', direction: 'up'
+                    type: 'string',
                 }
             }
         },

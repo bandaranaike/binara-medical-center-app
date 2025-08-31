@@ -1,6 +1,7 @@
 import React from "react";
-import AdminTabs, {AdminTab} from "@/components/admin/AdminTabs";
+import AdminTabs from "@/components/admin/AdminTabs";
 import axios from "@/lib/axios";
+import {AdminTab} from "@/types/admin";
 
 const Admin = () => {
     const createUserForDoctor = async (record: any) => {

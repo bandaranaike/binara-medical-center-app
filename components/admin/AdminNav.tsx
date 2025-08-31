@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import {usePathname} from "next/navigation";
-import type {AdminTab} from "@/components/admin/AdminTabs";
+import type {AdminTab} from "@/types/admin";
 
 export default function AdminNav({tabs, baseUrl = 'admin'}: { tabs: AdminTab[], baseUrl?: string }) {
     const pathname = usePathname();

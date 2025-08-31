@@ -1,5 +1,6 @@
 import React from "react";
-import AdminTabs, {AdminTab} from "@/components/admin/AdminTabs";
+import AdminTabs from "@/components/admin/AdminTabs";
+import {AdminTab} from "@/types/admin";
 
 const ReceptionAdmin = () => {
 
