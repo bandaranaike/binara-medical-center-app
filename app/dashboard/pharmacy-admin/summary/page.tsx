@@ -1,9 +1,11 @@
 "use client"
-import React, {useEffect, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import axios from "@/lib/axios";
 import Loader from "@/components/form/Loader";
 import {tabs} from "@/app/dashboard/pharmacy-admin/tabs";
 import AdminNav from "@/components/admin/AdminNav";
+import Pagination from "@/components/table/Pagination";
+import debounce from "lodash.debounce";
 
 export interface DrugStockSaleData {
     id: number,
@@ -22,25 +24,31 @@ const PharmacyAdminPortal: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [drugStockSaleData, setDrugStockSaleData] = useState<DrugStockSaleData[]>([]);
     const [stockError, setStockError] = useState<string | null>(null);
-
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(0);
 
     useEffect(() => {
         fetchDrugStockSaleData()
-    }, []);
+    }, [currentPage]);
 
-    const fetchDrugStockSaleData = async () => {
+    const handlePageChange = (page: number) => {
+        setLoading(true)
+        setCurrentPage(page);
+    };
 
+    const fetchDrugStockSaleData = useCallback(debounce(async () => {
         setLoading(true);
         setStockError(null);
         try {
-            const response = await axios.get("/drugs/stock-sale-data");
-            setDrugStockSaleData(response.data);
+            const response = await axios.get(`/drugs/stock-sale-data?page=${currentPage}`);
+            setDrugStockSaleData(response.data.data);
+            setTotalPages(response.data.last_page);
         } catch (err) {
             setStockError("Failed to load drugs details. Please try again. " + err);
         } finally {
             setLoading(false);
         }
-    };
+    }, 50), [currentPage]);
 
     return (
         <div>
@@ -76,6 +84,16 @@ const PharmacyAdminPortal: React.FC = () => {
                     ))}
                     </tbody>
                 </table>
+                {totalPages > 1 &&
+                    <div className="p-6 border-t border-gray-800">
+                        <Pagination
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            onPageChange={handlePageChange}
+                        />
+                    </div>
+                }
+
                 <div>
                     {!loading && !stockError && drugStockSaleData.length === 0 &&
                         <div className="p-6 text-center text-gray-500">No drug stock sales data found</div>
