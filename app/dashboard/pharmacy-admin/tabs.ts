@@ -1,4 +1,4 @@
-import {AdminTab} from "@/components/admin/AdminTabs";
+import {AdminTab} from "@/types/admin";
 
 export const tabs: AdminTab[] = [
     {

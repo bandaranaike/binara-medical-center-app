@@ -1,7 +1,7 @@
 "use client";
 
-import type { AdminTab } from "@/components/admin/AdminTabs";
 import axios from "@/lib/axios";
+import {AdminTab} from "@/types/admin";
 
 const createUserForDoctor = async (record: any) => {
     return axios.post("users/create-from-doctor", { doctor_id: record.id });
