@@ -40,6 +40,12 @@ const PharmacyAdminPortal: React.FC = () => {
                     {label: "Name", value: 'name'},
                 ]
             }
+            ,
+            sort: {
+                name: {
+                    type: 'string', direction: 'up'
+                }
+            }
         },
         {
             id: "brands",

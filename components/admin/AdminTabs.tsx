@@ -2,27 +2,7 @@ import React, {useEffect, useState} from "react";
 import TableComponent from "@/components/TableComponent";
 import Loader from "@/components/form/Loader";
 import Link from "next/link";
-
-export interface AdminTab {
-    id: string,
-    title?: string,
-    fields: string[]
-    dropdowns?: any
-    readonly?: boolean
-    select?: any
-    actions?: [AdminTabActions]
-    filters?: {
-        options: { value: string, label: string }[],
-        types?: any
-    },
-    labels?: string[],
-    types?: { [key: string]: string },
-}
-
-export interface AdminTabActions {
-    key: string,
-    callBack: (record: any) => Promise<any>
-}
+import {AdminTab} from "@/types/admin";
 
 interface ActiveTabsProps {
     tabs: AdminTab[],
@@ -67,7 +47,8 @@ const AdminTabs: React.FC<ActiveTabsProps> = ({tabs, onSelectActiveTab}) => {
                         )
                     }
                     {
-                        (activeTab.id !== "summary" &&  loading) && <div className="p-6 my-24 min-w-max border-gray-800"><Loader/></div>
+                        (activeTab.id !== "summary" && loading) &&
+                        <div className="p-6 my-24 min-w-max border-gray-800"><Loader/></div>
                     }
                 </div>
             </div>

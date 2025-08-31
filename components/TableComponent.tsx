@@ -7,7 +7,6 @@ import Loader from "@/components/form/Loader";
 import SearchableSelect from "@/components/form/SearchableSelect";
 import Select, {SingleValue} from "react-select";
 import customStyles from "@/lib/custom-styles";
-import {AdminTab} from "@/components/admin/AdminTabs";
 import TableActionStatus from "@/components/popup/TableActionStatus";
 import {Option} from "@/types/interfaces";
 import TextInput from "@/components/form/TextInput";
@@ -19,6 +18,8 @@ import StatusLabel from "@/components/form/StatusLabel";
 import {dateToYmdFormat} from "@/lib/readbale-date";
 import CustomTableBulkCheckbox from "@/components/form/CustomTableBulkCheckbox";
 import DeleteConfirm from "@/components/popup/DeleteConfirm";
+import{ArrowDownAZ, ArrowDownZA, ArrowDown01, ArrowDown10} from 'lucide-react';
+import {AdminTab, Sort} from "@/types/admin";
 
 interface TableComponentProps {
     tab: AdminTab;
@@ -51,8 +52,9 @@ export default function TableComponent({tab, onLoaded}: TableComponentProps) {
     const [selectedRows, setSelectedRows] = useState(new Set());
     const [searchValue, setSearchValue] = useState<string>("")
     const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState<boolean>(false)
+    const [sortBy, setSortBy] = useState<Sort[]>()
 
-    const {id: apiUrl, fields, dropdowns, select, actions, filters, labels, types, readonly = false} = tab;
+    const {id: apiUrl, fields, dropdowns, select, actions, filters, labels, types, readonly, sort = false} = tab;
 
     useEffect(() => {
         setData([])
@@ -171,7 +173,6 @@ export default function TableComponent({tab, onLoaded}: TableComponentProps) {
         resetSearch()
     }, [filters]);
 
-
     useEffect(() => {
         if (onLoaded) onLoaded(loading)
     }, [loading]);
@@ -208,6 +209,9 @@ export default function TableComponent({tab, onLoaded}: TableComponentProps) {
     const handleSearchChange = (searchValue: string) => {
         setSearchValue(searchValue)
         debounceSearchOnTable(searchValue)
+    };
+    const handleSortBy = (sortElement: Sort) => {
+
     };
     return (
         <div className="mx-auto mt-4">
@@ -263,7 +267,11 @@ export default function TableComponent({tab, onLoaded}: TableComponentProps) {
                         {fields.map((field) => (
                             (!field.endsWith("_id") && !["password"].includes(field)) &&
                             <th key={field} className="p-4 first-letter:uppercase">
-                                {field.replace('_', ' ')}
+                              <div className="flex gap-1 justify-between">
+                                  {field.replace('_', ' ')}
+                                  {sort && sort[field] &&  <ArrowDownAZ className="cursor-pointer w-4 h-4" onClick={() => handleSortBy(sort[field])}/>}
+
+                              </div>
                             </th>
                         ))}
 
