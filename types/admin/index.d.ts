@@ -1,5 +1,7 @@
 export type Sort = { type: string, direction?: string }
-
+export type SortState = Record<string, SortDirection>;
+export type SortType = "string" | "number";
+export type SortDirection = "asc" | "desc" | null;
 export interface AdminTab {
     id: string,
     title?: string,
