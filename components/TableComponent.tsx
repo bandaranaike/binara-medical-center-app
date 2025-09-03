@@ -1,12 +1,12 @@
 "use client"
-import React, {useState, useEffect, Fragment, useCallback} from 'react';
+import React, {useState, useEffect, Fragment, useCallback, useMemo} from 'react';
 import {Dialog, Transition, TransitionChild} from '@headlessui/react';
 import axios from "@/lib/axios";
 import Pagination from "@/components/table/Pagination";
 import Loader from "@/components/form/Loader";
 import SearchableSelect from "@/components/form/SearchableSelect";
 import Select, {SingleValue} from "react-select";
-import customStyles from "@/lib/custom-styles";
+import customStyles from "@/lib/customStyles";
 import TableActionStatus from "@/components/popup/TableActionStatus";
 import {Option} from "@/types/interfaces";
 import TextInput from "@/components/form/TextInput";
@@ -15,11 +15,11 @@ import debounce from "lodash.debounce";
 import {Datepicker} from "flowbite-react";
 import {PlusCircleIcon, TrashIcon, XCircleIcon} from "@heroicons/react/24/outline";
 import StatusLabel from "@/components/form/StatusLabel";
-import {dateToYmdFormat} from "@/lib/readbale-date";
+import {dateToYmdFormat} from "@/lib/readableDate";
 import CustomTableBulkCheckbox from "@/components/form/CustomTableBulkCheckbox";
 import DeleteConfirm from "@/components/popup/DeleteConfirm";
-import{ArrowDownAZ, ArrowDownZA, ArrowDown01, ArrowDown10} from 'lucide-react';
-import {AdminTab, Sort} from "@/types/admin";
+import {AdminTab, SortDirection, SortState} from "@/types/admin";
+import {SortIcon} from "./admin/SortIcon";
 
 interface TableComponentProps {
     tab: AdminTab;
@@ -52,36 +52,60 @@ export default function TableComponent({tab, onLoaded}: TableComponentProps) {
     const [selectedRows, setSelectedRows] = useState(new Set());
     const [searchValue, setSearchValue] = useState<string>("")
     const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState<boolean>(false)
-    const [sortBy, setSortBy] = useState<Sort[]>()
+    const [sortState, setSortState] = useState<SortState>({});
 
-    const {id: apiUrl, fields, dropdowns, select, actions, filters, labels, types, readonly, sort = false} = tab;
+    const {id: apiUrl, fields, dropdowns, select, actions, filters, labels, types, readonly, sort} = tab;
 
     useEffect(() => {
         setData([])
         setTotalPages(0)
         setError('');
         setLoading(true);
-        fetchData();
+        debouncedFetch();
     }, [currentPage, apiUrl]);
 
-    const fetchData = useCallback(
-        debounce((search: string = "") => {
+    const sortUri = useMemo(() => {
+        if (!sortState || Object.keys(sortState).length === 0) return "";
+        const parts = Object.entries(sortState).map(
+            ([field, direction]) => `sort[]=${encodeURIComponent(field)}:${direction}`
+        );
+        return parts.join("&");
+    }, [sortState]);
+
+    const doFetch = useCallback(
+        async (search: string = "") => {
+            setLoading(true);
+            setError("");
             try {
-                axios.get(`${apiUrl}?page=${currentPage}&searchField=${searchField}&searchValue=${search}`)
-                    .then(response => {
-                        setData(response.data.data);
-                        setTotalPages(response.data.last_page);
-                    })
-                    .catch(error => {
-                        setError('Error fetching data. ' + (error.response?.data?.message ?? error.message));
-                    })
-                    .finally(() => setLoading(false));
-            } catch (error) {
-                console.error(error);
+                const qs = [
+                    `page=${currentPage}`,
+                    `searchField=${encodeURIComponent(searchField)}`,
+                    `searchValue=${encodeURIComponent(search)}`,
+                    sortUri, // <- always the latest because useEffect updates deps
+                ]
+                    .filter(Boolean)
+                    .join("&");
+
+                const { data: resp } = await axios.get(`${apiUrl}?${qs}`);
+                setData(resp.data);
+                setTotalPages(resp.last_page);
+            } catch (e: any) {
+                setError(
+                    "Error fetching data. " + (e?.response?.data?.message ?? e?.message ?? "")
+                );
+            } finally {
+                setLoading(false);
             }
-        }, 50),
-        [apiUrl, currentPage, searchField, searchValue] // Dependencies
+        },
+        [apiUrl, currentPage, searchField, sortUri]
     );
+
+    const debouncedFetch = useMemo(() => debounce(doFetch, 150), [doFetch]);
+
+    useEffect(() => {
+        debouncedFetch(searchValue);
+        return () => debouncedFetch.cancel();
+    }, [debouncedFetch, searchValue]);
 
     useEffect(() => {
         setCurrentPage(1)
@@ -103,7 +127,7 @@ export default function TableComponent({tab, onLoaded}: TableComponentProps) {
 
     const dataSaveSucceed = () => {
         setLoading(true);
-        fetchData(searchValue);
+        debouncedFetch(searchValue);
         setIsCreateOrUpdateDialogOpen(false);
     }
 
@@ -120,7 +144,7 @@ export default function TableComponent({tab, onLoaded}: TableComponentProps) {
         try {
             await axios.delete(`${apiUrl}/${id}`);
             setLoading(true);
-            fetchData(searchValue);
+            await debouncedFetch(searchValue);
             setIsDeleteDialogOpen(false);
         } catch (error) {
             setDeleteError('Error deleting record' + error);
@@ -151,7 +175,7 @@ export default function TableComponent({tab, onLoaded}: TableComponentProps) {
         setIsActionCalling(true)
         callBack(record).then(() => {
             setLoading(true);
-            fetchData()
+            debouncedFetch()
             setIsActionCalling(false)
         }).catch(error => setActionError(error.response.data.message));
     }
@@ -159,7 +183,7 @@ export default function TableComponent({tab, onLoaded}: TableComponentProps) {
     const searchOnTable = (search: string) => {
         if (searchField) {
             setLoading(true)
-            fetchData(search)
+            debouncedFetch(search)
         }
     };
 
@@ -204,15 +228,27 @@ export default function TableComponent({tab, onLoaded}: TableComponentProps) {
         if (filters?.options) setSearchField(filters?.options[0].value)
         setSearchType("")
         setSearchValue("")
-        fetchData("");
+        debouncedFetch("");
     };
+
     const handleSearchChange = (searchValue: string) => {
         setSearchValue(searchValue)
         debounceSearchOnTable(searchValue)
     };
-    const handleSortBy = (sortElement: Sort) => {
 
+    const handleSortBy = (field: string, direction: SortDirection) => {
+        setSortState(prev => {
+            const copy = {...prev};
+            if (direction === null) {
+                delete copy[field];
+            } else {
+                copy[field] = direction;
+            }
+            return copy;
+        });
+        setLoading(true);
     };
+
     return (
         <div className="mx-auto mt-4">
             <div className="flex justify-between mb-4">
@@ -266,12 +302,16 @@ export default function TableComponent({tab, onLoaded}: TableComponentProps) {
                         </th>}
                         {fields.map((field) => (
                             (!field.endsWith("_id") && !["password"].includes(field)) &&
-                            <th key={field} className="p-4 first-letter:uppercase">
-                              <div className="flex gap-1 justify-between">
-                                  {field.replace('_', ' ')}
-                                  {sort && sort[field] &&  <ArrowDownAZ className="cursor-pointer w-4 h-4" onClick={() => handleSortBy(sort[field])}/>}
-
-                              </div>
+                            <th key={field} className="p-4">
+                                <div className="flex gap-1 justify-between">
+                                    <span className="first-letter:uppercase">{field.replace('_', ' ')}</span>
+                                    {sort && sort[field] && <SortIcon
+                                        type={sort[field].type}
+                                        inactiveHint
+                                        field={field}
+                                        onToggle={handleSortBy}
+                                    />}
+                                </div>
                             </th>
                         ))}
 
@@ -411,7 +451,7 @@ export default function TableComponent({tab, onLoaded}: TableComponentProps) {
 
             {showBulkDeleteConfirm &&
                 <DeleteConfirm
-                    onDeleteSuccess={() => fetchData(searchValue)}
+                    onDeleteSuccess={() => debouncedFetch(searchValue)}
                     deleteApiUrl={apiUrl}
                     deleteId={Array.from(selectedRows)}
                     onClose={() => setShowBulkDeleteConfirm(false)}

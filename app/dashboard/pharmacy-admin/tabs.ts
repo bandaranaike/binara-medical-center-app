@@ -18,6 +18,10 @@ export const tabs: AdminTab[] = [
                 {label: "Category", value: 'category:name'},
                 {label: "Name", value: 'name'},
             ]
+        },
+        sort: {
+            name: {type: "string"},
+            minimum_quantity: {type: "number"},
         }
     },
     {
