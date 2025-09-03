@@ -1,10 +1,9 @@
 import React, {FormEvent, useState} from "react";
 import TextInput from "@/components/form/TextInput";
 import axios from "@/lib/axios";
-import Cookies from "js-cookie";
 import Select from "react-select";
 import {LoggedUser, Option} from "@/types/interfaces";
-import customStyles from "@/lib/custom-styles";
+import customStyles from "@/lib/customStyles";
 
 interface LoginWindowProps {
     onUserHasLoggedIn: (loggedUser: LoggedUser) => void;

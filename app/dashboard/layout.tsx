@@ -7,6 +7,7 @@ import {useUserContext} from "@/context/UserContext";
 import {setAxiosToken} from "@/lib/axios";
 import CustomRadio from "@/components/form/CustomRadio";
 import {DASHBOARD_TABS} from "@/lib/dashboardTabs";
+import ModalRoot from "@/components/ModalRoot";
 
 const active = "text-fuchsia-600 border-fuchsia-600 active dark:text-blue-500 dark:border-fuchsia-500";
 const inactive = "border-transparent hover:text-gray-200 hover:border-gray-300 dark:hover:text-gray-300";
@@ -72,6 +73,7 @@ export default function DashboardLayout({children}: { children: ReactNode }) {
                 <span className="mr-3">Fax: {process.env.NEXT_PUBLIC_APP_FAX}</span>
                 <span className="mr-3">Email: {process.env.NEXT_PUBLIC_APP_EMAIL}</span>
             </footer>
+            <ModalRoot/>
         </div>
     );
 }

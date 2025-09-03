@@ -8,7 +8,7 @@ import {ApiError, BillingPageProps, Option, Patient} from "@/types/interfaces";
 import printService from "@/lib/printService";
 import {randomString} from "@/lib/strings";
 import Select from "react-select";
-import customStyles from "@/lib/custom-styles";
+import customStyles from "@/lib/customStyles";
 import AvailabilityDatePicker from "@/components/form/AvailabilityDatePicker";
 import debounce from "lodash.debounce";
 import axios from "@/lib/axios";
@@ -72,7 +72,7 @@ const withBillingComponent = <P extends object>(
         useEffect(() => {
             const getTotalAmount = (flag: string) => {
                 return Object.entries(formData)
-                    .filter(([key, value]) => key.endsWith(flag))
+                    .filter(([key]) => key.endsWith(flag))
                     .reduce((sum, [, value]) => (sum + Number(value)), 0)
             }
             setBillAmount(getTotalAmount('_fee'));
