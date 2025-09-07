@@ -33,7 +33,8 @@
     "react-dom": "^18.3.1",
     "react-select": "^5.10.2",
     "tailwind-datepicker-react": "^1.4.3",
-    "update": "^0.4.2"
+    "update": "^0.4.2",
+    "zustand": "^5.0.8"
   },
   "devDependencies": {
     "@types/js-cookie": "^3.0.6",

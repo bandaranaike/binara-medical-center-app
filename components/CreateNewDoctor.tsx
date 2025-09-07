@@ -5,8 +5,6 @@ import CreateHospitalModal from '@/components/CreateHospitalModal';
 import CreateSpecialtyModal from '@/components/CreateSpecialtyModal'; // Import the new specialty modal
 import {Option} from "@/types/interfaces";
 import TextInput from "@/components/form/TextInput";
-import {Checkbox} from "flowbite-react";
-import CustomCheckbox from "@/components/form/CustomCheckbox";
 import CustomRadio from "@/components/form/CustomRadio";
 
 interface CreateNewDoctorProps {

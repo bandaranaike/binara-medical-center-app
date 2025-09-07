@@ -1,14 +1,14 @@
-import React, {EffectCallback, useCallback, useEffect, useMemo, useState} from "react";
+import React, {useEffect, useState} from "react";
 import TextInput from "@/components/form/TextInput";
 import axios from "@/lib/axios";
 import {isEmpty, round} from "lodash";
 import {Option, Patient, PatientDetailsProps} from "@/types/interfaces";
 import Select from "react-select";
-import customStyles from "@/lib/custom-styles";
+import customStyles from "@/lib/customStyles";
 import Loader from "@/components/form/Loader";
 import parsePhoneNumber from "libphonenumber-js";
 import Progress from "@/components/form/Progress";
-import {getSimilarity} from "@/lib/compare-str-changes";
+import {getSimilarity} from "@/lib/compareStrChanges";
 
 const PatientDetails: React.FC<PatientDetailsProps> = ({patientPhone, patientName, onPatientCreatedOrSelected, patientNotFound, patient, resetForm}) => {
     const [id, setId] = useState(0);
