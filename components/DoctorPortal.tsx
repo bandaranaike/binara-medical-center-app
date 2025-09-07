@@ -7,6 +7,7 @@ import Loader from "@/components/form/Loader";
 import {DeleteIcon} from "@nextui-org/shared-icons";
 import PatientMedicineManager from "@/components/PatientMedicineManager";
 import BillItemsManager from "@/components/doctor/BillItemsManager";
+import PusherListener from "@/components/PusherListener";
 
 const DoctorPortal: React.FC = () => {
 
@@ -14,7 +15,7 @@ const DoctorPortal: React.FC = () => {
     const [patientsBills, setPatientsBills] = useState<PatientBill[]>([]);
     const [activePatientBill, setActivePatientBill] = useState<PatientBill>();
     const [loading, setLoading] = useState<boolean>(true);
-    const [patientBillsChanged, setPatientBillsChanged] = useState<boolean>(false);
+    const [patientBillsChanged, setPatientBillsChanged] = useState('');
     const [allergy] = useState<Option>();
     const [disease] = useState<Option>();
     const [diseaseAlreadyHaveMessage, setDiseaseAlreadyHaveMessage] = useState<string>("");
@@ -181,7 +182,7 @@ const DoctorPortal: React.FC = () => {
             axios.put(`/bills/${activePatientBill?.id}/status`, {
                 status,
             }).then(() => {
-                setPatientBillsChanged((prev) => !prev);
+                setPatientBillsChanged(Math.random().toString());
             }).catch(error => {
                 setStatusChangeError("Failed to update the bill status : " + error.response.data.message)
             }).finally(() => setLoading(false));
@@ -196,6 +197,12 @@ const DoctorPortal: React.FC = () => {
 
     return (
         <div className="font-medium dark:text-gray-400 dark:border-gray-700 relative">
+
+            <PusherListener
+                channelName="bills-channel"
+                eventName="bill-created"
+                onEventTrigger={() => setPatientBillsChanged(Math.random().toString())}
+            />
 
             {patientsBills.length > 0 && (
                 <ul className="flex flex-wrap -mb-px border-b border-gray-800">

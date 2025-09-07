@@ -27,6 +27,7 @@
     "lucide-react": "^0.542.0",
     "next": "^15.5.2",
     "puppeteer": "^22.15.0",
+    "pusher-js": "^8.4.0",
     "react": "^18.3.1",
     "react-apexcharts": "^1.7.0",
     "react-date-range": "^2.0.1",
