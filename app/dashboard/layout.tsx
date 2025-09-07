@@ -51,7 +51,7 @@ export default function DashboardLayout({children}: { children: ReactNode }) {
                 <nav className="font-medium text-center text-gray-400 border-b border-gray-800">
                     <ul className="flex flex-wrap -mb-px">
                         {tabs.map(t => {
-                            const isActive = pathname === t.path || pathname.startsWith(`${t.path}/`);
+                            const isActive = pathname === t.path || pathname?.startsWith(`${t.path}/`);
                             return (
                                 <li className="me-2" key={t.id}>
                                     <Link href={t.path}
