@@ -175,7 +175,7 @@ export default function TableComponent({tab, onLoaded}: TableComponentProps) {
         setIsActionCalling(true)
         callBack(record).then(() => {
             setLoading(true);
-            debouncedFetch()
+            debouncedFetch(searchValue)
             setIsActionCalling(false)
         }).catch(error => setActionError(error.response.data.message));
     }
