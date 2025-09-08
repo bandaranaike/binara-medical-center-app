@@ -6,14 +6,14 @@ import Pusher, {Channel} from "pusher-js";
 interface PusherListenerProps {
     channelName: string;
     eventName: string;
-    onEventTrigger: (data: any) => void;
+    onEventTriggerAction: (data: any) => void;
 }
 
 export default function PusherListener(
     {
         channelName,
         eventName,
-        onEventTrigger,
+        onEventTriggerAction,
     }: PusherListenerProps) {
     useEffect(() => {
         const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY!, {
@@ -24,7 +24,7 @@ export default function PusherListener(
         const channel: Channel = pusher.subscribe(channelName);
 
         channel.bind(eventName, (data: any) => {
-            onEventTrigger(data);
+            onEventTriggerAction(data);
         });
 
         return () => {
@@ -32,7 +32,7 @@ export default function PusherListener(
             pusher.unsubscribe(channelName);
             pusher.disconnect();
         };
-    }, [channelName, eventName, onEventTrigger]);
+    }, [channelName, eventName, onEventTriggerAction]);
 
     return null; // this component doesn't render UI
 }
