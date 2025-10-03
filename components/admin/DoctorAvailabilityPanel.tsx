@@ -24,9 +24,10 @@ type GenerateResponse = {
 
 interface DoctorAvailabilityPanelProps {
     doctorId: number | string;
+    id: number | string;
 }
 
-export default function DoctorAvailabilityPanel({doctorId}: DoctorAvailabilityPanelProps) {
+export default function DoctorAvailabilityPanel({doctorId, id}: DoctorAvailabilityPanelProps) {
     const [override, setOverride] = useState(false);
 
     const [rows, setRows] = useState<Availability[] | null>(null);
@@ -70,7 +71,7 @@ export default function DoctorAvailabilityPanel({doctorId}: DoctorAvailabilityPa
         try {
             const res = await axios.post<GenerateResponse>(
                 generateUrl,
-                {override, doctor_id: doctorId.toString()}
+                {override, doctor_id: doctorId.toString(), id}
             );
 
             const json = res.data;

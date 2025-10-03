@@ -201,7 +201,7 @@ const DoctorPortal: React.FC = () => {
             <PusherListener
                 channelName="bills-channel"
                 eventName="bill-created"
-                onEventTrigger={() => setPatientBillsChanged(Math.random().toString())}
+                onEventTriggerAction={() => setPatientBillsChanged(Math.random().toString())}
             />
 
             {patientsBills.length > 0 && (
