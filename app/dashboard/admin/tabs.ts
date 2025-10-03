@@ -11,14 +11,15 @@ const createUserForDoctor = async (record: any) => {
 
 export function openDoctorAvailabilityPanel(
     doctorId: number | string,
+    id: number | string = 0,
 ) {
     // Zustand exposes getState() without using hooks
     const { open } = useModalStore.getState();
-    open(renderDoctorAvailabilityPanel(doctorId));
+    open(renderDoctorAvailabilityPanel(doctorId,id));
 }
 
 const createAvailabilityForMonth = async (record: any) => {
-    openDoctorAvailabilityPanel(record.doctor_id);
+    openDoctorAvailabilityPanel(record.doctor_id, record.id);
 };
 
 export const tabs: AdminTab[] = [
