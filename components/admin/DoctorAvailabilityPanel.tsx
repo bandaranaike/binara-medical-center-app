@@ -105,7 +105,7 @@ export default function DoctorAvailabilityPanel({doctorId, id}: DoctorAvailabili
     }
 
     return (
-        <div className="w-full max-w-5xl mx-auto p-4">
+        <div className="w-full max-w-5xl mx-auto pb-1">
             <div className="flex flex-wrap gap-3 mb-4 items-center">
 
                 <label className="inline-flex items-center gap-2 select-none">
@@ -115,7 +115,7 @@ export default function DoctorAvailabilityPanel({doctorId, id}: DoctorAvailabili
                 <button
                     onClick={onGenerate}
                     disabled={isGenerating}
-                    className="inline-flex items-center gap-2 rounded-lg bg-blue-600 hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed text-white px-4 py-2 shadow-sm"
+                    className="inline-flex items-center gap-2 rounded-lg bg-blue-600 hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed text-white px-3 py-1.5 shadow-sm"
                 >
                     {isGenerating && (
                         <svg
