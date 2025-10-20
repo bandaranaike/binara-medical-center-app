@@ -13,7 +13,7 @@ export function openDoctorAvailabilityPanel(
     doctorId: number | string,
 ) {
     // Zustand exposes getState() without using hooks
-    const { open } = useModalStore.getState();
+    const {open} = useModalStore.getState();
     open(renderDoctorAvailabilityPanel(doctorId));
 }
 
@@ -59,11 +59,12 @@ export const tabs: AdminTab[] = [
                 {label: "Recurring", value: "recurring"}
             ]
         },
+        types: {time: "time"},
         labels: ["weekday", "recurring", "status"]
     },
     {
         id: "doctors-availabilities",
-        fields: ["doctor", "time", "date", "seats", "available_seats", "status"],
+        fields: ["doctor", "status", "time", "date", "seats", "available_seats"],
         dropdowns: {doctor: "doctors-all"},
         select: {status: ["active", "canceled"]},
         filters: {
@@ -74,7 +75,7 @@ export const tabs: AdminTab[] = [
             types: {date: "date"}
         },
         labels: ["status"],
-        types: {date: "date"}
+        types: {date: "date", time: "time"}
     },
     {
         id: "roles",
