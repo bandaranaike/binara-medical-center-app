@@ -21,7 +21,7 @@ jobs:
           script: |
             set -e
 
-            cd /var/www/api.binara.live
+            cd /var/www/app.binara.live
 
             echo "📥 Pulling latest code"
             git fetch origin
