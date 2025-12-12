@@ -20,6 +20,9 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             set -e
+            
+            export PNPM_HOME="$HOME/.local/share/pnpm"
+            export PATH="$PNPM_HOME:$PATH"
 
             cd /var/www/app.binara.live
 
@@ -28,10 +31,10 @@ jobs:
             git reset --hard origin/main
 
             echo "📦 Installing dependencies"
-            npm ci
+            pnpm install --frozen-lockfile
 
             echo "🏗️ Building Next.js app"
-            npm run build
+            pnpm build
 
             echo "🚀 Restarting PM2"
             pm2 restart ecosystem.config.js || pm2 start ecosystem.config.js
