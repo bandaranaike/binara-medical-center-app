@@ -1,13 +1,13 @@
 module.exports = {
     apps: [
         {
-            name: 'app.binara.live',
-            script: 'npx',
-            args: 'next start',
+            name: "app.binara.live",
+            cwd: "/var/www/app.binara.live",
+            script: "node_modules/.bin/next",
+            args: "start -p 3001",
             env: {
-                NODE_ENV: 'production',
-                PORT: 3003,
-            },
-        },
-    ],
+                NODE_ENV: "production"
+            }
+        }
+    ]
 };
