@@ -29,7 +29,7 @@ export interface BillingPageProps {
     resetData: string;
     patientId?: number;
     isBooking?: boolean;
-    doctorDate?: Date | null;
+    doctorDate?: Date | null | string;
     onBillIdAdded?: (billId: number) => void;
 }
 
@@ -88,6 +88,7 @@ export interface History {
     id: number;
     date: string;
     note: string;
+    doctor: Doctor;
 }
 
 export interface HistoryItem {

@@ -1,12 +1,12 @@
-import React, {useState, useEffect, Fragment, useCallback} from 'react';
+"use client"
+import React, {useState, useEffect, Fragment, useCallback, useMemo} from 'react';
 import {Dialog, Transition, TransitionChild} from '@headlessui/react';
 import axios from "@/lib/axios";
 import Pagination from "@/components/table/Pagination";
 import Loader from "@/components/form/Loader";
 import SearchableSelect from "@/components/form/SearchableSelect";
 import Select, {SingleValue} from "react-select";
-import customStyles from "@/lib/custom-styles";
-import {AdminTab} from "@/components/admin/AdminTabs";
+import customStyles from "@/lib/customStyles";
 import TableActionStatus from "@/components/popup/TableActionStatus";
 import {Option} from "@/types/interfaces";
 import TextInput from "@/components/form/TextInput";
@@ -15,12 +15,15 @@ import debounce from "lodash.debounce";
 import {Datepicker} from "flowbite-react";
 import {PlusCircleIcon, TrashIcon, XCircleIcon} from "@heroicons/react/24/outline";
 import StatusLabel from "@/components/form/StatusLabel";
-import {dateToYmdFormat} from "@/lib/readbale-date";
+import {dateToYmdFormat} from "@/lib/readableDate";
 import CustomTableBulkCheckbox from "@/components/form/CustomTableBulkCheckbox";
 import DeleteConfirm from "@/components/popup/DeleteConfirm";
+import {AdminTab, SortDirection, SortState} from "@/types/admin";
+import {SortIcon} from "./admin/SortIcon";
 
 interface TableComponentProps {
     tab: AdminTab;
+    onLoaded?: (status: boolean) => void;
 }
 
 interface FormData {
@@ -29,7 +32,7 @@ interface FormData {
     id?: number;
 }
 
-export default function TableComponent({tab}: TableComponentProps) {
+export default function TableComponent({tab, onLoaded}: TableComponentProps) {
     const [data, setData] = useState<FormData[]>([]);
     const [formData, setFormData] = useState<FormData>({});
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -47,39 +50,62 @@ export default function TableComponent({tab}: TableComponentProps) {
     const [searchType, setSearchType] = useState('');
     const [selectAll, setSelectAll] = useState(false);
     const [selectedRows, setSelectedRows] = useState(new Set());
+    const [searchValue, setSearchValue] = useState<string>("")
+    const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState<boolean>(false)
+    const [sortState, setSortState] = useState<SortState>({});
 
-    const {id: apiUrl, fields, dropdowns, select, actions, filters, labels, readonly = false} = tab;
-
+    const {id: apiUrl, fields, dropdowns, select, actions, filters, labels, types, readonly, sort} = tab;
 
     useEffect(() => {
         setData([])
         setTotalPages(0)
         setError('');
         setLoading(true);
-        fetchData();
+        debouncedFetch();
     }, [currentPage, apiUrl]);
 
-    const fetchData = useCallback(
-        debounce((search: string = "") => {
+    const sortUri = useMemo(() => {
+        if (!sortState || Object.keys(sortState).length === 0) return "";
+        const parts = Object.entries(sortState).map(
+            ([field, direction]) => `sort[]=${encodeURIComponent(field)}:${direction}`
+        );
+        return parts.join("&");
+    }, [sortState]);
+
+    const doFetch = useCallback(
+        async (search: string = "") => {
+            setLoading(true);
+            setError("");
             try {
-                axios.get(`${apiUrl}?page=${currentPage}&searchField=${searchField}&searchValue=${search}`)
-                    .then(response => {
-                        setData(response.data.data);
-                        setTotalPages(response.data.last_page);
-                    })
-                    .catch(error => {
-                        setError('Error fetching data. ' + (error.response?.data?.message ?? error.message));
-                    })
-                    .finally(() => setLoading(false));
-            } catch (error) {
-                console.error(error);
+                const qs = [
+                    `page=${currentPage}`,
+                    `searchField=${encodeURIComponent(searchField)}`,
+                    `searchValue=${encodeURIComponent(search)}`,
+                    sortUri, // <- always the latest because useEffect updates deps
+                ]
+                    .filter(Boolean)
+                    .join("&");
+
+                const { data: resp } = await axios.get(`${apiUrl}?${qs}`);
+                setData(resp.data);
+                setTotalPages(resp.last_page);
+            } catch (e: any) {
+                setError(
+                    "Error fetching data. " + (e?.response?.data?.message ?? e?.message ?? "")
+                );
+            } finally {
+                setLoading(false);
             }
-        }, 50),
-        [apiUrl, currentPage, searchField] // Dependencies
+        },
+        [apiUrl, currentPage, searchField, sortUri]
     );
 
-    const [searchValue, setSearchValue] = useState<string>("")
-    const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState<boolean>(false)
+    const debouncedFetch = useMemo(() => debounce(doFetch, 150), [doFetch]);
+
+    useEffect(() => {
+        debouncedFetch(searchValue);
+        return () => debouncedFetch.cancel();
+    }, [debouncedFetch, searchValue]);
 
     useEffect(() => {
         setCurrentPage(1)
@@ -101,7 +127,7 @@ export default function TableComponent({tab}: TableComponentProps) {
 
     const dataSaveSucceed = () => {
         setLoading(true);
-        fetchData();
+        debouncedFetch(searchValue);
         setIsCreateOrUpdateDialogOpen(false);
     }
 
@@ -118,7 +144,7 @@ export default function TableComponent({tab}: TableComponentProps) {
         try {
             await axios.delete(`${apiUrl}/${id}`);
             setLoading(true);
-            fetchData();
+            await debouncedFetch(searchValue);
             setIsDeleteDialogOpen(false);
         } catch (error) {
             setDeleteError('Error deleting record' + error);
@@ -149,7 +175,7 @@ export default function TableComponent({tab}: TableComponentProps) {
         setIsActionCalling(true)
         callBack(record).then(() => {
             setLoading(true);
-            fetchData()
+            debouncedFetch(searchValue)
             setIsActionCalling(false)
         }).catch(error => setActionError(error.response.data.message));
     }
@@ -157,7 +183,7 @@ export default function TableComponent({tab}: TableComponentProps) {
     const searchOnTable = (search: string) => {
         if (searchField) {
             setLoading(true)
-            fetchData(search)
+            debouncedFetch(search)
         }
     };
 
@@ -170,6 +196,10 @@ export default function TableComponent({tab}: TableComponentProps) {
     useEffect(() => {
         resetSearch()
     }, [filters]);
+
+    useEffect(() => {
+        if (onLoaded) onLoaded(loading)
+    }, [loading]);
 
     const toggleSelectRow = (id: number | string | undefined) => {
         const newSelectedRows = new Set(selectedRows);
@@ -198,12 +228,27 @@ export default function TableComponent({tab}: TableComponentProps) {
         if (filters?.options) setSearchField(filters?.options[0].value)
         setSearchType("")
         setSearchValue("")
-        fetchData();
+        debouncedFetch("");
     };
+
     const handleSearchChange = (searchValue: string) => {
         setSearchValue(searchValue)
         debounceSearchOnTable(searchValue)
     };
+
+    const handleSortBy = (field: string, direction: SortDirection) => {
+        setSortState(prev => {
+            const copy = {...prev};
+            if (direction === null) {
+                delete copy[field];
+            } else {
+                copy[field] = direction;
+            }
+            return copy;
+        });
+        setLoading(true);
+    };
+
     return (
         <div className="mx-auto mt-4">
             <div className="flex justify-between mb-4">
@@ -223,7 +268,8 @@ export default function TableComponent({tab}: TableComponentProps) {
                                 <TextInput value={searchValue} onChange={handleSearchChange}/>
                             </div>
                         }
-                        {searchField && <XCircleIcon width={28} className="cursor-pointer hover:text-yellow-500" onClick={() => resetSearch()}/>}
+                        {searchField && <XCircleIcon width={28} className="cursor-pointer hover:text-yellow-500"
+                                                     onClick={() => resetSearch()}/>}
                     </div>
                     }
                 </div>
@@ -255,8 +301,17 @@ export default function TableComponent({tab}: TableComponentProps) {
                             />
                         </th>}
                         {fields.map((field) => (
-                            (!field.endsWith("_id") && !["password"].includes(field)) && <th key={field} className="p-4 first-letter:uppercase">
-                                {field.replace('_', ' ')}
+                            (!field.endsWith("_id") && !["password"].includes(field)) &&
+                            <th key={field} className="p-4">
+                                <div className="flex gap-1 justify-between">
+                                    <span className="first-letter:uppercase">{field.replace('_', ' ')}</span>
+                                    {sort && sort[field] && <SortIcon
+                                        type={sort[field].type}
+                                        inactiveHint
+                                        field={field}
+                                        onToggle={handleSortBy}
+                                    />}
+                                </div>
                             </th>
                         ))}
 
@@ -273,8 +328,10 @@ export default function TableComponent({tab}: TableComponentProps) {
                                 />
                             </td>}
                             {fields.map((field: any) => (
-                                (!field.endsWith("_id") && !["password"].includes(field)) && <td key={field} className="border-t border-gray-800 border-r py-2 px-4">
-                                    {labels?.includes(field) && record[field] ? <StatusLabel status={record[field]}/> : record[field]}
+                                (!field.endsWith("_id") && !["password"].includes(field)) &&
+                                <td key={field} className="border-t border-gray-800 border-r py-2 px-4">
+                                    {labels?.includes(field) && record[field] ?
+                                        <StatusLabel status={record[field]}/> : record[field]}
                                 </td>
                             ))}
                             {!readonly && <td className="border-t border-gray-800 p-1">
@@ -320,15 +377,18 @@ export default function TableComponent({tab}: TableComponentProps) {
                     }
 
                     {!error && !loading && data.length === 0 &&
-                        <div className="border-t border-gray-800 text-center p-3 text-gray-500">There are no records</div>
+                        <div className="border-t border-gray-800 text-center p-3 text-gray-500">There are no
+                            records</div>
                     }
                 </div>
-                {loading && <div className="p-6 my-24 min-w-max absolute left-1/2 top-0 border-gray-800"><Loader/></div>}
+                {loading &&
+                    <div className="p-6 my-24 min-w-max absolute left-1/2 top-0 border-gray-800"><Loader/></div>}
             </div>
 
 
             {/* Action calling dialog */}
-            {isActionCalling && <TableActionStatus errorMessage={actionError} closeWindow={() => setIsActionCalling(false)}></TableActionStatus>}
+            {isActionCalling && <TableActionStatus errorMessage={actionError}
+                                                   closeWindow={() => setIsActionCalling(false)}></TableActionStatus>}
             {/* Delete Confirmation Dialog */}
             <Transition appear show={isDeleteDialogOpen} as={Fragment}>
                 <Dialog as="div" className="relative z-10" onClose={closeDialogs}>
@@ -391,12 +451,13 @@ export default function TableComponent({tab}: TableComponentProps) {
 
             {showBulkDeleteConfirm &&
                 <DeleteConfirm
-                    onDeleteSuccess={fetchData}
+                    onDeleteSuccess={() => debouncedFetch(searchValue)}
                     deleteApiUrl={apiUrl}
                     deleteId={Array.from(selectedRows)}
                     onClose={() => setShowBulkDeleteConfirm(false)}
                 >
-                    You are about to delete the selected {selectedRows.size} record{selectedRows.size > 1 ? 's' : ''}. Are you sure you want to proceed?
+                    You are about to delete the selected {selectedRows.size} record{selectedRows.size > 1 ? 's' : ''}.
+                    Are you sure you want to proceed?
                 </DeleteConfirm>
             }
 
@@ -428,21 +489,29 @@ export default function TableComponent({tab}: TableComponentProps) {
                             >
                                 <Dialog.Panel
                                     className="w-full max-w-md p-6 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl dark:bg-gray-800 rounded-2xl">
-                                    <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900 dark:text-white">
+                                    <Dialog.Title as="h3"
+                                                  className="text-lg font-medium leading-6 text-gray-900 dark:text-white">
                                         {currentRecordId ? 'Update record ' : 'Create New record '}
                                     </Dialog.Title>
-                                    <div className='text-sm text-gray-400 first-letter:uppercase'>This action will update the list of {apiUrl}</div>
+                                    <div className='text-sm text-gray-400 first-letter:uppercase'>This action will
+                                        update the list of {apiUrl}</div>
                                     <div className="mt-2">
                                         {fields.map((field) => (
                                             !field.endsWith('_id') && <div key={field} className="mt-4">
                                                 {dropdowns && dropdowns[field] &&
                                                     <SearchableSelect
                                                         placeholder={field}
-                                                        value={{value: dropdowns[`${field}_id`], label: formData[field]}}
+                                                        value={{
+                                                            value: dropdowns[`${field}_id`],
+                                                            label: formData[field]
+                                                        }}
                                                         id={`Select-${field}`}
                                                         onChange={(option) => {
                                                             if (typeof option === 'object')
-                                                                setFormData({...formData, [`${field}_id`]: option?.value})
+                                                                setFormData({
+                                                                    ...formData,
+                                                                    [`${field}_id`]: option?.value
+                                                                })
                                                         }}
                                                         apiUri={dropdowns[field]}
                                                     />
@@ -471,7 +540,7 @@ export default function TableComponent({tab}: TableComponentProps) {
                                                             {field.replace('_', ' ')}
                                                         </label>
                                                         <input
-                                                            type="text"
+                                                            type={(types && types[field]) ? types[field] : 'text'}
                                                             name={field}
                                                             value={formData[field] || ''}
                                                             onChange={(e) =>
@@ -484,7 +553,8 @@ export default function TableComponent({tab}: TableComponentProps) {
                                             </div>
                                         ))}
                                     </div>
-                                    {updateOrCreateError && <div className="mt-4 text-red-500">{updateOrCreateError}</div>}
+                                    {updateOrCreateError &&
+                                        <div className="mt-4 text-red-500">{updateOrCreateError}</div>}
                                     <div className="mt-4 flex justify-end space-x-2">
                                         <button
                                             type="button"

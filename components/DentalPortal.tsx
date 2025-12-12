@@ -3,7 +3,6 @@ import withBillingComponent from "@/components/high-order-components/withBilling
 import TextInput from "@/components/form/TextInput";
 import DoctorSelect from "@/components/DoctorSelect";
 import {BillingPageProps, DoctorFee} from "@/types/interfaces";
-import {dateToYmdFormat} from "@/lib/readbale-date";
 
 const Dental: React.FC<BillingPageProps> = ({handleFormChange, onDoctorNameChange, resetData, isBooking, doctorDate}) => {
     const [registrationFee, setRegistrationFee] = useState("0")

@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef} from "react";
+import React, {useState, useEffect, useRef, Fragment} from "react";
 import axios from "@/lib/axios";
 import {Patient, User} from "@/types/interfaces";
 
@@ -16,13 +16,14 @@ const SearchablePatientSelect: React.FC<SearchablePatientSelectProps> = ({onPati
     const [error, setError] = useState<string | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const listRef = useRef<HTMLUListElement>(null); // Reference to the <ul>
-    const [selectedIndex, setSelectedIndex] = useState(-1); // Track the selected item index
+    const [selectedIndex, setSelectedIndex] = useState(-1);
+    const [showFilteredPatients, setShowFilteredPatients] = useState<boolean>(false) // Track the selected item index
 
     useEffect(() => {
         if (query.trim() === "") {
             setFilteredUsers([]);
             setError(null);
-            setSelectedIndex(-1); // Reset selected index when query is empty
+            setSelectedIndex(-1); // Reset the selected index when a query is empty
             return;
         }
 
@@ -30,6 +31,7 @@ const SearchablePatientSelect: React.FC<SearchablePatientSelectProps> = ({onPati
             setLoading(true);
             setError(null);
             setFilteredPatients([]);
+            setShowFilteredPatients(true)
 
             try {
                 const response = await axios.get(`/patients/search`, {
@@ -38,7 +40,7 @@ const SearchablePatientSelect: React.FC<SearchablePatientSelectProps> = ({onPati
                 if (response.status === 200) {
                     setShowSearch(true);
                     setFilteredUsers(response.data);
-                    setSelectedIndex(-1); // Reset selected index on new search results
+                    setSelectedIndex(-1); // Reset the selected index on new search results
                 } else {
                     setError("Failed to fetch patients");
                 }
@@ -78,7 +80,7 @@ const SearchablePatientSelect: React.FC<SearchablePatientSelectProps> = ({onPati
     const handleSelectUser = (user: User) => {
         setQuery(""); // Clear the search input
         setFilteredUsers([]); // Clear the suggestions
-        setSelectedIndex(-1); // Reset selected index
+        setSelectedIndex(-1); // Reset the selected index
         if (user.patients.length === 1) {
             onPatientSelect(user.patients[0]);
         } else if (user.patients.length > 1) {
@@ -97,6 +99,7 @@ const SearchablePatientSelect: React.FC<SearchablePatientSelectProps> = ({onPati
     const selectPatientFromList = (patient: Patient) => {
         onPatientSelect(patient);
         setFilteredPatients([]);
+        setShowFilteredPatients(false)
     };
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -137,16 +140,27 @@ const SearchablePatientSelect: React.FC<SearchablePatientSelectProps> = ({onPati
                 >
                     {filteredUsers.length > 0 &&
                         filteredUsers.map((user, index) => (
-                            <li
-                                key={user.id}
-                                className={`p-2 hover:bg-gray-700 cursor-pointer border-b border-gray-700 last:border-b-0 ${
-                                    index === selectedIndex ? "bg-gray-600" : ""
-                                }`}
-                                onClick={() => handleSelectUser(user)}
-                            >
-                                <div className="font-semibold">{user.name}</div>
-                                <div className="text-sm text-gray-400">{user.phone}</div>
-                            </li>
+                            <Fragment key={user.id}>
+                                <li
+
+                                    className={`p-2 hover:bg-gray-700 cursor-pointer border-b border-gray-700 last:border-b-0 ${
+                                        index === selectedIndex ? "bg-gray-600" : ""
+                                    }`}
+                                    onClick={() => handleSelectUser(user)}
+                                >
+                                    <div className="font-semibold">{user.name}</div>
+                                    <div className="text-sm text-gray-400">{user.phone}</div>
+                                    <div className="flex gap-2 mt-2 text-sm">
+                                        {user.patients.length > 1 && user.patients.map((patient) =>
+                                            <div key={patient.id}
+                                                 onClick={() => selectPatientFromList(patient)}
+                                                 className="cursor-pointer bg-blue-800 hover:bg-blue-700 text-gray-100 px-2 py-1 rounded text-sm hover:text-gray-200">
+                                                <span>{patient.name} - {patient.gender} {patient.age}</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                </li>
+                            </Fragment>
                         ))}
                     <li
                         key="-1"
@@ -157,7 +171,7 @@ const SearchablePatientSelect: React.FC<SearchablePatientSelectProps> = ({onPati
                     </li>
                 </ul>
             )}
-            {filteredPatients && filteredPatients.length > 1 && (
+            {showFilteredPatients && filteredPatients && filteredPatients.length > 1 && (
                 <div className="border border-gray-700 bg-gray-800 rounded my-4 text-gray-400">
                     <div className="border-b border-gray-700 px-4 py-3">
                         There are {filteredPatients.length} patients for this user

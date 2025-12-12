@@ -1,24 +1,8 @@
 import React, {useEffect, useState} from "react";
 import TableComponent from "@/components/TableComponent";
-
-export interface AdminTab {
-    id: string,
-    fields: string[]
-    dropdowns?: any
-    readonly?: boolean
-    select?: any
-    actions?: [AdminTabActions]
-    filters?: {
-        options: { value: string, label: string }[],
-        types?: any
-    },
-    labels?: string[]
-}
-
-export interface AdminTabActions {
-    key: string,
-    callBack: (record: any) => Promise<any>
-}
+import Loader from "@/components/form/Loader";
+import Link from "next/link";
+import {AdminTab} from "@/types/admin";
 
 interface ActiveTabsProps {
     tabs: AdminTab[],
@@ -28,6 +12,7 @@ interface ActiveTabsProps {
 const AdminTabs: React.FC<ActiveTabsProps> = ({tabs, onSelectActiveTab}) => {
 
     const [activeTab, setActiveTab] = useState<AdminTab>(tabs[0]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         if (onSelectActiveTab)
@@ -44,22 +29,28 @@ const AdminTabs: React.FC<ActiveTabsProps> = ({tabs, onSelectActiveTab}) => {
                     <ul className="flex flex-wrap -mb-px">
                         {tabs.length > 0 && tabs.map((tab) => (
                             <li className="me-2" key={tab.id}>
-                                <a
-                                    href="#"
+                                <Link
+                                    href={`/dashboard/admin/${tab.id}`}
                                     onClick={() => setActiveTab(tab)}
                                     className={`inline-block p-4 border-b-2 rounded-t-lg capitalize ${
                                         activeTab.id === tab.id ? activeTabClass : inactiveTabClass
                                     }`}
-                                >{tab.id.replace('-', ' ')}</a>
+                                >{tab.title ?? tab.id.replace('-', ' ')}</Link>
                             </li>
                         ))}
                     </ul>
                 </nav>
-                <div className="">{
-                    activeTab.id !== "summary" && activeTab.id !== "" && (
-                        <TableComponent tab={activeTab}/>
-                    )
-                }</div>
+                <div className="">
+                    {
+                        activeTab.id !== "summary" && activeTab.id !== "" && (
+                            <TableComponent tab={activeTab} onLoaded={(status) => setLoading(status)}/>
+                        )
+                    }
+                    {
+                        (activeTab.id !== "summary" && loading) &&
+                        <div className="p-6 my-24 min-w-max border-gray-800"><Loader/></div>
+                    }
+                </div>
             </div>
         </div>
     )

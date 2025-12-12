@@ -1,30 +1,17 @@
 import React, {useEffect, useState} from "react";
 import axios from "../lib/axios";
-import SearchableSelect from "@/components/form/SearchableSelect";
-import {Bill, Drug, Option, ServicesStatus} from "@/types/interfaces";
-import {formatReadableDateTime} from "@/lib/readbale-date";
+import {Bill, ServicesStatus} from "@/types/interfaces";
+import {formatReadableDateTime} from "@/lib/readableDate";
 import Services from "@/components/Services";
-import TextInput from "@/components/form/TextInput";
 import Loader from "@/components/form/Loader";
-import {DeleteIcon} from "@nextui-org/shared-icons";
 
 const PharmacyPortal: React.FC = () => {
     const [pendingBills, setPendingBills] = useState<Bill[]>([]);
     const [activeBillId, setActiveBillId] = useState<number | null>(null);
     const [servicesCount, setServicesCount] = useState(0);
     const [finalBillAmounts, setFinalBillAmounts] = useState<ServicesStatus>();
-    const [medicineTotal, setMedicineTotal] = useState<number>(0);
     const [error, setError] = useState("");
-    const [deleteError, setDeleteError] = useState("");
     const [billsFetchError, setBillFetchErrors] = useState("");
-    const [brand, setBrand] = useState<Option | undefined>()
-    const [drugQuantity, setDrugQuantity] = useState<string>("1")
-    const [drugPrice, setDrugPrice] = useState<string>("")
-    const [drugUnitPrice, setDrugUnitPrice] = useState<string>("")
-    const [drugListAddError, setDrugListAddError] = useState<string>("")
-    const [drugLisFetchError, setDrugListFetchError] = useState<string>("")
-    const [drugList, setDrugList] = useState<Drug [] | undefined>()
-    const [isDrugListLoading, setIsDrugListLoading] = useState<boolean>(false)
     const [isLoading, setIsLoading] = useState<boolean>(false)
 
     useEffect(() => {
@@ -42,24 +29,6 @@ const PharmacyPortal: React.FC = () => {
         const debounceFetch = setTimeout(fetchPharmacyPendingBills, 400); // Debounce API calls
         return () => clearTimeout(debounceFetch);
     }, []);
-
-    useEffect(() => {
-        setIsDrugListLoading(true)
-        const debounceFetch = setTimeout(fetchDrugsSaleForBill, 400); // Debounce API calls
-        return () => clearTimeout(debounceFetch);
-    }, [activeBillId]);
-
-    useEffect(() => {
-        if (drugUnitPrice)
-            setDrugPrice((Number(drugUnitPrice) * Number(drugQuantity)).toFixed(2).toString())
-    }, [drugQuantity, drugUnitPrice])
-
-    useEffect(() => {
-        if (drugList) {
-            const total = drugList.reduce((c: number, item: any) => c + Number(item.total_price), 0);
-            setMedicineTotal(total)
-        } else setMedicineTotal(0)
-    }, [drugList]);
 
     const handleFinalizeBill = (billId: number) => {
         if (servicesCount === 0) {
@@ -106,19 +75,6 @@ const PharmacyPortal: React.FC = () => {
             }).finally(() => setIsLoading(false));
         } catch (error) {
             console.error('Error updating the bill status:', error);
-        }
-    }
-
-    const fetchDrugsSaleForBill = () => {
-        if (activeBillId) {
-            setIsDrugListLoading(true)
-            setDrugListFetchError("")
-            axios.get(`bills/${activeBillId}/sales`)
-                .then(response => {
-                    setDrugList(response.data)
-                })
-                .catch(error => setDrugListFetchError(error.response.data.message))
-                .finally(() => setIsDrugListLoading(false))
         }
     }
 

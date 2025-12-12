@@ -1,6 +1,7 @@
 import {LoggedUser} from "@/types/interfaces";
 import React, {createContext, useContext, useState, useEffect} from "react";
 import axios from "@/lib/axios";
+import Cookies from "js-cookie"; // for reading cookies on client
 
 // Define the context type
 interface UserContextType {
@@ -9,12 +10,13 @@ interface UserContextType {
     logout: () => void;
     shift: string;
     setShift: (shift: string) => void;
+    initializing: boolean;
 }
 
 // Create the context
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
-// Create a custom hook for accessing the context
+// Custom hook
 export const useUserContext = () => {
     const context = useContext(UserContext);
     if (!context) {
@@ -23,27 +25,47 @@ export const useUserContext = () => {
     return context;
 };
 
-// Create the Provider component
+// Provider
 const UserProvider: React.FC<{ children: React.ReactNode }> = ({children}) => {
     const [user, setUser] = useState<LoggedUser | null>(null);
     const [shift, setShift] = useState("morning");
+    const [initializing, setInitializing] = useState(true);
 
+    // Load on mount
     useEffect(() => {
-        const storedUser = localStorage.getItem("user");
-        const shift = localStorage.getItem("shift");
-        if (storedUser) {
-            setUser(JSON.parse(storedUser));
+        const shiftStored = localStorage.getItem("shift");
+        if (shiftStored) {
+            setShift(shiftStored);
         }
 
-        if (shift) {
-            setShift(shift);
+        const token = Cookies.get("token");
+        if (token) {
+            // Fetch logged-in user from backend
+            axios.get("/check-user-session")
+                .then(res => {
+                    setUser(res.data);
+                    if (!res.data.token) {
+                        Cookies.remove("token");
+                    }
+                })
+                .catch(() => {
+                    setUser(null);
+                    Cookies.remove("token");
+                    localStorage.removeItem("user");
+                })
+                .finally(() => setInitializing(false));
+        } else {
+            setUser(null);
+            localStorage.removeItem("user");
+            setInitializing(false);
         }
     }, []);
 
-    // Function to set user data and persist to localStorage
+    // Set user and persist to localStorage
     const setUserWithStorage = (user: LoggedUser | null) => {
         if (user) {
             localStorage.setItem("user", JSON.stringify(user));
+            Cookies.set("token", JSON.stringify(user.token));
         } else {
             localStorage.removeItem("user");
         }
@@ -53,16 +75,34 @@ const UserProvider: React.FC<{ children: React.ReactNode }> = ({children}) => {
     const setShiftWithStorage = (shift: string) => {
         localStorage.setItem("shift", shift);
         setShift(shift);
-    }
+    };
 
-    // Logout function
-    const logout = () => {
-        axios.post('logout')
+    // Logout
+    const logout = async () => {
+        try {
+            await axios.post("/logout").then(() => {
+                setUser(null)
+                Cookies.remove("token");
+                location.replace('/login');
+            });
+        } catch (e) {
+            console.error("Logout failed", e);
+        }
+        Cookies.remove("token");
         setUserWithStorage(null);
     };
 
     return (
-        <UserContext.Provider value={{user, setUser: setUserWithStorage, logout, shift, setShift: setShiftWithStorage}}>
+        <UserContext.Provider
+            value={{
+                user,
+                setUser: setUserWithStorage,
+                logout,
+                shift,
+                setShift: setShiftWithStorage,
+                initializing
+            }}
+        >
             {children}
         </UserContext.Provider>
     );

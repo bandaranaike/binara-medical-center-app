@@ -1,5 +1,6 @@
 import React from "react";
-import AdminTabs, {AdminTab} from "@/components/admin/AdminTabs";
+import AdminTabs from "@/components/admin/AdminTabs";
+import {AdminTab} from "@/types/admin";
 
 const ReceptionAdmin = () => {
 
@@ -15,7 +16,8 @@ const ReceptionAdmin = () => {
                     {label: "Date", value: 'date'},
                 ],
                 types: {date: "date"}
-            }
+            },
+            labels: ['status']
         },
         {
             id: "doctors-schedules",
@@ -32,10 +34,12 @@ const ReceptionAdmin = () => {
                     {label: "Weekday", value: "weekday"},
                     {label: "Recurring", value: "recurring"},
                 ]
-            }
+            },
+            labels: ['weekday', 'recurring', 'status']
         },
         {
             id: "bill-cruds",
+            title: "Bill information",
             fields: ["doctor", "patient", "payment", "appointment_date", "created_at", "appointment_type", "payment_type", "payment_status", "status"],
             dropdowns: {doctor: 'doctors'},
             readonly: true,
@@ -47,7 +51,8 @@ const ReceptionAdmin = () => {
                     {label: "Created date", value: "created_at"},
                 ],
                 types: {date: "date", created_at: "date"}
-            }
+            },
+            labels: ['payment_type', 'payment_status', 'status']
         },
     ];
 

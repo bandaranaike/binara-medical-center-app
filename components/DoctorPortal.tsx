@@ -4,10 +4,10 @@ import SearchableSelect from '@/components/form/SearchableSelect';
 import {Option, PatientBill} from "@/types/interfaces";
 import DoctorPatientHistory from "@/components/DoctorPatientHistory";
 import Loader from "@/components/form/Loader";
-// import DoctorPatientMedicineHistory from "@/components/doctor/DoctorPatientMedicineHistory";
 import {DeleteIcon} from "@nextui-org/shared-icons";
 import PatientMedicineManager from "@/components/PatientMedicineManager";
-import Services from "@/components/Services";
+import BillItemsManager from "@/components/doctor/BillItemsManager";
+import PusherListener from "@/components/PusherListener";
 
 const DoctorPortal: React.FC = () => {
 
@@ -15,14 +15,14 @@ const DoctorPortal: React.FC = () => {
     const [patientsBills, setPatientsBills] = useState<PatientBill[]>([]);
     const [activePatientBill, setActivePatientBill] = useState<PatientBill>();
     const [loading, setLoading] = useState<boolean>(true);
-    const [patientBillsChanged, setPatientBillsChanged] = useState<boolean>(false);
+    const [patientBillsChanged, setPatientBillsChanged] = useState('');
     const [allergy] = useState<Option>();
     const [disease] = useState<Option>();
     const [diseaseAlreadyHaveMessage, setDiseaseAlreadyHaveMessage] = useState<string>("");
     const [allergyAlreadyHaveMessage, setAllergyAlreadyHaveMessage] = useState<string>("");
     const [error, setError] = useState<string>("");
     const [statusChangeError, setStatusChangeError] = useState<string>("");
-    // const [historyMedicineLoaded, setHistoryMedicineLoaded] = useState<boolean | undefined>()
+    const [medicineTotal, setMedicineTotal] = useState<number>(0);
 
     // Fetch the patientsBill data from the API
     useEffect(() => {
@@ -76,7 +76,10 @@ const DoctorPortal: React.FC = () => {
                         ...prevPatientBill,
                         patient: {
                             ...prevPatientBill.patient,
-                            allergies: [...(prevPatientBill.patient.allergies || []), {id: response.data.id, name: newAllergy}]
+                            allergies: [...(prevPatientBill.patient.allergies || []), {
+                                id: response.data.id,
+                                name: newAllergy
+                            }]
                         }
                     } : prevPatientBill
                 )
@@ -131,7 +134,10 @@ const DoctorPortal: React.FC = () => {
                         ...prevPatientBill,
                         patient: {
                             ...prevPatientBill.patient,
-                            diseases: [...(prevPatientBill.patient.diseases || []), {id: response.data.id, name: newDisease}]
+                            diseases: [...(prevPatientBill.patient.diseases || []), {
+                                id: response.data.id,
+                                name: newDisease
+                            }]
                         }
                     } : prevPatientBill
                 )
@@ -169,14 +175,14 @@ const DoctorPortal: React.FC = () => {
         }
     };
 
-    const changeBillStatus = () => {
+    const changeBillStatus = (status = 'pharmacy') => {
         setLoading(true)
         try {
             setStatusChangeError("")
             axios.put(`/bills/${activePatientBill?.id}/status`, {
-                status: 'pharmacy',
+                status,
             }).then(() => {
-                setPatientBillsChanged((prev) => !prev);
+                setPatientBillsChanged(Math.random().toString());
             }).catch(error => {
                 setStatusChangeError("Failed to update the bill status : " + error.response.data.message)
             }).finally(() => setLoading(false));
@@ -192,6 +198,12 @@ const DoctorPortal: React.FC = () => {
     return (
         <div className="font-medium dark:text-gray-400 dark:border-gray-700 relative">
 
+            <PusherListener
+                channelName="bills-channel"
+                eventName="bill-created"
+                onEventTriggerAction={() => setPatientBillsChanged(Math.random().toString())}
+            />
+
             {patientsBills.length > 0 && (
                 <ul className="flex flex-wrap -mb-px border-b border-gray-800">
                     {patientsBills.map((patientBill) => (
@@ -204,7 +216,7 @@ const DoctorPortal: React.FC = () => {
                                 } rounded-t-lg`}
                                 onClick={() => setActiveItems(patientBill)}
                             >
-                                #{patientBill.queue_number}
+                                #{patientBill.queue_number}-{patientBill.id}
                             </button>
                         </li>
                     ))}
@@ -212,7 +224,8 @@ const DoctorPortal: React.FC = () => {
             ) || (
                 <>
                     <h2 className="text-2xl font-bold mb-2 text-left">Doctor Portal</h2>
-                    {error && <div className="text-red-500 mt-2">{error}</div> || <div>There are currently no bills available for you</div>}
+                    {error && <div className="text-red-500 mt-2">{error}</div> ||
+                        <div>There are currently no bills available for you</div>}
                 </>
             )}
 
@@ -220,50 +233,52 @@ const DoctorPortal: React.FC = () => {
             {(patientsBills.length > 0 &&
                 <div className="mt-6 mx-3">
                     <div className="my-3 bg-gray-900 grid grid-cols-3 gap-3 text-left">
-                        <div className="border border-gray-800 rounded-lg py-4 px-5">
+                        <div className="border border-gray-800 rounded-lg py-4 px-5 col-span-2">
                             {activePatientBill && (
                                 <div>
                                     <div className="font-bold text-2xl mb-2">{activePatientBill.patient.name}</div>
                                     <div className="text-gray-500"> Age : {activePatientBill.patient.age}</div>
-                                    {activePatientBill.patient.gender && <div className="text-gray-500"> Gender : {activePatientBill.patient.gender}</div>}
+                                    {activePatientBill.patient.gender && <div className="text-gray-500"> Gender
+                                        : {activePatientBill.patient.gender}</div>}
                                     <div className="text-gray-500"> Bill No. : {activePatientBill.id}</div>
                                 </div>
                             )}
                         </div>
-                        <div className="border border-gray-800 rounded-lg">
-                            <h3 className="font-bold text-xl border-b border-gray-800 px-4 py-3 flex justify-between items-center">
-                                Allergies
-                            </h3>
-                            <div className="px-3 mt-3">
-                                <SearchableSelect
-                                    placeholder="Add Allergy"
-                                    apiUri="allergies"
-                                    id="allergy"
-                                    value={allergy}
-                                    onChange={(item: any) => handleAddAllergy(item.label)}
-                                    onCreateOption={(value: any) => handleAddAllergy(value)}
-                                />
-                            </div>
-                            {activePatientBill && (activePatientBill.patient.allergies?.length || 0) > 0 ? (
-                                <ul key={activePatientBill.id} className="px-2 pb-2 ml-2">
-                                    {activePatientBill.patient.allergies?.map((allergy, index) => (
-                                        <li className="mb-1 flex content-center" key={index}>
-                                            {allergy.name}
-                                            <button
-                                                className="ml-2 hover:text-red-600 font-bold"
-                                                onClick={() => handleRemoveAllergy(allergy.id)}
-                                            >
-                                                <DeleteIcon/>
-                                            </button>
-                                        </li>
-                                    ))}
-                                </ul>
-                            ) : (
-                                <p className="p-3">No allergies listed.</p>
-                            )
-                            }
-                            {allergyAlreadyHaveMessage && <div className="text-yellow-400 text-sm px-3 pb-3">{allergyAlreadyHaveMessage}</div>}
-                        </div>
+                        {/*<div className="border border-gray-800 rounded-lg">*/}
+                        {/*    <h3 className="font-bold text-xl border-b border-gray-800 px-4 py-3 flex justify-between items-center">*/}
+                        {/*        Allergies*/}
+                        {/*    </h3>*/}
+                        {/*    <div className="px-3 mt-3">*/}
+                        {/*        <SearchableSelect*/}
+                        {/*            placeholder="Add Allergy"*/}
+                        {/*            apiUri="allergies"*/}
+                        {/*            id="allergy"*/}
+                        {/*            value={allergy}*/}
+                        {/*            onChange={(item: any) => handleAddAllergy(item.label)}*/}
+                        {/*            onCreateOption={(value: any) => handleAddAllergy(value)}*/}
+                        {/*        />*/}
+                        {/*    </div>*/}
+                        {/*    {activePatientBill && (activePatientBill.patient.allergies?.length || 0) > 0 ? (*/}
+                        {/*        <ul key={activePatientBill.id} className="px-2 pb-2 ml-2">*/}
+                        {/*            {activePatientBill.patient.allergies?.map((allergy, index) => (*/}
+                        {/*                <li className="mb-1 flex content-center" key={index}>*/}
+                        {/*                    {allergy.name}*/}
+                        {/*                    <button*/}
+                        {/*                        className="ml-2 hover:text-red-600 font-bold"*/}
+                        {/*                        onClick={() => handleRemoveAllergy(allergy.id)}*/}
+                        {/*                    >*/}
+                        {/*                        <DeleteIcon/>*/}
+                        {/*                    </button>*/}
+                        {/*                </li>*/}
+                        {/*            ))}*/}
+                        {/*        </ul>*/}
+                        {/*    ) : (*/}
+                        {/*        <p className="p-3">No allergies listed.</p>*/}
+                        {/*    )*/}
+                        {/*    }*/}
+                        {/*    {allergyAlreadyHaveMessage &&*/}
+                        {/*        <div className="text-yellow-400 text-sm px-3 pb-3">{allergyAlreadyHaveMessage}</div>}*/}
+                        {/*</div>*/}
                         <div className="border border-gray-800 rounded-lg">
                             <h3 className="font-bold text-xl border-b border-gray-800 px-4 py-3 flex justify-between items-center">
                                 Diseases
@@ -295,7 +310,8 @@ const DoctorPortal: React.FC = () => {
                             ) : <p className="p-3">No diseases listed.</p>
                             }
 
-                            {diseaseAlreadyHaveMessage && <div className="text-yellow-400 text-sm px-3 pb-3">{diseaseAlreadyHaveMessage}</div>}
+                            {diseaseAlreadyHaveMessage &&
+                                <div className="text-yellow-400 text-sm px-3 pb-3">{diseaseAlreadyHaveMessage}</div>}
                         </div>
                     </div>
 
@@ -305,32 +321,28 @@ const DoctorPortal: React.FC = () => {
                     />
 
                     {activePatientBill &&
-                        <div>
-                        <PatientMedicineManager patientId={activePatientId} billId={activePatientBill?.id.toString()}/>
-                            <Services
-                                patientId={activePatientBill.patient_id}
-                                onServiceStatusChange={handleOnServiceStatusChange}
-                                resetBillItems={false}
-                                initialBill={activePatientBill}
-                                showMedicineTable={true}
-                            ></Services>
+                        <div className="grid grid-cols-2 gap-6 mb-12">
+                            <PatientMedicineManager
+                                onMedicineTotalChange={setMedicineTotal}
+                                patientId={activePatientId}
+                                billId={activePatientBill?.id.toString()}
+                            />
+                            <BillItemsManager
+                                medicineTotal={medicineTotal}
+                                billId={activePatientBill.id}
+                            ></BillItemsManager>
                         </div>
                     }
-
-                    {/*<div className="border border-dashed rounded-xl p-3 min-h-48 my-6">*/}
-                    {/*    {historyMedicineLoaded && <>*/}
-                    {/*        <h3 className="textlg font-semibold border-t border-gray-800 mt-12 pt-6">Medicine Histories</h3>*/}
-                    {/*        {activePatientBill && activePatientBill.id > 0 && (*/}
-                    {/*            <DoctorPatientMedicineHistory*/}
-                    {/*                patientId={activePatientId}*/}
-                    {/*            />*/}
-                    {/*        )}</> || <div>*/}
-                    {/*        <button className="mx-auto border py-2 px-4 border-gray-700 bg-gray-800" onClick={() => setHistoryMedicineLoaded(true)}>Load history</button>*/}
-                    {/*    </div>}*/}
-                    {/*</div>*/}
                     <div className="flex justify-end">
                         {statusChangeError && <div className="text-red-500 mx-6 p-2">{statusChangeError}</div>}
-                        <button onClick={changeBillStatus} className="border-green-600 border rounded px-4 py-2 bg-green-700 text-gray-100">Send to pharmacy</button>
+                        <button onClick={() => changeBillStatus('reception')}
+                                className="border-blue-600 border rounded px-4 py-2 bg-blue-700 text-gray-200 mr-4">Send to
+                            Reception
+                        </button>
+                        <button onClick={() => changeBillStatus()}
+                                className="border-green-600 border rounded px-4 py-2 bg-green-700 text-gray-200">Send to
+                            pharmacy
+                        </button>
                     </div>
                 </div>
             )}

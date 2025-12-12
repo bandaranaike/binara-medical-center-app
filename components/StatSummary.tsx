@@ -1,4 +1,4 @@
-import React, {useCallback , useEffect, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import axios from "@/lib/axios";
 import TotalRevenue from "@/components/reports/TotalRevenue";
 import RevenueByDoctor from "@/components/reports/RevenueByDoctor";
@@ -9,6 +9,7 @@ import dayjs from "dayjs";
 
 import {BillSummaryData, DailyReportSummaryData, RevenueByDoctorData, TotalRevenueData} from "@/types/report-interfaces";
 import debounce from "lodash.debounce";
+import ServiceCostReport from "@/components/reports/ServiceCostReport";
 
 const StatSummary = () => {
     const [billStatusSummary, setBillStatusSummary] = useState<BillSummaryData | undefined>();
@@ -21,8 +22,8 @@ const StatSummary = () => {
     const fetchData = useCallback(
         debounce(async (start: string | null = null, end: string | null = null) => {
             try {
-                const response = await axios.get("reports", { params: { startDate: start, endDate: end } });
-                const { billStatusSummary, dailyReportSummary, revenueByDoctor, totalRevenue } = response.data;
+                const response = await axios.get("reports", {params: {startDate: start, endDate: end}});
+                const {billStatusSummary, dailyReportSummary, revenueByDoctor, totalRevenue} = response.data;
 
                 setBillStatusSummary(billStatusSummary);
                 setDailyReportSummary(dailyReportSummary);
@@ -74,6 +75,10 @@ const StatSummary = () => {
                 <div className="col-span-4">
                     <TotalRevenue data={totalRevenue}/>
                 </div>
+            </div>
+            <div className="">
+                <h3 className="font-semibold text-xl mb-3">Service Cost Report</h3>
+                <ServiceCostReport/>
             </div>
             <div className="grid grid-cols-6 gap-3">
                 <div className="col-span-2 border border-gray-700 rounded-lg p-4">

@@ -1,9 +1,9 @@
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import AsyncCreatableSelect from 'react-select/async-creatable';
 import {SingleValue} from 'react-select';
 import axios from "@/lib/axios";
 import {Option} from "@/types/interfaces";
-import customStyles from "@/lib/custom-styles";
+import customStyles from "@/lib/customStyles";
 import debounce from 'lodash.debounce';
 
 
@@ -20,6 +20,7 @@ export interface SearchableSelectProps {
     options?: Option[];
     resetValue?: boolean
     extraParams?: any
+    className?: string
 }
 
 const SearchableSelect: React.FC<SearchableSelectProps> = (
@@ -33,7 +34,8 @@ const SearchableSelect: React.FC<SearchableSelectProps> = (
         value,
         resetValue,
         onExtraDataHas,
-        extraParams
+        extraParams,
+        className = 'mb-4'
     }) => {
     const [selectedValue, setSelectedValue] = useState<Option | undefined>(value);
     const [extraData, setExtraData] = useState<any>();
@@ -99,7 +101,7 @@ const SearchableSelect: React.FC<SearchableSelectProps> = (
     };
 
     return (
-        <div className="mb-4">
+        <div className={className}>
             <label className="flex-grow-1">
                 <span className="block mb-2 first-letter:uppercase">{placeholder}</span>
                 <AsyncCreatableSelect

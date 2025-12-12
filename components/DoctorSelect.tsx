@@ -1,9 +1,8 @@
 import React, {useEffect, useState} from "react";
-import SearchableSelect from "@/components/form/SearchableSelect";
 import {DoctorFee, Option} from "@/types/interfaces";
 import CreateNewDoctor from "@/components/CreateNewDoctor";
 import axiosLocal from "@/lib/axios";
-import {dateToYmdFormat} from "@/lib/readbale-date";
+import {dateToYmdFormat} from "@/lib/readableDate";
 import SearchableSelectOrCreate from "@/components/form/SearchableSelectOrCreate";
 
 interface DoctorSelectProps {
@@ -11,7 +10,7 @@ interface DoctorSelectProps {
     doctorType: string
     onDoctorSelect: (data: DoctorFee) => void;
     isBooking?: boolean
-    date?: Date | null
+    date?: Date | null | undefined | string;
 }
 
 const DoctorSelect: React.FC<DoctorSelectProps> = ({onDoctorSelect, resetSelection, doctorType, isBooking, date}) => {
@@ -91,6 +90,7 @@ const DoctorSelect: React.FC<DoctorSelectProps> = ({onDoctorSelect, resetSelecti
                     onSelect={handleDoctorChangeOption}
                     onNotSelect={handleOpenCreateDoctor}
                     apiUri={'doctors'}
+                    resetTrigger={resetSelection}
                     creatable={true}
                 />
             </div>

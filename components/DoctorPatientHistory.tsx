@@ -23,7 +23,6 @@ const DoctorPatientHistory: React.FC<DoctorPatientHistoryProps> = ({patientId}) 
 
                     const response = await axios.get(`/doctors/patient/${patientId}/histories`);
                     setHistories(response.data.data || []);
-                    setHistories(response.data.data || []);
                 } catch (err) {
                     setError('Failed to load patient history.');
                 } finally {
@@ -46,7 +45,6 @@ const DoctorPatientHistory: React.FC<DoctorPatientHistoryProps> = ({patientId}) 
                 }
 
                 try {
-                    // Send the new history to the API
                     // Send the new history to the API
                     const response = await axios.post('/patients/add-history', {
                         note: newNote,
@@ -84,7 +82,7 @@ const DoctorPatientHistory: React.FC<DoctorPatientHistoryProps> = ({patientId}) 
                                     } rounded-t-lg`}
                                     onClick={() => setActiveHistory(-1)}
                                 >
-                                    Add New History
+                                    Add Treatment History
                                 </button>
                             </li>
 
@@ -129,8 +127,10 @@ const DoctorPatientHistory: React.FC<DoctorPatientHistoryProps> = ({patientId}) 
                         {/* Display Selected Patient History */}
                         {activeHistory !== -1 && histories[activeHistory] && (
                             <div className="text-left p-4 border border-gray-800 rounded-md mb-8">
-                                <h3 className="text-gray-500">Note:</h3>
+                                <h3 className="text-gray-500">Note: </h3>
                                 <p className="">{histories[activeHistory].note || 'No notes available.'}</p>
+                                <div className="text-xs text-gray-600 mt-3">
+                                    By <b>{histories[activeHistory].doctor.name}</b></div>
                             </div>
                         )}
                     </>

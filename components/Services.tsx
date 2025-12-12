@@ -170,6 +170,7 @@ const Services: React.FC<ServicesProps> = (
 
     const updateBillItemAmount = (itemId: number, amount: string, key: string) => {
         setItemUpdateError(undefined)
+        if (itemId === 0) return;
         axios.put(`bill-items/${itemId}`, {[key]: amount})
             .catch(error => setItemUpdateError({id: itemId, message: error.response.data.message})).finally(() => setIsLoading(false));
     };
