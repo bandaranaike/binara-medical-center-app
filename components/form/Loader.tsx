@@ -1,16 +1,17 @@
-import React from 'react';
+import React from "react";
 
 interface LoaderProps {
-    size?: string; // e.g., 'w-8 h-8' or 'w-12 h-12'
-    color?: string; // e.g., 'fill-purple-600' or 'fill-blue-500'
+    size?: string;
+    color?: string;
 }
 
-const Loader: React.FC<LoaderProps> = ({ size = 'w-8 h-8', color = 'fill-purple-600' }) => {
+const Loader: React.FC<LoaderProps> = ({size = "w-8 h-8", color = "fill-fuchsia-600"}) => {
     return (
-        <div role="status" className="flex justify-center items-center">
+        <div role="status" className="flex items-center justify-center">
             <svg
                 aria-hidden="true"
-                className={`inline animate-spin text-gray-200 dark:text-gray-600 ${size} ${color}`}
+                className={`inline animate-spin ${size} ${color}`}
+                style={{color: "var(--surface-soft)"}}
                 viewBox="0 0 100 101"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"

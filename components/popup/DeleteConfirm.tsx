@@ -34,28 +34,28 @@ const DeleteConfirm: React.FC<DeleteConfirmProps> = ({deleteApiUrl, onClose, onD
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
-            <div className="relative w-full max-w-md bg-gray-800 rounded-xl shadow-lg p-6">
-                <div className="flex items-center text-gray-300 text-xl font-bold mb-3">
+            <div className="relative w-full max-w-md rounded-[1rem] border border-[var(--border-subtle)] bg-[var(--surface-elevated)] p-6 shadow-[0_24px_60px_rgba(15,23,42,0.18)]">
+                <div className="mb-3 flex items-center text-xl font-bold text-[var(--foreground)]">
                     <svg className="flex-shrink-0 w-5 h-5 mr-2 text-yellow-600" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
                         <path
                             d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
                     </svg>
                     Delete confirmation
                 </div>
-                <div className="mb-4 text-gray-400 text-sm">{children}</div>
+                <div className="mb-4 text-sm text-[var(--foreground-muted)]">{children}</div>
                 {error && <div className="pb-4 text-sm text-red-500">{error}</div>}
                 <div className="flex justify-end gap-2">
                     {isLoading && <Loader/>}
                     <button
                         onClick={onClose}
-                        className="px-4 py-2 text-white bg-gray-600 rounded hover:bg-gray-500"
+                        className="rounded-[0.7rem] border border-[var(--border-subtle)] bg-[var(--surface-muted)] px-4 py-2 text-sm font-medium text-[var(--foreground)] transition hover:border-[var(--border-strong)] hover:bg-[var(--surface-strong)]"
                     >
                         Cancel
                     </button>
                     <button
                         onClick={handleDelete}
                         disabled={isLoading}
-                        className={`px-4 py-2 text-white bg-red-600 rounded hover:bg-red-700 ${
+                        className={`rounded-[0.7rem] bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700 ${
                             isLoading ? "opacity-50 cursor-not-allowed" : ""
                         }`}
                     >

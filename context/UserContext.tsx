@@ -1,22 +1,19 @@
 import {LoggedUser} from "@/types/interfaces";
-import React, {createContext, useContext, useState, useEffect} from "react";
-import axios from "@/lib/axios";
-import Cookies from "js-cookie"; // for reading cookies on client
+import React, {createContext, useContext, useEffect, useState} from "react";
+import axios, {ensureCsrfCookie} from "@/lib/axios";
 
-// Define the context type
 interface UserContextType {
     user: LoggedUser | null;
     setUser: (user: LoggedUser | null) => void;
-    logout: () => void;
+    refreshUser: () => Promise<LoggedUser | null>;
+    logout: () => Promise<void>;
     shift: string;
     setShift: (shift: string) => void;
     initializing: boolean;
 }
 
-// Create the context
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
-// Custom hook
 export const useUserContext = () => {
     const context = useContext(UserContext);
     if (!context) {
@@ -25,82 +22,64 @@ export const useUserContext = () => {
     return context;
 };
 
-// Provider
 const UserProvider: React.FC<{ children: React.ReactNode }> = ({children}) => {
     const [user, setUser] = useState<LoggedUser | null>(null);
     const [shift, setShift] = useState("morning");
     const [initializing, setInitializing] = useState(true);
 
-    // Load on mount
-    useEffect(() => {
-        const shiftStored = localStorage.getItem("shift");
-        if (shiftStored) {
-            setShift(shiftStored);
-        }
-
-        const token = Cookies.get("token");
-        if (token) {
-            // Fetch logged-in user from backend
-            axios.get("/check-user-session")
-                .then(res => {
-                    setUser(res.data);
-                    if (!res.data.token) {
-                        Cookies.remove("token");
-                    }
-                })
-                .catch(() => {
-                    setUser(null);
-                    Cookies.remove("token");
-                    localStorage.removeItem("user");
-                })
-                .finally(() => setInitializing(false));
-        } else {
+    const refreshUser = async (): Promise<LoggedUser | null> => {
+        try {
+            const response = await axios.get("/check-user-session");
+            setUser(response.data);
+            return response.data;
+        } catch {
             setUser(null);
-            localStorage.removeItem("user");
-            setInitializing(false);
+            return null;
         }
+    };
+
+    useEffect(() => {
+        const bootstrapUser = async () => {
+            const storedShift = localStorage.getItem("shift");
+            if (storedShift) {
+                setShift(storedShift);
+            }
+
+            await refreshUser();
+            setInitializing(false);
+        };
+
+        void bootstrapUser();
     }, []);
 
-    // Set user and persist to localStorage
-    const setUserWithStorage = (user: LoggedUser | null) => {
-        if (user) {
-            localStorage.setItem("user", JSON.stringify(user));
-            Cookies.set("token", JSON.stringify(user.token));
-        } else {
-            localStorage.removeItem("user");
-        }
-        setUser(user);
+    const setShiftWithStorage = (nextShift: string) => {
+        localStorage.setItem("shift", nextShift);
+        setShift(nextShift);
     };
 
-    const setShiftWithStorage = (shift: string) => {
-        localStorage.setItem("shift", shift);
-        setShift(shift);
-    };
-
-    // Logout
     const logout = async () => {
         try {
-            await axios.post("/logout").then(() => {
-                setUser(null)
-                Cookies.remove("token");
-                location.replace('/login');
-            });
-        } catch (e) {
-            console.error("Logout failed", e);
+            await ensureCsrfCookie();
+            await axios.post("/logout");
+        } catch (error) {
+            console.error("Logout failed", error);
+        } finally {
+            setUser(null);
         }
-        Cookies.remove("token");
-        setUserWithStorage(null);
+
+        window.location.replace("/login");
     };
 
     return (
         <UserContext.Provider
             value={{
                 user,
-                setUser: setUserWithStorage,
+                setUser,
+                refreshUser,
                 logout,
                 shift,
                 setShift: setShiftWithStorage,
-                initializing
+                initializing,
             }}
         >
             {children}

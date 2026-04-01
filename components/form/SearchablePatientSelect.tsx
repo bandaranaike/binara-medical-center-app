@@ -129,32 +129,32 @@ const SearchablePatientSelect: React.FC<SearchablePatientSelectProps> = ({onPati
                 onChange={handleInputChange}
                 onKeyDown={handleKeyDown} // Add keydown event listener
                 placeholder="Enter name or phone number"
-                className="w-full p-2 border border-gray-700 bg-gray-800 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-[0.7rem] border border-[var(--border-subtle)] bg-[var(--surface-elevated)] px-3 py-2 text-sm text-[var(--foreground)] transition placeholder:text-[var(--foreground-muted)] focus:border-[var(--accent-strong)] focus:outline-none focus:ring-2 focus:ring-[var(--ring-color)]"
             />
-            {loading && <div className="absolute mt-2 text-gray-500">Loading...</div>}
+            {loading && <div className="absolute mt-2 text-sm text-[var(--foreground-muted)]">Loading...</div>}
             {error && <div className="absolute mt-2 text-red-500">{error}</div>}
             {query && showSearch && (
                 <ul
                     ref={listRef}
-                    className="absolute z-10 w-full mt-1 border border-gray-700 rounded bg-gray-800 shadow-lg max-h-72 overflow-y-auto"
+                    className="absolute z-10 mt-1 max-h-72 w-full overflow-y-auto rounded-[0.9rem] border border-[var(--border-subtle)] bg-[var(--surface-elevated)] shadow-[0_18px_40px_rgba(15,23,42,0.14)]"
                 >
                     {filteredUsers.length > 0 &&
                         filteredUsers.map((user, index) => (
                             <Fragment key={user.id}>
                                 <li
 
-                                    className={`p-2 hover:bg-gray-700 cursor-pointer border-b border-gray-700 last:border-b-0 ${
-                                        index === selectedIndex ? "bg-gray-600" : ""
+                                    className={`cursor-pointer border-b border-[var(--border-subtle)] px-3 py-3 transition last:border-b-0 hover:bg-[var(--surface-muted)] ${
+                                        index === selectedIndex ? "bg-[var(--surface-muted)]" : ""
                                     }`}
                                     onClick={() => handleSelectUser(user)}
                                 >
-                                    <div className="font-semibold">{user.name}</div>
-                                    <div className="text-sm text-gray-400">{user.phone}</div>
-                                    <div className="flex gap-2 mt-2 text-sm">
+                                    <div className="font-semibold text-[var(--foreground)]">{user.name}</div>
+                                    <div className="text-sm text-[var(--foreground-muted)]">{user.phone}</div>
+                                    <div className="mt-2 flex gap-2 text-sm">
                                         {user.patients.length > 1 && user.patients.map((patient) =>
                                             <div key={patient.id}
                                                  onClick={() => selectPatientFromList(patient)}
-                                                 className="cursor-pointer bg-blue-800 hover:bg-blue-700 text-gray-100 px-2 py-1 rounded text-sm hover:text-gray-200">
+                                                 className="cursor-pointer rounded-[999px] bg-[var(--surface-muted)] px-2.5 py-1 text-sm text-[var(--foreground)] transition hover:bg-[var(--surface-strong)]">
                                                 <span>{patient.name} - {patient.gender} {patient.age}</span>
                                             </div>
                                         )}
@@ -164,7 +164,7 @@ const SearchablePatientSelect: React.FC<SearchablePatientSelectProps> = ({onPati
                         ))}
                     <li
                         key="-1"
-                        className="p-2 hover:bg-gray-700 cursor-pointer border-b border-gray-700 last:border-b-0"
+                        className="cursor-pointer border-b border-[var(--border-subtle)] px-3 py-3 text-[var(--foreground)] transition last:border-b-0 hover:bg-[var(--surface-muted)]"
                         onClick={handleCreatePatient}
                     >
                         Add new {/^-?\d+$/.test(query) ? "number" : "name"} <i>{query}</i>
@@ -172,25 +172,25 @@ const SearchablePatientSelect: React.FC<SearchablePatientSelectProps> = ({onPati
                 </ul>
             )}
             {showFilteredPatients && filteredPatients && filteredPatients.length > 1 && (
-                <div className="border border-gray-700 bg-gray-800 rounded my-4 text-gray-400">
-                    <div className="border-b border-gray-700 px-4 py-3">
+                <div className="my-4 rounded-[0.9rem] border border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-[var(--foreground)]">
+                    <div className="border-b border-[var(--border-subtle)] px-4 py-3 text-sm text-[var(--foreground-muted)]">
                         There are {filteredPatients.length} patients for this user
                     </div>
                     {filteredPatients.map((patient) => (
                         <div
                             key={patient.id}
-                            className="border-b border-gray-700 px-4 py-2 flex justify-between last:border-b-0"
+                            className="flex justify-between border-b border-[var(--border-subtle)] px-4 py-3 last:border-b-0"
                         >
                             <div className="flex items-center">
-                                <div className="mb-1 font-semibold mr-3">{patient.name}</div>
-                                <div className="mb-1 text-sm flex gap-2 text-gray-500">
+                                <div className="mb-1 mr-3 font-semibold text-[var(--foreground)]">{patient.name}</div>
+                                <div className="mb-1 flex gap-2 text-sm text-[var(--foreground-muted)]">
                                     <span>Age: {patient.age}</span>
                                     {patient.gender && <span>Gender: {patient.gender}</span>}
                                 </div>
                             </div>
                             <button
                                 onClick={() => selectPatientFromList(patient)}
-                                className="bg-blue-800 text-white px-2 py-1 rounded-lg text-sm"
+                                className="app-button-secondary px-3 py-2 text-sm"
                             >
                                 Select this patient
                             </button>

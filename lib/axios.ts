@@ -1,24 +1,43 @@
-import axios from 'axios';
+import axios from "axios";
 
-axios.defaults.withCredentials = true;
+const backendApiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL ?? "";
+const backendRootUrl = backendApiUrl.replace(/\/api\/?$/, "");
+
+const defaultHeaders = {
+    "Accept": "application/json",
+    "Content-Type": "application/json",
+    "X-API-KEY": process.env.NEXT_PUBLIC_BINARA_API_KEY,
+    "X-Requested-With": "XMLHttpRequest",
+};
 
 const axiosInstance = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_BACKEND_API_URL,
+    baseURL: backendApiUrl,
     withCredentials: true,
-    headers: {
-        'X-API-KEY': process.env.NEXT_PUBLIC_BINARA_API_KEY,
-        'Content-Type': 'application/json',
-        'Referer': "http://localhost:3001"
-    },
+    withXSRFToken: true,
+    xsrfCookieName: "XSRF-TOKEN",
+    xsrfHeaderName: "X-XSRF-TOKEN",
+    headers: defaultHeaders,
 });
 
-// Helper to set token dynamically
-export const setAxiosToken = (token: string | null) => {
-    if (token) {
-        axiosInstance.defaults.headers.Authorization = `Bearer ${token}`;
-    } else {
-        delete axiosInstance.defaults.headers.Authorization;
+const csrfClient = axios.create({
+    baseURL: backendRootUrl,
+    withCredentials: true,
+    withXSRFToken: true,
+    xsrfCookieName: "XSRF-TOKEN",
+    xsrfHeaderName: "X-XSRF-TOKEN",
+    headers: defaultHeaders,
+});
+
+let csrfPromise: Promise<void> | null = null;
+
+export const ensureCsrfCookie = async (): Promise<void> => {
+    if (!csrfPromise) {
+        csrfPromise = csrfClient.get("/sanctum/csrf-cookie").then(() => undefined).finally(() => {
+            csrfPromise = null;
+        });
     }
+
+    return csrfPromise;
 };
 
 export default axiosInstance;

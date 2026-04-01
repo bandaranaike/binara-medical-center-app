@@ -58,9 +58,9 @@ const BillSummary: React.FC<BillSummaryProps> = ({data}) => {
         };
     }
     return (data && (
-        <div className="card">
+        <div>
             <h3 className="text-lg font-semibold">Bill Status Summary</h3>
-            <p className="mb-4 text-gray-400">{data.count} bills</p>
+            <p className="mb-4" style={{color: "var(--muted)"}}>{data.count} bills</p>
             <BaseChart options={chartOptions} series={series} type="pie"/>
         </div>
     )) || <Loader/>;

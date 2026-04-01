@@ -2,27 +2,163 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-    --foreground-rgb: 240, 240, 240;
-    --background-start-rgb: 10, 10, 10;
-    --background-end-rgb: 10, 10, 10;
+@layer base {
+    :root {
+        --radius-sm: 0.4rem;
+        --radius-md: 0.55rem;
+        --radius-lg: 0.7rem;
+    }
+
+    html[data-theme="dark"] {
+        --background: #16141d;
+        --background-secondary: #201d2b;
+        --surface: rgba(20, 24, 36, 0.82);
+        --surface-elevated: rgba(25, 32, 47, 0.92);
+        --surface-soft: rgba(57, 41, 88, 0.24);
+        --border-subtle: rgba(160, 174, 208, 0.12);
+        --border-strong: rgba(119, 93, 185, 0.35);
+        --foreground: #f7f4ff;
+        --muted: #9c9aac;
+        --muted-strong: #c2c1cf;
+        --accent: #6f49c8;
+        --accent-strong: #9d7dff;
+        --accent-soft: rgba(116, 77, 216, 0.18);
+        --success-soft: rgba(51, 214, 170, 0.18);
+        --shadow-soft: 0 24px 80px rgba(6, 9, 17, 0.35);
+        --shell-gradient: radial-gradient(circle at top left, rgba(110, 73, 200, 0.3), transparent 34%),
+            radial-gradient(circle at bottom right, rgba(20, 184, 166, 0.14), transparent 28%),
+            linear-gradient(180deg, #17151f 0%, #11131b 46%, #0c0f17 100%);
+    }
+
+    html[data-theme="light"] {
+        --background: #f4f0fb;
+        --background-secondary: #ebe3f8;
+        --surface: rgba(255, 255, 255, 0.88);
+        --surface-elevated: rgba(255, 255, 255, 0.98);
+        --surface-soft: rgba(103, 76, 166, 0.08);
+        --border-subtle: rgba(114, 97, 152, 0.12);
+        --border-strong: rgba(83, 46, 144, 0.22);
+        --foreground: #241b37;
+        --muted: #746b89;
+        --muted-strong: #4b4462;
+        --accent: #532e90;
+        --accent-strong: #6d3dc1;
+        --accent-soft: rgba(83, 46, 144, 0.1);
+        --success-soft: rgba(18, 184, 134, 0.12);
+        --shadow-soft: 0 28px 90px rgba(89, 70, 129, 0.14);
+        --shell-gradient: radial-gradient(circle at top left, rgba(111, 73, 200, 0.18), transparent 30%),
+            radial-gradient(circle at bottom right, rgba(17, 148, 144, 0.12), transparent 32%),
+            linear-gradient(180deg, #f6f2fd 0%, #f1ecfb 48%, #e8e0f5 100%);
+    }
+
+    * {
+        border-color: var(--border-subtle);
+    }
+
+    html {
+        min-height: 100%;
+        background: var(--background);
+    }
+
+    body {
+        min-height: 100vh;
+        color: var(--foreground);
+        background: var(--shell-gradient);
+        font-family: var(--font-body), sans-serif;
+        transition: background-color 180ms ease, color 180ms ease;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        font-family: var(--font-display), sans-serif;
+        letter-spacing: -0.03em;
+    }
+
+    input,
+    select,
+    textarea,
+    button {
+        font: inherit;
+    }
+
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    input[type="password"]:focus,
+    input[type="number"]:focus,
+    select:focus,
+    textarea:focus {
+        --tw-ring-color: transparent;
+        outline: none;
+    }
 }
 
-body {
-    color: rgb(var(--foreground-rgb));
-    background: linear-gradient(
-            to bottom,
-            transparent,
-            rgb(var(--background-end-rgb))
-    ) rgb(var(--background-start-rgb));
+@layer components {
+    .app-panel {
+        @apply rounded-[var(--radius-lg)] border backdrop-blur-xl;
+        background: var(--surface);
+        border-color: var(--border-subtle);
+        box-shadow: var(--shadow-soft);
+    }
+
+    .app-panel-elevated {
+        @apply rounded-[var(--radius-lg)] border backdrop-blur-xl;
+        background: var(--surface-elevated);
+        border-color: var(--border-strong);
+        box-shadow: var(--shadow-soft);
+    }
+
+    .app-label {
+        @apply mb-2 block text-[11px] font-semibold uppercase tracking-[0.28em];
+        color: var(--muted);
+    }
+
+    .app-input {
+        @apply h-12 w-full rounded-[var(--radius-sm)] border px-4 transition;
+        background: var(--surface-elevated);
+        border-color: var(--border-subtle);
+        color: var(--foreground);
+    }
+
+    .app-input::placeholder {
+        color: var(--muted);
+    }
+
+    .app-input:focus {
+        border-color: var(--accent-strong);
+        box-shadow: 0 0 0 4px var(--accent-soft);
+    }
+
+    .app-button-primary {
+        @apply inline-flex items-center justify-center rounded-[var(--radius-sm)] px-5 py-3 font-semibold transition;
+        color: white;
+        background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+        box-shadow: 0 12px 30px rgba(95, 54, 170, 0.22);
+    }
+
+    .app-button-primary:hover {
+        transform: translateY(-1px);
+        filter: brightness(1.05);
+    }
+
+    .app-button-secondary {
+        @apply inline-flex items-center justify-center rounded-[var(--radius-sm)] border px-5 py-3 font-medium transition;
+        background: var(--surface-elevated);
+        border-color: var(--border-strong);
+        color: var(--foreground);
+    }
+
+    .app-button-secondary:hover {
+        border-color: var(--accent-strong);
+        color: var(--accent-strong);
+    }
 }
 
 @layer utilities {
     .text-balance {
         text-wrap: balance;
     }
-}
-
-input[type="text"]:focus {
-    --tw-ring-color: rgba(255, 255, 255, 0);
 }

@@ -8,17 +8,20 @@ export default function AdminNav({tabs, baseUrl = 'admin'}: { tabs: AdminTab[], 
     const pathname = usePathname();
     const getActive = (id: string) => pathname?.endsWith(`/dashboard/${baseUrl}/${id}`);
 
-    const activeTabClass = "active dark:text-blue-500 border-fuchsia-500";
-    const inactiveTabClass = "border-transparent hover:border-gray-300 hover:text-gray-300";
+    const activeTabClass = "border-[var(--accent-strong)] text-[var(--accent-strong)]";
+    const inactiveTabClass = "border-transparent text-[var(--muted)] hover:border-[var(--border-strong)] hover:text-[var(--foreground)]";
 
     return (
-        <nav className="text-sm font-medium border-b border-gray-700">
-            <ul className="flex flex-wrap -mb-px">
+        <nav
+            className="mb-4 overflow-x-auto rounded-[var(--radius-md)] border text-sm font-medium"
+            style={{borderColor: "var(--border-subtle)", background: "var(--surface-soft)"}}
+        >
+            <ul className="flex min-w-max flex-wrap px-2">
                 {tabs.map((tab) => (
                     <li className="me-2" key={tab.id}>
                         <Link
                             href={`/dashboard/${baseUrl}/${tab.id}`}
-                            className={`inline-block p-4 border-b-2 rounded-t-lg capitalize ${
+                            className={`inline-block rounded-t-lg border-b-2 px-4 py-4 capitalize transition ${
                                 getActive(tab.id) ? activeTabClass : inactiveTabClass
                             }`}
                         >

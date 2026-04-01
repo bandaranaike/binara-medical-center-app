@@ -94,7 +94,7 @@ const ServiceCostReport = () => {
 
             <div className="flex">
                 <div className="flex-grow">
-                    <h1 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Service Cost Report</h1>
+                    <h1 className="mb-6 text-2xl font-bold text-[var(--foreground)]">Service Cost Report</h1>
                 </div>
                 <div className="">
                     <ExportSummaryReport/>
@@ -102,11 +102,10 @@ const ServiceCostReport = () => {
             </div>
 
             {/* Date Range Selector */}
-            <div
-                className="mb-6 rounded-lg shadow bg-white dark:bg-gray-800 p-4 border border-gray-200 dark:border-gray-700">
+            <div className="app-panel mb-6 p-4">
                 <div className="flex flex-wrap gap-4 mb-4">
                     <div className="flex-1 min-w-[200px]">
-                        <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
+                        <label className="mb-1 block text-sm font-medium text-[var(--foreground)]">
                             Start Date
                         </label>
                         <input
@@ -114,11 +113,11 @@ const ServiceCostReport = () => {
                             name="startDate"
                             value={dateRange.startDate}
                             onChange={handleDateChange}
-                            className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                            className="app-input h-11 px-3"
                         />
                     </div>
                     <div className="flex-1 min-w-[200px]">
-                        <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
+                        <label className="mb-1 block text-sm font-medium text-[var(--foreground)]">
                             End Date
                         </label>
                         <input
@@ -126,37 +125,37 @@ const ServiceCostReport = () => {
                             name="endDate"
                             value={dateRange.endDate}
                             onChange={handleDateChange}
-                            className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                            className="app-input h-11 px-3"
                         />
                     </div>
                 </div>
                 <div className="flex flex-wrap gap-2">
                     <button
                         onClick={() => setQuickRange(1)}
-                        className={`px-3 py-1 rounded-md text-sm ${
+                        className={`rounded-[var(--radius-sm)] px-3 py-1 text-sm transition ${
                             dateRange.startDate === format(new Date(), 'yyyy-MM-dd')
-                                ? 'bg-blue-600 text-white'
-                                : 'bg-blue-100 text-blue-800 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-100 dark:hover:bg-blue-800'
+                                ? 'bg-[var(--accent-strong)] text-white'
+                                : 'border border-[var(--border-subtle)] bg-[var(--surface-soft)] text-[var(--foreground)] hover:bg-[var(--surface-elevated)]'
                         }`}
                     >
                         Today
                     </button>
                     <button
                         onClick={() => setQuickRange(7)}
-                        className={`px-3 py-1 rounded-md text-sm ${
+                        className={`rounded-[var(--radius-sm)] px-3 py-1 text-sm transition ${
                             dateRange.startDate === format(subDays(new Date(), 6), 'yyyy-MM-dd')
-                                ? 'bg-blue-600 text-white'
-                                : 'bg-blue-100 text-blue-800 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-100 dark:hover:bg-blue-800'
+                                ? 'bg-[var(--accent-strong)] text-white'
+                                : 'border border-[var(--border-subtle)] bg-[var(--surface-soft)] text-[var(--foreground)] hover:bg-[var(--surface-elevated)]'
                         }`}
                     >
                         Last 7 Days
                     </button>
                     <button
                         onClick={() => setQuickRange(30)}
-                        className={`px-3 py-1 rounded-md text-sm ${
+                        className={`rounded-[var(--radius-sm)] px-3 py-1 text-sm transition ${
                             dateRange.startDate === format(subDays(new Date(), 29), 'yyyy-MM-dd')
-                                ? 'bg-blue-600 text-white'
-                                : 'bg-blue-100 text-blue-800 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-100 dark:hover:bg-blue-800'
+                                ? 'bg-[var(--accent-strong)] text-white'
+                                : 'border border-[var(--border-subtle)] bg-[var(--surface-soft)] text-[var(--foreground)] hover:bg-[var(--surface-elevated)]'
                         }`}
                     >
                         Last 30 Days
@@ -175,26 +174,22 @@ const ServiceCostReport = () => {
             {/* Report Summary */}
             {report && (
                 <>
-                    <div
-                        className="mb-6 p-4 bg-gray-50 dark:bg-gray-700/30 rounded-lg border border-gray-200 dark:border-gray-700">
-                        <h2 className="text-lg font-semibold mb-3 text-gray-800 dark:text-white">Summary</h2>
+                    <div className="mb-6 rounded-[var(--radius-md)] border p-4" style={{background: "var(--surface-soft)", borderColor: "var(--border-subtle)"}}>
+                        <h2 className="mb-3 text-lg font-semibold text-[var(--foreground)]">Summary</h2>
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                            <div
-                                className="bg-white dark:bg-gray-800 p-3 rounded shadow-sm border border-gray-200 dark:border-gray-700">
-                                <p className="text-sm text-gray-500 dark:text-gray-400">Date Range</p>
-                                <p className="font-medium dark:text-white">
+                            <div className="rounded-[var(--radius-sm)] border bg-[var(--surface-elevated)] p-3 shadow-sm" style={{borderColor: "var(--border-subtle)"}}>
+                                <p className="text-sm" style={{color: "var(--muted)"}}>Date Range</p>
+                                <p className="font-medium text-[var(--foreground)]">
                                     {new Date(report.meta.start_date).toLocaleDateString()} -{' '}
                                     {new Date(report.meta.end_date).toLocaleDateString()}
                                 </p>
                             </div>
-                            <div
-                                className="bg-white dark:bg-gray-800 p-3 rounded shadow-sm border border-gray-200 dark:border-gray-700">
-                                <p className="text-sm text-gray-500 dark:text-gray-400">Services</p>
-                                <p className="font-medium dark:text-white">{report.meta.total_services}</p>
+                            <div className="rounded-[var(--radius-sm)] border bg-[var(--surface-elevated)] p-3 shadow-sm" style={{borderColor: "var(--border-subtle)"}}>
+                                <p className="text-sm" style={{color: "var(--muted)"}}>Services</p>
+                                <p className="font-medium text-[var(--foreground)]">{report.meta.total_services}</p>
                             </div>
-                            <div
-                                className="bg-white dark:bg-gray-800 p-3 rounded shadow-sm border border-gray-200 dark:border-gray-700">
-                                <p className="text-sm text-gray-500 dark:text-gray-400">Total Bill Amount</p>
+                            <div className="rounded-[var(--radius-sm)] border bg-[var(--surface-elevated)] p-3 shadow-sm" style={{borderColor: "var(--border-subtle)"}}>
+                                <p className="text-sm" style={{color: "var(--muted)"}}>Total Bill Amount</p>
                                 <p className="font-medium text-green-600 dark:text-green-400">
                                     {report.meta.total_bill_amount.toLocaleString(undefined, {
                                         minimumFractionDigits: 2,
@@ -202,9 +197,8 @@ const ServiceCostReport = () => {
                                     })}
                                 </p>
                             </div>
-                            <div
-                                className="bg-white dark:bg-gray-800 p-3 rounded shadow-sm border border-gray-200 dark:border-gray-700">
-                                <p className="text-sm text-gray-500 dark:text-gray-400">Total System Amount</p>
+                            <div className="rounded-[var(--radius-sm)] border bg-[var(--surface-elevated)] p-3 shadow-sm" style={{borderColor: "var(--border-subtle)"}}>
+                                <p className="text-sm" style={{color: "var(--muted)"}}>Total System Amount</p>
                                 <p className="font-medium text-blue-600 dark:text-blue-400">
                                     {report.meta.total_system_amount.toLocaleString(undefined, {
                                         minimumFractionDigits: 2,
@@ -216,49 +210,47 @@ const ServiceCostReport = () => {
                     </div>
 
                     {/* Report Table */}
-                    <div
-                        className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden border border-gray-200 dark:border-gray-700">
+                    <div className="overflow-hidden rounded-[var(--radius-md)] border bg-[var(--surface-elevated)] shadow" style={{borderColor: "var(--border-subtle)"}}>
                         <div className="overflow-x-auto">
-                            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                                <thead className="bg-gray-50 dark:bg-gray-700">
+                            <table className="min-w-full">
+                                <thead style={{background: "var(--surface-soft)"}}>
                                 <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{color: "var(--muted)"}}>
                                         Service
                                     </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{color: "var(--muted)"}}>
                                         Key
                                     </th>
-                                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                    <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider" style={{color: "var(--muted)"}}>
                                         Items
                                     </th>
-                                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                    <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider" style={{color: "var(--muted)"}}>
                                         Bill Amount
                                     </th>
-                                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                    <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider" style={{color: "var(--muted)"}}>
                                         System Amount
                                     </th>
                                 </tr>
                                 </thead>
-                                <tbody
-                                    className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                <tbody>
                                 {report.data.map((item) => (
-                                    <tr key={item.service_id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                                    <tr key={item.service_id} className="transition hover:bg-[var(--surface-soft)]">
+                                        <td className="whitespace-nowrap border-t px-6 py-4 text-sm font-medium text-[var(--foreground)]" style={{borderColor: "var(--border-subtle)"}}>
                                             {item.service_name}
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                        <td className="whitespace-nowrap border-t px-6 py-4 text-sm" style={{borderColor: "var(--border-subtle)", color: "var(--muted)"}}>
                                             {item.service_key}
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 text-right">
+                                        <td className="whitespace-nowrap border-t px-6 py-4 text-right text-sm" style={{borderColor: "var(--border-subtle)", color: "var(--muted)"}}>
                                             {item.item_count}
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-right font-medium text-green-600 dark:text-green-400">
+                                        <td className="whitespace-nowrap border-t px-6 py-4 text-right text-sm font-medium text-green-600 dark:text-green-400" style={{borderColor: "var(--border-subtle)"}}>
                                             {item.total_bill_amount.toLocaleString(undefined, {
                                                 minimumFractionDigits: 2,
                                                 maximumFractionDigits: 2,
                                             })}
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-right font-medium text-blue-600 dark:text-blue-400">
+                                        <td className="whitespace-nowrap border-t px-6 py-4 text-right text-sm font-medium text-blue-600 dark:text-blue-400" style={{borderColor: "var(--border-subtle)"}}>
                                             {item.total_system_amount.toLocaleString(undefined, {
                                                 minimumFractionDigits: 2,
                                                 maximumFractionDigits: 2,

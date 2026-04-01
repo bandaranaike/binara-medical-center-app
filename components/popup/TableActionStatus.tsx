@@ -5,11 +5,16 @@ const TableActionStatus: React.FC<{ closeWindow: () => void, errorMessage?: stri
 
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-            <div className="bg-gray-800 p-6 rounded-lg shadow-lg flex flex-col items-center space-y-4 min-w-80">
-                <p className="text-gray-400">The action is being called...</p>
+            <div className="flex min-w-80 flex-col items-center space-y-4 rounded-[1rem] border border-[var(--border-subtle)] bg-[var(--surface-elevated)] p-6 shadow-[0_24px_60px_rgba(15,23,42,0.18)]">
+                <p className="text-sm text-[var(--foreground-muted)]">The action is being called...</p>
                 <Loader/>
                 {errorMessage && <div className="text-red-500">{errorMessage}</div>}
-                <button className="border bg-gray-800 border-gray-700 rounded py-2 px-4" onClick={closeWindow}>Close</button>
+                <button
+                    className="rounded-[0.7rem] border border-[var(--border-subtle)] bg-[var(--surface-muted)] px-4 py-2 text-sm font-medium text-[var(--foreground)] transition hover:border-[var(--border-strong)] hover:bg-[var(--surface-strong)]"
+                    onClick={closeWindow}
+                >
+                    Close
+                </button>
             </div>
         </div>
     );

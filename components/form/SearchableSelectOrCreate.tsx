@@ -108,11 +108,11 @@ const SearchableSelectOrCreate: React.FC<SearchableSelectOrCreateProps> = ({apiU
     };
 
     const borderColor = () => {
-        if (!isFocused) return 'border-gray-600';
+        if (!isFocused) return 'border-[var(--border-subtle)]';
         if (results.length === 0 && query.length > 0) {
-            return onNotSelect ? 'border-green-700' : 'border-red-700';
+            return onNotSelect ? 'border-emerald-500' : 'border-rose-500';
         }
-        return 'border-gray-300';
+        return 'border-[var(--accent-strong)]';
     };
 
     const handleFocus = () => {
@@ -137,7 +137,7 @@ const SearchableSelectOrCreate: React.FC<SearchableSelectOrCreateProps> = ({apiU
                     onFocus={handleFocus}
                     onBlur={handleBlur}
                     ref={inputRef}
-                    className={`w-full p-2 border rounded bg-gray-800 ${borderColor()} focus:outline-none text-gray-300 border-gray-700`}
+                    className={`w-full rounded-[0.7rem] border bg-[var(--surface-elevated)] px-3 py-2 text-sm text-[var(--foreground)] shadow-none transition placeholder:text-[var(--foreground-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--ring-color)] ${borderColor()}`}
                     placeholder={placeholder ? placeholder : 'Search'}
                 />
 
@@ -146,28 +146,35 @@ const SearchableSelectOrCreate: React.FC<SearchableSelectOrCreateProps> = ({apiU
                         <Loader size={`w-6 h-6`}/>
                     </div>
                 )}
-                {query && <div className="absolute top-3 right-3 cursor-pointer" onClick={() => resetSelection()}><XCircleIcon width={20}/></div>}
+                {query && (
+                    <div
+                        className="absolute right-3 top-3 cursor-pointer text-[var(--foreground-muted)] transition hover:text-[var(--foreground)]"
+                        onClick={() => resetSelection()}
+                    >
+                        <XCircleIcon width={20}/>
+                    </div>
+                )}
             </div>
             {(!onNotSelect && query && !selectedValue) && <div className="text-red-500 text-sm my-1">This value is invalid</div>}
 
             {isFocused && (results.length > 0 || creatable && onNotSelect && query) && (
-                <ul className="absolute z-10 w-full mt-1 bg-gray-800 border border-gray-700 rounded-lg shadow-lg top-10">
+                <ul className="absolute top-10 z-10 mt-1 w-full overflow-hidden rounded-[0.9rem] border border-[var(--border-subtle)] bg-[var(--surface-elevated)] shadow-[0_18px_40px_rgba(15,23,42,0.14)]">
                     {results.map((item: Option, index) => (
                         <li
                             key={index}
-                            className={`p-2 hover:bg-gray-700 cursor-pointer text-gray-400 border-b border-gray-700 last:border-b-0 ${
-                                selectedIndex === index ? 'bg-gray-600' : ''
+                            className={`cursor-pointer border-b border-[var(--border-subtle)] px-3 py-2 text-sm text-[var(--foreground)] transition last:border-b-0 hover:bg-[var(--surface-muted)] ${
+                                selectedIndex === index ? 'bg-[var(--surface-muted)]' : ''
                             }`}
                             onMouseDown={() => handleSelect(item)}
                         >
                             {item.label}
-                            {item.extra && <span className="text-xs block text-gray-500">{item.extra}</span>}
+                            {item.extra && <span className="mt-1 block text-xs text-[var(--foreground-muted)]">{item.extra}</span>}
                         </li>
                     ))}
 
                     {(creatable && onNotSelect && query && !selectedValue) && <li
                         key={0}
-                        className={`p-2 hover:bg-gray-700 cursor-pointer text-gray-400 border-b border-gray-700 last:border-b-0`}
+                        className="cursor-pointer border-b border-[var(--border-subtle)] px-3 py-2 text-sm text-[var(--foreground)] transition last:border-b-0 hover:bg-[var(--surface-muted)]"
                         onPointerDown={() => onNotSelect(query)}
                     >
                         Create <span className="italic">{query}</span>

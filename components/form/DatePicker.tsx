@@ -26,8 +26,8 @@ const DatePicker: React.FC<BInputProps> = ({name, value, onChange, error}) => {
         todayBtn: true,
         clearBtn: false,
         theme: {
-            background: "bg-gray-700 dark:bg-gray-800",
-            input: "w-full rounded text-gray-300 dark:bg-gray-800 dark:text-gray-300 border-gray-500",
+            background: "rounded-[0.7rem] border border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-[var(--foreground)] shadow-[0_18px_40px_rgba(15,23,42,0.14)]",
+            input: "w-full rounded-[0.7rem] border border-[var(--border-subtle)] bg-[var(--surface-elevated)] px-3 py-2 text-sm text-[var(--foreground)] shadow-none transition focus:border-[var(--accent-strong)] focus:outline-none focus:ring-2 focus:ring-[var(--ring-color)]",
             icons: "",
             todayBtn: 'Today',
             clearBtn: "Clear", text: "", disabledText: "Disabled", inputIcon: "", selected: ""
@@ -37,7 +37,7 @@ const DatePicker: React.FC<BInputProps> = ({name, value, onChange, error}) => {
     return (
         <div className="mb-4">
             <label className="block mb-2">
-                <span className="block mb-2">{name}:</span>
+                <span className="mb-2 block text-sm font-medium text-[var(--foreground)]">{name}:</span>
                 <Datepicker
                     options={theme}
                     show={show}

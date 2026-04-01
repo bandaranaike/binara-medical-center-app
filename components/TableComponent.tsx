@@ -81,12 +81,12 @@ export default function TableComponent({tab, onLoaded}: TableComponentProps) {
                     `page=${currentPage}`,
                     `searchField=${encodeURIComponent(searchField)}`,
                     `searchValue=${encodeURIComponent(search)}`,
-                    sortUri, // <- always the latest because useEffect updates deps
+                    sortUri,
                 ]
                     .filter(Boolean)
                     .join("&");
 
-                const { data: resp } = await axios.get(`${apiUrl}?${qs}`);
+                const {data: resp} = await axios.get(`${apiUrl}?${qs}`);
                 setData(resp.data);
                 setTotalPages(resp.last_page);
             } catch (e: any) {
@@ -250,12 +250,12 @@ export default function TableComponent({tab, onLoaded}: TableComponentProps) {
     };
 
     return (
-        <div className="mx-auto mt-4">
-            <div className="flex justify-between mb-4">
-                <div className="flex-grow">
-                    {filters && <div className="flex gap-2 items-center">
-                        Search :
-                        <div className="">
+        <div className="mx-auto mt-2 w-full">
+            <div className="mb-4 flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
+                <div className="flex min-w-0 flex-1 flex-col gap-3">
+                    {filters && <div className="app-panel flex flex-col gap-3 px-4 py-4 lg:flex-row lg:items-center">
+                        <span className="app-label mb-0 min-w-fit">Search</span>
+                        <div className="min-w-[220px]">
                             <CustomSelect
                                 options={filters.options}
                                 value={searchField}
@@ -263,26 +263,34 @@ export default function TableComponent({tab, onLoaded}: TableComponentProps) {
                                 className="min-w-60"
                             />
                         </div>
-                        {searchType == "date" && <Datepicker onChange={e => handleSearchChange(dateToYmdFormat(e))}/> ||
-                            <div className="">
-                                <TextInput value={searchValue} onChange={handleSearchChange}/>
-                            </div>
-                        }
-                        {searchField && <XCircleIcon width={28} className="cursor-pointer hover:text-yellow-500"
-                                                     onClick={() => resetSearch()}/>}
+                        <div className="min-w-[220px] flex-1">
+                            {searchType == "date" && <Datepicker onChange={e => handleSearchChange(dateToYmdFormat(e))}/> ||
+                                <div>
+                                    <TextInput value={searchValue} onChange={handleSearchChange}/>
+                                </div>
+                            }
+                        </div>
+                        {searchField && <button
+                            type="button"
+                            className="app-button-secondary h-11 px-3 py-2"
+                            onClick={() => resetSearch()}
+                        >
+                            <XCircleIcon width={18}/>
+                        </button>}
                     </div>
                     }
                 </div>
-                <div className="flex gap-3">
+                <div className="flex flex-wrap gap-3">
                     {!readonly && <button
                         onClick={() => setShowBulkDeleteConfirm(true)}
-                        className={`bg-red-800 text-white px-3 py-2 rounded text-sm flex gap-2 items-center ${selectedRows.size === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        className={`inline-flex items-center gap-2 rounded-[var(--radius-sm)] border px-4 py-3 text-sm font-semibold transition ${selectedRows.size === 0 ? 'cursor-not-allowed opacity-50' : ''}`}
+                        style={{background: "rgba(220,38,38,0.08)", borderColor: "rgba(220,38,38,0.18)", color: "var(--danger-strong, #c2410c)"}}
                         disabled={selectedRows.size === 0}
                     >
                         <TrashIcon width={18}/> Bulk Delete
                     </button>}
                     {!readonly && <button
-                        className="bg-green-700 text-white px-3 py-2 rounded text-sm border-green-500 items-center flex gap-1"
+                        className="app-button-primary inline-flex items-center gap-2 text-sm"
                         onClick={() => openCreateOrUpdateDialog()}
                     >
                         <PlusCircleIcon width={20}/> Add New Record
@@ -290,84 +298,90 @@ export default function TableComponent({tab, onLoaded}: TableComponentProps) {
                 </div>
             </div>
 
-            <div className="relative overflow-x-auto rounded-lg border border-gray-800">
-                <table className="w-full text-sm text-left text-gray-400">
-                    <thead>
-                    <tr className="bg-gray-800">
-                        {!readonly && <th className="p-4 w-12">
-                            <CustomTableBulkCheckbox
-                                checked={selectAll}
-                                setChecked={toggleSelectAll}
-                            />
-                        </th>}
-                        {fields.map((field) => (
-                            (!field.endsWith("_id") && !["password"].includes(field)) &&
-                            <th key={field} className="p-4">
-                                <div className="flex gap-1 justify-between">
-                                    <span className="first-letter:uppercase">{field.replace('_', ' ')}</span>
-                                    {sort && sort[field] && <SortIcon
-                                        type={sort[field].type}
-                                        inactiveHint
-                                        field={field}
-                                        onToggle={handleSortBy}
-                                    />}
-                                </div>
-                            </th>
-                        ))}
-
-                        {!readonly && <th className="p-4">Actions</th>}
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {data.map((record) => (
-                        <tr key={record.id}>
-                            {!readonly && <td className="p-4">
+            <div className="app-panel relative overflow-hidden">
+                <div className="relative overflow-x-auto">
+                    <table className="min-w-full text-left text-sm" style={{color: "var(--muted-strong)"}}>
+                        <thead>
+                        <tr style={{background: "var(--surface-soft)"}}>
+                            {!readonly && <th className="w-12 p-4">
                                 <CustomTableBulkCheckbox
-                                    checked={selectedRows.has(record.id)}
-                                    setChecked={() => toggleSelectRow(record.id)}
+                                    checked={selectAll}
+                                    setChecked={toggleSelectAll}
                                 />
-                            </td>}
-                            {fields.map((field: any) => (
+                            </th>}
+                            {fields.map((field) => (
                                 (!field.endsWith("_id") && !["password"].includes(field)) &&
-                                <td key={field} className="border-t border-gray-800 border-r py-2 px-4">
-                                    {labels?.includes(field) && record[field] ?
-                                        <StatusLabel status={record[field]}/> : record[field]}
-                                </td>
+                                <th key={field} className="whitespace-nowrap px-4 py-4 text-xs font-semibold uppercase tracking-[0.24em]" style={{color: "var(--muted)"}}>
+                                    <div className="flex gap-1 justify-between">
+                                        <span className="first-letter:uppercase">{field.replace('_', ' ')}</span>
+                                        {sort && sort[field] && <SortIcon
+                                            type={sort[field].type}
+                                            inactiveHint
+                                            field={field}
+                                            onToggle={handleSortBy}
+                                        />}
+                                    </div>
+                                </th>
                             ))}
-                            {!readonly && <td className="border-t border-gray-800 p-1">
-                                <button
-                                    className="bg-gray-800 text-yellow-400 px-2 mr-4 py-0.5 rounded"
-                                    onClick={() => openCreateOrUpdateDialog(record)}
-                                >
-                                    Edit
-                                </button>
-                                <button
-                                    className="bg-gray-800 text-red-400 px-2 py-0.5 rounded"
-                                    onClick={() => openDeleteDialog(record.id as number)}
-                                >
-                                    Delete
-                                </button>
 
-                                {actions && actions.map(action => (
-                                    <button
-                                        key={action.key}
-                                        className="bg-gray-800 text-gray-400 px-2 ml-4 py-0.5 rounded"
-                                        onClick={() => callTheAction(action.callBack, record)}
-                                    >{action.key}</button>
-                                ))}
-
-                            </td>}
+                            {!readonly && <th className="whitespace-nowrap px-4 py-4 text-xs font-semibold uppercase tracking-[0.24em]" style={{color: "var(--muted)"}}>Actions</th>}
                         </tr>
-                    ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                        {data.map((record) => (
+                            <tr key={record.id} className="transition hover:bg-[var(--surface-soft)]">
+                                {!readonly && <td className="p-4">
+                                    <CustomTableBulkCheckbox
+                                        checked={selectedRows.has(record.id)}
+                                        setChecked={() => toggleSelectRow(record.id)}
+                                    />
+                                </td>}
+                                {fields.map((field: any) => (
+                                    (!field.endsWith("_id") && !["password"].includes(field)) &&
+                                    <td key={field} className="whitespace-nowrap border-t px-4 py-3" style={{borderColor: "var(--border-subtle)"}}>
+                                        {labels?.includes(field) && record[field] ?
+                                            <StatusLabel status={record[field]}/> : record[field]}
+                                    </td>
+                                ))}
+                                {!readonly && <td className="border-t p-3" style={{borderColor: "var(--border-subtle)"}}>
+                                    <div className="flex flex-wrap gap-2">
+                                        <button
+                                            className="rounded-[var(--radius-sm)] border px-3 py-1.5 text-xs font-semibold transition"
+                                            style={{background: "rgba(217,119,6,0.1)", borderColor: "rgba(217,119,6,0.16)", color: "#b45309"}}
+                                            onClick={() => openCreateOrUpdateDialog(record)}
+                                        >
+                                            Edit
+                                        </button>
+                                        <button
+                                            className="rounded-[var(--radius-sm)] border px-3 py-1.5 text-xs font-semibold transition"
+                                            style={{background: "rgba(220,38,38,0.08)", borderColor: "rgba(220,38,38,0.16)", color: "#f87171"}}
+                                            onClick={() => openDeleteDialog(record.id as number)}
+                                        >
+                                            Delete
+                                        </button>
+
+                                        {actions && actions.map(action => (
+                                            <button
+                                                key={action.key}
+                                                className="rounded-[var(--radius-sm)] border px-3 py-1.5 text-xs font-semibold transition"
+                                                style={{background: "var(--surface-soft)", borderColor: "var(--border-subtle)", color: "var(--foreground)"}}
+                                                onClick={() => callTheAction(action.callBack, record)}
+                                            >{action.key}</button>
+                                        ))}
+                                    </div>
+                                </td>}
+                            </tr>
+                        ))}
+                        </tbody>
+                    </table>
+                </div>
                 <div>
                     {error &&
-                        <div className="p-6 border-t border-gray-800 text-center text-red-500">{error}</div>
+                        <div className="border-t p-6 text-center text-red-500" style={{borderColor: "var(--border-subtle)"}}>{error}</div>
                     }
 
                     {totalPages > 1 &&
-                        <div className="p-6 border-t border-gray-800">
+                        <div className="border-t p-6" style={{borderColor: "var(--border-subtle)"}}>
                             <Pagination
                                 currentPage={currentPage}
                                 totalPages={totalPages}
@@ -377,19 +391,16 @@ export default function TableComponent({tab, onLoaded}: TableComponentProps) {
                     }
 
                     {!error && !loading && data.length === 0 &&
-                        <div className="border-t border-gray-800 text-center p-3 text-gray-500">There are no
-                            records</div>
+                        <div className="border-t p-4 text-center text-sm" style={{borderColor: "var(--border-subtle)", color: "var(--muted)"}}>There are no records</div>
                     }
                 </div>
                 {loading &&
-                    <div className="p-6 my-24 min-w-max absolute left-1/2 top-0 border-gray-800"><Loader/></div>}
+                    <div className="absolute left-1/2 top-0 my-24 min-w-max -translate-x-1/2 rounded-[var(--radius-sm)] border px-5 py-4" style={{background: "var(--surface-elevated)", borderColor: "var(--border-subtle)"}}><Loader/></div>}
             </div>
 
 
-            {/* Action calling dialog */}
             {isActionCalling && <TableActionStatus errorMessage={actionError}
                                                    closeWindow={() => setIsActionCalling(false)}></TableActionStatus>}
-            {/* Delete Confirmation Dialog */}
             <Transition appear show={isDeleteDialogOpen} as={Fragment}>
                 <Dialog as="div" className="relative z-10" onClose={closeDialogs}>
                     <TransitionChild
@@ -405,7 +416,7 @@ export default function TableComponent({tab, onLoaded}: TableComponentProps) {
                     </TransitionChild>
 
                     <div className="fixed inset-0 overflow-y-auto">
-                        <div className="flex items-center justify-center min-h-full p-4 text-center">
+                        <div className="flex min-h-full items-center justify-center p-4 text-center">
                             <TransitionChild
                                 as={Fragment}
                                 enter="ease-out duration-300"
@@ -416,12 +427,14 @@ export default function TableComponent({tab, onLoaded}: TableComponentProps) {
                                 leaveTo="opacity-0 scale-95"
                             >
                                 <Dialog.Panel
-                                    className="w-full max-w-md p-6 overflow-hidden text-left align-middle transition-all transform shadow-xl bg-gray-800 rounded-2xl">
-                                    <Dialog.Title as="h3" className="text-lg font-medium leading-6 ">
+                                    className="w-full max-w-md overflow-hidden rounded-[var(--radius-lg)] border p-6 text-left align-middle transition-all transform"
+                                    style={{background: "var(--surface-elevated)", borderColor: "var(--border-subtle)", boxShadow: "var(--shadow-soft)"}}
+                                >
+                                    <Dialog.Title as="h3" className="text-lg font-medium leading-6">
                                         Confirm Deletion
                                     </Dialog.Title>
                                     <div className="mt-2">
-                                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                                        <p className="text-sm" style={{color: "var(--muted)"}}>
                                             Are you sure you want to delete this record? This action cannot be undone.
                                         </p>
                                     </div>
@@ -429,14 +442,14 @@ export default function TableComponent({tab, onLoaded}: TableComponentProps) {
                                     <div className="mt-4 flex justify-end space-x-2">
                                         <button
                                             type="button"
-                                            className="bg-gray-600 text-white px-4 py-2 rounded"
+                                            className="app-button-secondary"
                                             onClick={closeDialogs}
                                         >
                                             Cancel
                                         </button>
                                         <button
                                             type="button"
-                                            className="bg-red-600 text-white px-4 py-2 rounded"
+                                            className="rounded-[var(--radius-sm)] bg-red-600 px-4 py-2 text-white"
                                             onClick={() => handleDelete(currentRecordId as number)}
                                         >
                                             Delete
@@ -461,7 +474,6 @@ export default function TableComponent({tab, onLoaded}: TableComponentProps) {
                 </DeleteConfirm>
             }
 
-            {/* Create/Update Dialog */}
             <Transition appear show={isCreateOrUpdateDialogOpen} as={Fragment}>
                 <Dialog as="div" className="relative z-10" onClose={closeDialogs}>
                     <TransitionChild
@@ -477,7 +489,7 @@ export default function TableComponent({tab, onLoaded}: TableComponentProps) {
                     </TransitionChild>
 
                     <div className="fixed inset-0 overflow-y-auto">
-                        <div className="flex items-center justify-center min-h-full p-4 text-center">
+                        <div className="flex min-h-full items-center justify-center p-4 text-center">
                             <Transition.Child
                                 as={Fragment}
                                 enter="ease-out duration-300"
@@ -488,12 +500,13 @@ export default function TableComponent({tab, onLoaded}: TableComponentProps) {
                                 leaveTo="opacity-0 scale-95"
                             >
                                 <Dialog.Panel
-                                    className="w-full max-w-md p-6 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl dark:bg-gray-800 rounded-2xl">
-                                    <Dialog.Title as="h3"
-                                                  className="text-lg font-medium leading-6 text-gray-900 dark:text-white">
+                                    className="w-full max-w-md overflow-hidden rounded-[var(--radius-lg)] border p-6 text-left align-middle transition-all transform"
+                                    style={{background: "var(--surface-elevated)", borderColor: "var(--border-subtle)", boxShadow: "var(--shadow-soft)"}}
+                                >
+                                    <Dialog.Title as="h3" className="text-lg font-medium leading-6">
                                         {currentRecordId ? 'Update record ' : 'Create New record '}
                                     </Dialog.Title>
-                                    <div className='text-sm text-gray-400 first-letter:uppercase'>This action will
+                                    <div className='text-sm first-letter:uppercase' style={{color: "var(--muted)"}}>This action will
                                         update the list of {apiUrl}</div>
                                     <div className="mt-2">
                                         {fields.map((field) => (
@@ -519,7 +532,7 @@ export default function TableComponent({tab, onLoaded}: TableComponentProps) {
 
                                                 {(!dropdowns || !dropdowns[field]) && (select && select[field]) && (
                                                     <div className="mb-4">
-                                                        <label className="block first-letter:uppercase mb-2">
+                                                        <label className="app-label">
                                                             {field}
                                                         </label>
                                                         <Select
@@ -536,7 +549,7 @@ export default function TableComponent({tab, onLoaded}: TableComponentProps) {
                                                 )}
                                                 {((!dropdowns || (dropdowns && !dropdowns[field])) && (!select || (select && !select[field]))) && (
                                                     <>
-                                                        <label className="block first-letter:uppercase">
+                                                        <label className="app-label">
                                                             {field.replace('_', ' ')}
                                                         </label>
                                                         <input
@@ -546,7 +559,7 @@ export default function TableComponent({tab, onLoaded}: TableComponentProps) {
                                                             onChange={(e) =>
                                                                 setFormData({...formData, [field]: e.target.value})
                                                             }
-                                                            className="block w-full mt-1 border-gray-300 rounded-md shadow-sm dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300"
+                                                            className="app-input mt-1"
                                                         />
                                                     </>
                                                 )}
@@ -558,14 +571,14 @@ export default function TableComponent({tab, onLoaded}: TableComponentProps) {
                                     <div className="mt-4 flex justify-end space-x-2">
                                         <button
                                             type="button"
-                                            className="bg-gray-600 text-white px-4 py-2 rounded"
+                                            className="app-button-secondary"
                                             onClick={closeDialogs}
                                         >
                                             Cancel
                                         </button>
                                         <button
                                             type="button"
-                                            className="bg-blue-700 text-white px-4 py-2 rounded"
+                                            className="app-button-primary"
                                             onClick={handleCreateOrUpdate}
                                         >
                                             {currentRecordId ? 'Update' : 'Create'}

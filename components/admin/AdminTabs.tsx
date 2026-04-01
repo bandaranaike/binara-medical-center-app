@@ -19,20 +19,20 @@ const AdminTabs: React.FC<ActiveTabsProps> = ({tabs, onSelectActiveTab}) => {
             onSelectActiveTab(activeTab.id)
     }, [activeTab]);
 
-    const activeTabClass = "active dark:text-blue-500 border-fuchsia-500";
-    const inactiveTabClass = "border-transparent hover:border-gray-300 hover:text-gray-300";
+    const activeTabClass = "border-[var(--accent-strong)] text-[var(--accent-strong)]";
+    const inactiveTabClass = "border-transparent text-[var(--muted)] hover:border-[var(--border-strong)] hover:text-[var(--foreground)]";
 
     return (
         <div>
-            <div className="bg-gray-900 text-gray-400">
-                <nav className="text-sm font-medium border-b border-gray-700">
+            <div className="overflow-hidden rounded-[var(--radius-lg)] border bg-[var(--surface-elevated)] text-[var(--foreground)] shadow-[var(--shadow-soft)]" style={{borderColor: "var(--border-subtle)"}}>
+                <nav className="border-b text-sm font-medium" style={{borderColor: "var(--border-subtle)", background: "var(--surface-soft)"}}>
                     <ul className="flex flex-wrap -mb-px">
                         {tabs.length > 0 && tabs.map((tab) => (
                             <li className="me-2" key={tab.id}>
                                 <Link
                                     href={`/dashboard/admin/${tab.id}`}
                                     onClick={() => setActiveTab(tab)}
-                                    className={`inline-block p-4 border-b-2 rounded-t-lg capitalize ${
+                                    className={`inline-block rounded-t-lg border-b-2 p-4 capitalize transition ${
                                         activeTab.id === tab.id ? activeTabClass : inactiveTabClass
                                     }`}
                                 >{tab.title ?? tab.id.replace('-', ' ')}</Link>
@@ -48,7 +48,7 @@ const AdminTabs: React.FC<ActiveTabsProps> = ({tabs, onSelectActiveTab}) => {
                     }
                     {
                         (activeTab.id !== "summary" && loading) &&
-                        <div className="p-6 my-24 min-w-max border-gray-800"><Loader/></div>
+                        <div className="my-24 min-w-max p-6"><Loader/></div>
                     }
                 </div>
             </div>

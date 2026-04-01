@@ -102,8 +102,8 @@ const SearchableSelect: React.FC<SearchableSelectProps> = (
 
     return (
         <div className={className}>
-            <label className="flex-grow-1">
-                <span className="block mb-2 first-letter:uppercase">{placeholder}</span>
+            <label className="block">
+                <span className="mb-2 block text-sm font-medium text-[var(--foreground)] first-letter:uppercase">{placeholder}</span>
                 <AsyncCreatableSelect
                     defaultOptions
                     onChange={handleOnChange}

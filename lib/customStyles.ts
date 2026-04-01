@@ -1,34 +1,37 @@
 const customStyles = {
-    control: (provided: object) => ({
+    control: (provided: object, state: { isFocused: boolean }) => ({
         ...provided,
-        backgroundColor: 'rgb(31, 41, 55)',
-        color: '#a6a6a6',
-        borderColor: 'rgb(55, 65, 81)',
+        backgroundColor: "var(--surface-elevated)",
+        color: "var(--foreground)",
+        borderColor: state.isFocused ? "var(--accent-strong)" : "var(--border-subtle)",
+        boxShadow: state.isFocused ? "0 0 0 4px var(--accent-soft)" : "none",
+        borderRadius: "var(--radius-sm)",
+        minHeight: "46px",
     }),
     singleValue: (provided: object) => ({
         ...provided,
-        // textTransform: 'capitalize',
-        color: '#a6a6a6',
+        color: "var(--foreground)",
     }),
     menu: (provided: object) => ({
         ...provided,
-        backgroundColor: 'rgb(31, 41, 55)',
+        backgroundColor: "var(--surface-elevated)",
+        border: "1px solid var(--border-subtle)",
+        borderRadius: "var(--radius-sm)",
+        overflow: "hidden",
     }),
-    option: (provided: object, state: { isSelected: boolean }) => ({
+    option: (provided: object, state: { isFocused: boolean; isSelected: boolean }) => ({
         ...provided,
-        backgroundColor: state.isSelected ? '#202439' : '#212b4a',
-        color: '#a6a6a6',
-        '&:hover': {
-            backgroundColor: '#1c2235',
-        },
+        backgroundColor: state.isSelected ? "var(--accent)" : state.isFocused ? "var(--surface-soft)" : "transparent",
+        color: state.isSelected ? "#ffffff" : "var(--foreground)",
+        cursor: "pointer",
     }),
     placeholder: (provided: object) => ({
         ...provided,
-        color: '#aaa',
+        color: "var(--muted)",
     }),
     input: (provided: object) => ({
         ...provided,
-        color: '#a6a6a6',
+        color: "var(--foreground)",
     }),
 };
 

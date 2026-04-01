@@ -78,16 +78,16 @@ const AvailabilityDatePicker: React.FC<DatePickerProps> = ({selectedDate, onDate
                     >
                         <div
                             className={
-                                `text-center text-sm font-semibold leading-9 transition-colors rounded bg-gray-50 dark:bg-gray-700 dark:bg-opacity-30
+                                `rounded-[0.6rem] text-center text-sm font-semibold leading-9 transition-colors
                                 ${isDisabled
-                                    ? 'cursor-not-allowed' // Disabled state
+                                    ? 'cursor-not-allowed bg-[var(--surface-soft)] opacity-50' // Disabled state
                                     : isSelected
-                                        ? 'bg-purple-700 text-white cursor-pointer dark:bg-purple-700 dark:bg-opacity-90 dark:text-white dark:hover:bg-opacity-100' // Selected state
-                                        : 'cursor-pointer bg-purple-100 hover:bg-purple-200 dark:bg-purple-500 dark:bg-opacity-20 dark:hover:bg-opacity-40' // Default selectable state
+                                        ? 'cursor-pointer bg-[var(--accent-strong)] text-white' // Selected state
+                                        : 'cursor-pointer bg-[var(--surface-soft)] hover:bg-[var(--surface-muted)]' // Default selectable state
                                 } 
                                 ${!isCurrentMonthDay
-                                    ? 'text-gray-400 dark:text-gray-500' // Not the current month but selectable
-                                    : 'text-gray-600  dark:text-gray-400'} 
+                                    ? 'text-[var(--foreground-subtle)]' // Not the current month but selectable
+                                    : 'text-[var(--foreground)]'} 
                                 `}
                             onClick={() => !isDisabled && handleDateClick(cloneDay)}> {format(day, 'd')}</div>
                     </td>
@@ -106,30 +106,30 @@ const AvailabilityDatePicker: React.FC<DatePickerProps> = ({selectedDate, onDate
             <button
                 disabled={disabled}
                 type="button"
-                className={`min-w-72 text-sm border border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 rounded-lg py-2.5 px-3 w-full text-left flex gap-2 
-                ${disabled ? 'cursor-not-allowed dark:text-gray-500 text-gray-300' : ''}`}
+                className={`flex w-full min-w-72 gap-2 rounded-[0.7rem] border border-[var(--border-subtle)] bg-[var(--surface-elevated)] px-3 py-2.5 text-left text-sm text-[var(--foreground)] transition
+                ${disabled ? 'cursor-not-allowed text-[var(--foreground-subtle)]' : 'hover:border-[var(--border-strong)]'}`}
                 onClick={handleToggle}
             >
                 <CalendarIcon width={20} className=""/> {selectedDate ? format(selectedDate, 'yyyy-MM-dd') : 'Select date'}
             </button>
             {isOpen && (
-                <div className="absolute z-10 bg-white dark:bg-gray-800 dark:border-gray-700 border rounded-xl min-w-max shadow-lg mt-1 pb-2">
+                <div className="absolute z-10 mt-1 min-w-max rounded-[1rem] border border-[var(--border-subtle)] bg-[var(--surface-elevated)] pb-2 shadow-[0_18px_40px_rgba(15,23,42,0.14)]">
                     <div className="p-4">
                         <div className="flex justify-between content-center items-center mt-2 mb-6">
-                            <ArrowLeftIcon width={20} className="ml-2 cursor-pointer dark:text-gray-400" onClick={prevMonth}/>
-                            <span className="dark:text-gray-400 font-semibold text-sm mx-auto">{format(currentMonth, 'MMMM yyyy')}</span>
-                            <ArrowRightIcon width={20} className="mr-2 cursor-pointer dark:text-gray-400" onClick={nextMonth}/>
+                            <ArrowLeftIcon width={20} className="ml-2 cursor-pointer text-[var(--foreground-muted)] transition hover:text-[var(--foreground)]" onClick={prevMonth}/>
+                            <span className="mx-auto text-sm font-semibold text-[var(--foreground)]">{format(currentMonth, 'MMMM yyyy')}</span>
+                            <ArrowRightIcon width={20} className="mr-2 cursor-pointer text-[var(--foreground-muted)] transition hover:text-[var(--foreground)]" onClick={nextMonth}/>
                         </div>
                         <table className="w-full">
                             <thead>
                             <tr>
-                                <th className="h-6 text-center text-sm font-medium leading-6 text-gray-500 dark:text-gray-400 w-10">Sun</th>
-                                <th className="h-6 text-center text-sm font-medium leading-6 text-gray-500 dark:text-gray-400 w-10">Mon</th>
-                                <th className="h-6 text-center text-sm font-medium leading-6 text-gray-500 dark:text-gray-400 w-10">Tue</th>
-                                <th className="h-6 text-center text-sm font-medium leading-6 text-gray-500 dark:text-gray-400 w-10">Wed</th>
-                                <th className="h-6 text-center text-sm font-medium leading-6 text-gray-500 dark:text-gray-400 w-10">Thu</th>
-                                <th className="h-6 text-center text-sm font-medium leading-6 text-gray-500 dark:text-gray-400 w-10">Fri</th>
-                                <th className="h-6 text-center text-sm font-medium leading-6 text-gray-500 dark:text-gray-400 w-10">Sat</th>
+                                <th className="h-6 w-10 text-center text-sm font-medium leading-6 text-[var(--foreground-muted)]">Sun</th>
+                                <th className="h-6 w-10 text-center text-sm font-medium leading-6 text-[var(--foreground-muted)]">Mon</th>
+                                <th className="h-6 w-10 text-center text-sm font-medium leading-6 text-[var(--foreground-muted)]">Tue</th>
+                                <th className="h-6 w-10 text-center text-sm font-medium leading-6 text-[var(--foreground-muted)]">Wed</th>
+                                <th className="h-6 w-10 text-center text-sm font-medium leading-6 text-[var(--foreground-muted)]">Thu</th>
+                                <th className="h-6 w-10 text-center text-sm font-medium leading-6 text-[var(--foreground-muted)]">Fri</th>
+                                <th className="h-6 w-10 text-center text-sm font-medium leading-6 text-[var(--foreground-muted)]">Sat</th>
                             </tr>
                             </thead>
                             <tbody>{renderDays()}</tbody>

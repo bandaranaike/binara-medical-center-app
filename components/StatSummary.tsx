@@ -56,7 +56,7 @@ const StatSummary = () => {
             <div className="flex justify-between">
                 <div>
                     <h2 className="font-semibold text-xl mb-3">Stat Summary
-                        <div className="text-stone-500 text-sm">
+                        <div className="text-sm" style={{color: "var(--muted)"}}>
                             For {(startDate && endDate) && <span>{startDate} - {endDate}</span> || "today"}
                         </div>
                     </h2>
@@ -81,10 +81,10 @@ const StatSummary = () => {
                 <ServiceCostReport/>
             </div>
             <div className="grid grid-cols-6 gap-3">
-                <div className="col-span-2 border border-gray-700 rounded-lg p-4">
+                <div className="app-panel col-span-2 p-4">
                     <BillSummary data={billStatusSummary}/>
                 </div>
-                <div className="col-span-4 border border-gray-700 rounded-lg p-4">
+                <div className="app-panel col-span-4 p-4">
                     <RevenueByDoctor data={revenueByDoctor}/>
                 </div>
             </div>

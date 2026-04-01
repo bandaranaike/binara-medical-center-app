@@ -71,73 +71,73 @@ const ShowBillAndPrint: FC<ShowBillAndPrintProps> = ({
     return <div>
 
         <div className={`fixed inset-0 bg-opacity-60 bg-black flex justify-center items-center z-50`}>
-            <div className="bg-gray-800 rounded-lg shadow-lg max-w-2xl w-full pb-3">
-                <div className="p-4 border-b border-gray-700 flex justify-between items-center">
-                    <h2 className="text-xl font-bold">Appointment Details</h2>
+            <div className="w-full max-w-2xl rounded-[1rem] border border-[var(--border-subtle)] bg-[var(--surface-elevated)] pb-3 shadow-[0_24px_60px_rgba(15,23,42,0.18)]">
+                <div className="flex items-center justify-between border-b border-[var(--border-subtle)] p-4">
+                    <h2 className="text-xl font-bold text-[var(--foreground)]">Appointment Details</h2>
                     <button
                         onClick={() => onCloseBooking()}
-                        className="text-gray-500 hover:text-gray-400"
+                        className="text-[var(--foreground-muted)] transition hover:text-[var(--foreground)]"
                     > ✖
                     </button>
                 </div>
 
-                <div className="border roudned border-gray-800 p-4">
+                <div className="p-4">
 
 
                     {selectedBooking && (
 
-                        <div className="border rounded border-gray-800">
+                        <div className="rounded-[0.9rem] border border-[var(--border-subtle)] bg-[var(--surface-soft)] p-4 text-sm text-[var(--foreground)]">
                             <p className='pb-1'>
-                                <span>Queue Number: </span>
-                                <span className='text-green-500 font-semibold'>{selectedBooking.queue_number}</span>
+                                <span className="text-[var(--foreground-muted)]">Queue Number: </span>
+                                <span className='font-semibold text-emerald-500'>{selectedBooking.queue_number}</span>
                             </p>
                             <p className='pb-1'>
-                                <span>Patient Name: </span>
-                                <span className='text-green-500 font-semibold'>{selectedBooking.patient_name}</span>
+                                <span className="text-[var(--foreground-muted)]">Patient Name: </span>
+                                <span className='font-semibold text-emerald-500'>{selectedBooking.patient_name}</span>
                             </p>
                             <p className='pb-1'>
-                                <span>Doctor Name: </span>
+                                <span className="text-[var(--foreground-muted)]">Doctor Name: </span>
                                 <span
-                                    className='text-green-500 font-semibold'>{selectedBooking.doctor_name ?? 'No doctor assigned.'}</span>
+                                    className='font-semibold text-emerald-500'>{selectedBooking.doctor_name ?? 'No doctor assigned.'}</span>
                             </p>
                             <p className='pb-1'>
-                                <span>Appointment Type: </span>
-                                <span className='text-green-500 font-semibold'>{selectedBooking.appointment_type}</span>
+                                <span className="text-[var(--foreground-muted)]">Appointment Type: </span>
+                                <span className='font-semibold text-emerald-500'>{selectedBooking.appointment_type}</span>
                             </p>
                             <p className='pb-1'>
-                                <span>Amount: </span>
-                                <span className='text-green-500 font-semibold'>
+                                <span className="text-[var(--foreground-muted)]">Amount: </span>
+                                <span className='font-semibold text-emerald-500'>
                                     {(Number(selectedBooking.bill_amount) + Number(selectedBooking.system_amount)).toFixed(2)}
                                 </span>
                             </p>
                             <p className='pb-1'>
-                                <span>Date: </span>
-                                <span className='text-green-500 font-semibold'>{selectedBooking.queue_date}</span>
+                                <span className="text-[var(--foreground-muted)]">Date: </span>
+                                <span className='font-semibold text-emerald-500'>{selectedBooking.queue_date}</span>
                             </p>
                             <p className='pb-1'>
-                                <span>Payment Type: </span>
-                                <span className='text-green-500 font-semibold'>{selectedBooking.payment_type}</span>
+                                <span className="text-[var(--foreground-muted)]">Payment Type: </span>
+                                <span className='font-semibold text-emerald-500'>{selectedBooking.payment_type}</span>
                             </p>
                             <p className='pb-1'>
-                                <span>Payment Status: </span>
-                                <span className='text-green-500 font-semibold'>{selectedBooking.payment_status}</span>
+                                <span className="text-[var(--foreground-muted)]">Payment Status: </span>
+                                <span className='font-semibold text-emerald-500'>{selectedBooking.payment_status}</span>
                             </p>
                             <p className='pb-1'>
-                                <span>Bill Status: </span>
+                                <span className="text-[var(--foreground-muted)]">Bill Status: </span>
                                 <span
-                                    className='text-green-500 font-semibold'>{selectedBooking.bill_id ? "Created" : "Not Created"}</span>
+                                    className='font-semibold text-emerald-500'>{selectedBooking.bill_id ? "Created" : "Not Created"}</span>
                             </p>
                             {printingError && <div className="text-red-500 my-3">{printingError}</div>}
                             <div className="flex gap-3 mt-4 items-center justify-end">
                                 {isConverting && (<div className="mx-3 mt-1"><Loader/></div>)}
                                 <CustomCheckbox setChecked={setPrintBill} checked={printBill} label="Print bill"/>
                                 <button
-                                    className="rounded bg-blue-800 text-white px-3 py-2"
+                                    className="app-button-primary px-3 py-2 text-sm"
                                     onClick={() => handleConvertBill(selectedBooking)}
                                 >
                                     {selectedBooking.status == "done" ? "Print the bill" : (status == "done" ? (printBill ? "Mark as done and Print Bill" : "Mark as done") : "Confirm the payment and create bill")}
                                 </button>
-                                <button className="rounded bg-gray-600 text-white px-3 py-2"
+                                <button className="app-button-secondary px-3 py-2 text-sm"
                                         onClick={() => onCloseBooking()}>
                                     Cancel
                                 </button>

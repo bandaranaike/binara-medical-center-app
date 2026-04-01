@@ -14,11 +14,13 @@ const CustomTableBulkCheckbox: React.FC<CustomTableBulkCheckboxProps> = ({checke
     return (
         <div className="flex items-center cursor-pointer" onClick={toggleChecked}>
             <div
-                className={`w-4 h-4 rounded flex items-center justify-center transition-all duration-100 ${
-                    checked ? "bg-purple-700" : "bg-gray-500"
+                className={`flex h-4 w-4 items-center justify-center rounded-[0.35rem] border transition-all duration-100 ${
+                    checked
+                        ? "border-[var(--accent-strong)] bg-[var(--accent-strong)]"
+                        : "border-[var(--border-strong)] bg-[var(--surface-muted)]"
                 }`}
             >
-                {checked && <div className="w-1.5 h-1.5 bg-gray-200 rounded"></div>}
+                {checked && <div className="h-1.5 w-1.5 rounded-full bg-white"></div>}
             </div>
         </div>
     );

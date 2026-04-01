@@ -1,11 +1,11 @@
 import React from "react";
 
 interface CustomRadioProps {
-    label?: string; // Optional label for the radio button
-    value: string; // Unique value for each radio button
-    groupValue: string; // Current selected value in the group
-    size?: number; // Current selected value in the group
-    onChange: (value: string) => void; // Callback when selection changes
+    label?: string;
+    value: string;
+    groupValue: string;
+    size?: number;
+    onChange: (value: string) => void;
 }
 
 const CustomRadio: React.FC<CustomRadioProps> = ({label, value, groupValue, onChange, size = 6}) => {
@@ -13,21 +13,23 @@ const CustomRadio: React.FC<CustomRadioProps> = ({label, value, groupValue, onCh
     const outerSize = `w-${size} h-${size}`;
     const innerSize = `w-${size / 2} h-${size / 2}`;
 
-    const handleSelection = () => {
-        onChange(value);
-    };
-
     return (
-        <div className="flex items-center cursor-pointer mr-4" onClick={handleSelection}>
-            <div
-                className={`${outerSize} rounded-full flex items-center justify-center transition-all duration-200 ${
-                    isSelected ? "bg-blue-500" : "bg-gray-300"
-                }`}
+        <button
+            type="button"
+            className="mr-4 flex items-center text-left transition hover:opacity-90"
+            onClick={() => onChange(value)}
+        >
+            <span
+                className={`${outerSize} flex items-center justify-center rounded-full border transition-all duration-200`}
+                style={{
+                    background: isSelected ? "var(--accent)" : "var(--surface-soft)",
+                    borderColor: isSelected ? "var(--accent-strong)" : "var(--border-subtle)",
+                }}
             >
-                {isSelected && <div className={`${innerSize} bg-white rounded-full`}></div>}
-            </div>
-            {label && <span className="ml-1 text-sm">{label}</span>}
-        </div>
+                {isSelected && <span className={`${innerSize} rounded-full bg-white`}></span>}
+            </span>
+            {label && <span className="ml-2 text-sm" style={{color: "var(--foreground)"}}>{label}</span>}
+        </button>
     );
 };
 

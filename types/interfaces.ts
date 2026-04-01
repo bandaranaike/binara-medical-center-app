@@ -102,7 +102,6 @@ export interface HistoryItem {
 export interface LoggedUser {
     role: string;
     name: string;
-    token: string;
 }
 
 export interface MedicationFrequency {

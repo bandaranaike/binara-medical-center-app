@@ -4,14 +4,14 @@ import {TotalRevenueProps} from "@/types/report-interfaces";
 
 const TotalRevenue: React.FC<TotalRevenueProps> = ({data}) => {
 
-    return (<div className="card border border-gray-700 rounded-lg shadow-md mb-4 p-4">
+    return (<div className="app-panel mb-4 p-4">
             {data && (
                 <div className="flex gap-4 text-center">
-                    <div className="flex-grow border-r border-gray-700">
+                    <div className="flex-grow border-r" style={{borderColor: "var(--border-subtle)"}}>
                         <div className="font-semibold">Bill revenue</div>
                         <div className="text-pink-600 text-3xl font-bold"> {data.totalBillRevenue} LKR</div>
                     </div>
-                    <div className="flex-grow border-r border-gray-700">
+                    <div className="flex-grow border-r" style={{borderColor: "var(--border-subtle)"}}>
                         <div className="font-semibold">System revenue</div>
                         <div className="text-fuchsia-600 text-3xl font-bold">{data.totalSystemRevenue} LKR</div>
                     </div>

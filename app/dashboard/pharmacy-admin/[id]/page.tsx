@@ -11,7 +11,7 @@ export default function PharmacyAdminTabPage({params}: { params: Promise<{ id: s
     if (!tab) notFound();
 
     return (
-        <div className="bg-gray-900 text-gray-400">
+        <div className="text-[var(--foreground)]">
             <AdminNav baseUrl="pharmacy-admin" tabs={tabs}/>
             <div className="">
                 {/* TableComponent already handles loading/pagination/search/etc. */}

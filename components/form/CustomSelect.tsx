@@ -19,54 +19,60 @@ const CustomSelect: React.FC<CustomSelectProps> = ({options, value, onChange, cl
     const [search, setSearch] = useState("");
     const [selectedValue, setSelectedValue] = useState("");
 
-    const filteredOptions = options.filter((option) =>
-        option.label.toLowerCase().includes(search.toLowerCase())
-    );
-
+    const filteredOptions = options.filter((option) => option.label.toLowerCase().includes(search.toLowerCase()));
     const selectedOption = options.find((option) => option.value === value);
 
-    const setSelection = (value: string) => {
-        {
-            onChange(value)
-            setSelectedValue(value);
-            setIsOpen(false);
-            setSearch("");
-        }
+    const setSelection = (nextValue: string) => {
+        onChange(nextValue);
+        setSelectedValue(nextValue);
+        setIsOpen(false);
+        setSearch("");
     };
+
     return (
         <div>
-            {isOpen && <div className="absolute z-10 w-screen h-screen top-0 left-0 bg-transparent" onClick={() => setIsOpen(false)}></div>}
-            <div className={`relative w-full min-w-40 ${className}`}>
-                {placeholder && <label className="mb-2 block">{placeholder}</label>}
-                <div
-                    className="border pl-3 py-2 pr-8 border-gray-700 rounded cursor-pointer bg-gray-800 shadow-md relative"
+            {isOpen && <div className="absolute left-0 top-0 z-10 h-screen w-screen bg-transparent" onClick={() => setIsOpen(false)}></div>}
+            <div className={`relative min-w-40 w-full ${className}`}>
+                {placeholder && <label className="app-label">{placeholder}</label>}
+                <button
+                    type="button"
+                    className="app-input relative flex w-full items-center justify-between pr-10 text-left"
                     onClick={() => setIsOpen(!isOpen)}
                 >
-                    {selectedValue ? selectedValue : (selectedOption ? selectedOption.label : "Select an option")}
-                    <ChevronDownIcon className="absolute right-2 top-3"/>
-                </div>
+                    <span className="truncate">{selectedValue || (selectedOption ? selectedOption.label : "Select an option")}</span>
+                    <ChevronDownIcon className="absolute right-3 top-3.5" />
+                </button>
                 {isOpen && (
-                    <div className="absolute w-full bg-gray-800 border border-gray-700 rounded mt-1 shadow-lg z-20 p-1">
-                        {options.length > 10 && <input
-                            type="text"
-                            className="w-full p-2 border-b outline-none bg-gray-900 border-gray-700 rounded"
-                            placeholder="Search.."
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                        />}
+                    <div className="absolute z-20 mt-1 w-full rounded-[var(--radius-sm)] border p-1 shadow-lg" style={{background: "var(--surface-elevated)", borderColor: "var(--border-subtle)"}}>
+                        {options.length > 10 && (
+                            <input
+                                type="text"
+                                className="app-input mb-1 h-10"
+                                placeholder="Search.."
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                            />
+                        )}
                         <ul className="max-h-40 overflow-y-auto">
                             {filteredOptions.length > 0 ? (
                                 filteredOptions.map((option) => (
                                     <li
                                         key={option.value}
-                                        className="p-2 hover:bg-gray-600 cursor-pointer"
+                                        className="cursor-pointer rounded-[0.7rem] p-2 transition"
+                                        style={{color: "var(--foreground)"}}
                                         onClick={() => setSelection(option.value)}
+                                        onMouseEnter={(e) => {
+                                            e.currentTarget.style.background = "var(--surface-soft)";
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.currentTarget.style.background = "transparent";
+                                        }}
                                     >
                                         {option.label}
                                     </li>
                                 ))
                             ) : (
-                                <div className="p-2 text-gray-500">No options found</div>
+                                <div className="p-2" style={{color: "var(--muted)"}}>No options found</div>
                             )}
                         </ul>
                     </div>

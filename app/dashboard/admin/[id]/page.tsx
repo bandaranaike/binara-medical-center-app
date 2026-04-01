@@ -11,7 +11,7 @@ export default function AdminTabPage({params}: { params: Promise<{ id: string }>
     if (!tab) notFound();
 
     return (
-        <div className="bg-gray-900 text-gray-400">
+        <div className="text-[var(--foreground)]">
             <AdminNav tabs={tabs}/>
             <div className="">
                 {/* TableComponent already handles loading/pagination/search/etc. */}
