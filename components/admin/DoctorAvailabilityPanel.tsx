@@ -105,96 +105,133 @@ export default function DoctorAvailabilityPanel({doctorId, id}: DoctorAvailabili
     }
 
     return (
-        <div className="w-full max-w-5xl mx-auto pb-1">
-            <div className="flex flex-wrap gap-3 mb-4 items-center">
+        <div className="mx-auto w-full max-w-5xl space-y-4 pb-1">
+            <div
+                className="flex flex-col gap-4 rounded-[var(--radius-md)] border p-4 sm:flex-row sm:items-center sm:justify-between"
+                style={{borderColor: "var(--border-subtle)", background: "color-mix(in srgb, var(--surface-soft) 72%, transparent)"}}
+            >
+                <div>
+                    <p className="text-sm font-semibold">Monthly availability generation</p>
+                    <p className="mt-1 text-sm" style={{color: "var(--muted)"}}>
+                        Generate slots for the selected doctor schedule and optionally replace existing records.
+                    </p>
+                </div>
 
-                <label className="inline-flex items-center gap-2 select-none">
-                    <CustomCheckbox setChecked={setOverride} checked={override} label={"Override existing"}/>
-                </label>
+                <div className="flex flex-wrap items-center gap-2">
+                    <label
+                        className="inline-flex items-center rounded-full border px-3 py-2 select-none"
+                        style={{borderColor: "var(--border-subtle)", background: "var(--surface-elevated)"}}
+                    >
+                        <CustomCheckbox setChecked={setOverride} checked={override} label={"Override"}/>
+                    </label>
 
-                <button
-                    onClick={onGenerate}
-                    disabled={isGenerating}
-                    className="inline-flex items-center gap-2 rounded-lg bg-blue-600 hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed text-white px-3 py-1.5 shadow-sm"
-                >
-                    {isGenerating && (
-                        <svg
-                            className="animate-spin h-4 w-4"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                        >
-                            <circle
-                                className="opacity-25"
-                                cx="12"
-                                cy="12"
-                                r="10"
-                                stroke="currentColor"
-                                strokeWidth="4"
-                            />
-                            <path
-                                className="opacity-75"
-                                fill="currentColor"
-                                d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                            />
-                        </svg>
-                    )}
-                    <span>Generate</span>
-                </button>
+                    <button
+                        onClick={onGenerate}
+                        disabled={isGenerating}
+                        className="app-button-primary inline-flex items-center gap-2 px-4 py-2.5 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                        {isGenerating && (
+                            <svg
+                                className="h-4 w-4 animate-spin"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                            >
+                                <circle
+                                    className="opacity-25"
+                                    cx="12"
+                                    cy="12"
+                                    r="10"
+                                    stroke="currentColor"
+                                    strokeWidth="4"
+                                />
+                                <path
+                                    className="opacity-75"
+                                    fill="currentColor"
+                                    d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                                />
+                            </svg>
+                        )}
+                        <span>{isGenerating ? "Generating..." : "Generate"}</span>
+                    </button>
+                </div>
             </div>
 
             {msg && (
                 <div
-                    className={
-                        "mb-4 rounded-lg px-4 py-3 text-sm " +
-                        (msg.type === "success"
-                            ? "text-green-700 border border-green-900"
-                            : "text-rose-700 border border-rose-900")
-                    }
+                    className="rounded-[var(--radius-md)] border px-4 py-3 text-sm"
+                    style={{
+                        borderColor: msg.type === "success" ? "rgba(34, 197, 94, 0.32)" : "rgba(244, 63, 94, 0.28)",
+                        background: msg.type === "success" ? "rgba(34, 197, 94, 0.1)" : "rgba(244, 63, 94, 0.08)",
+                        color: msg.type === "success" ? "rgb(22, 163, 74)" : "rgb(225, 29, 72)",
+                    }}
                 >
                     {msg.text}
                 </div>
             )}
 
-            <div className="rounded-lg shadow border border-gray-700 overflow-hidden">
-                <div className="justify-center flex items-center">
-                    {isLoading && (<Loader/>)}
+            <div
+                className="overflow-hidden rounded-[var(--radius-md)] border"
+                style={{borderColor: "var(--border-subtle)", background: "var(--surface-elevated)"}}
+            >
+                <div
+                    className="flex items-center justify-between border-b px-4 py-3"
+                    style={{borderColor: "var(--border-subtle)", background: "color-mix(in srgb, var(--surface-soft) 72%, transparent)"}}
+                >
+                    <div>
+                        <p className="text-sm font-semibold">Current records</p>
+                        <p className="mt-1 text-xs" style={{color: "var(--muted)"}}>
+                            {rows?.length ? `${rows.length} availability entries loaded` : "Availability list for the selected doctor"}
+                        </p>
+                    </div>
+                    <div className="flex items-center justify-center">
+                        {isLoading && (<Loader/>)}
+                    </div>
                 </div>
 
                 <div className="overflow-x-auto">
-                    <table className="min-w-full text-xs text-gray-500">
-                        <thead className="text-gray-400">
-                        <tr className="border-b border-gray-700">
-                            <th className="text-left px-3 py-2 border-r border-gray-700">Date</th>
-                            <th className="text-left px-3 py-2 border-r border-gray-700">Time</th>
-                            <th className="text-left px-3 py-2 border-r border-gray-700">Seats</th>
-                            <th className="text-left px-3 py-2 border-r border-gray-700">Available</th>
-                            <th className="text-left px-3 py-2">Status</th>
+                    <table className="min-w-full text-left text-sm" style={{color: "var(--muted-strong)"}}>
+                        <thead style={{color: "var(--muted)"}}>
+                        <tr style={{borderBottom: "1px solid var(--border-subtle)"}}>
+                            <th className="px-4 py-3 font-semibold" style={{borderRight: "1px solid var(--border-subtle)"}}>Date</th>
+                            <th className="px-4 py-3 font-semibold" style={{borderRight: "1px solid var(--border-subtle)"}}>Time</th>
+                            <th className="px-4 py-3 font-semibold" style={{borderRight: "1px solid var(--border-subtle)"}}>Seats</th>
+                            <th className="px-4 py-3 font-semibold" style={{borderRight: "1px solid var(--border-subtle)"}}>Available</th>
+                            <th className="px-4 py-3 font-semibold">Status</th>
                         </tr>
                         </thead>
                         <tbody>
                         {!rows?.length && !isLoading && (
                             <tr>
-                                <td colSpan={5} className="px-4 py-6 text-center text-gray-500">
+                                <td colSpan={5} className="px-4 py-10 text-center text-sm" style={{color: "var(--muted)"}}>
                                     No records found
                                 </td>
                             </tr>
                         )}
 
                         {rows?.map((r, idx) => (
-                            <tr key={`${r.date}-${r.time}-${idx}`} className="odd:bg-gray-900 even:bg-gray-800">
-                                <td className="px-4 py-1 font-medium ">{r.date}</td>
-                                <td className="px-4 py-1 tabular-nums">{r.time.slice(0, 5)}</td>
-                                <td className="px-4 py-1">{r.seats}</td>
-                                <td className="px-4 py-1">{r.available_seats}</td>
-                                <td className="px-4 py-1">
+                            <tr
+                                key={`${r.date}-${r.time}-${idx}`}
+                                style={{
+                                    background: idx % 2 === 0 ? "transparent" : "color-mix(in srgb, var(--surface-soft) 52%, transparent)",
+                                    borderTop: "1px solid var(--border-subtle)",
+                                }}
+                            >
+                                <td className="px-4 py-3 font-medium" style={{borderRight: "1px solid var(--border-subtle)"}}>{r.date}</td>
+                                <td className="px-4 py-3 tabular-nums" style={{borderRight: "1px solid var(--border-subtle)"}}>{r.time.slice(0, 5)}</td>
+                                <td className="px-4 py-3" style={{borderRight: "1px solid var(--border-subtle)"}}>{r.seats}</td>
+                                <td className="px-4 py-3" style={{borderRight: "1px solid var(--border-subtle)"}}>{r.available_seats}</td>
+                                <td className="px-4 py-3">
                                     <span
-                                        className={
-                                            "inline-flex items-center text-xs " +
-                                            (r.status?.toLowerCase() === "active"
-                                                ? "text-emerald-700"
-                                                : "text-gray-600")
-                                        }
+                                        className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.18em]"
+                                        style={{
+                                            background: r.status?.toLowerCase() === "active"
+                                                ? "rgba(34, 197, 94, 0.12)"
+                                                : "var(--surface-soft)",
+                                            color: r.status?.toLowerCase() === "active"
+                                                ? "rgb(22, 163, 74)"
+                                                : "var(--muted)",
+                                        }}
                                     >
                                         {r.status}
                                     </span>

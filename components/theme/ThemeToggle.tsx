@@ -18,7 +18,7 @@ const ThemeToggle: React.FC<ThemeToggleProps> = ({compact = false}) => {
             aria-label={`Switch to ${isDark ? "light" : "dark"} mode`}
             onClick={toggleTheme}
             className={`group inline-flex items-center gap-3 rounded-full border border-[var(--border-strong)] bg-[var(--surface-elevated)] text-[var(--foreground)] shadow-[var(--shadow-soft)] transition hover:-translate-y-0.5 hover:border-[var(--accent-strong)] ${
-                compact ? "px-3 py-2 text-xs" : "px-4 py-2.5 text-sm"
+                compact ? "px-1 py-1 text-xs" : "px-2 py-2 text-sm"
             }`}
         >
             <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--accent-soft)] text-[var(--accent-strong)]">

@@ -51,41 +51,68 @@ const PharmacyAdminPortal: React.FC = () => {
     }, 50), [currentPage]);
 
     return (
-        <div>
+        <div className="space-y-5">
             <AdminNav baseUrl="pharmacy-admin" tabs={tabs}/>
-            <div className="relative overflow-x-auto rounded-lg border border-gray-800 mt-8">
-                <table className="w-full text-sm text-left text-gray-400">
-                    <thead className="font-bold">
-                    <tr className="bg-gray-800">
-                        <th className="px-4 py-4 ">Drug</th>
-                        <th className="px-4 py-4">Brand</th>
-                        <th className="px-4 py-4">Stock quantity</th>
-                        <th className="px-4 py-4">Sale quantity</th>
-                        <th className="px-4 py-4">Unit price</th>
-                        <th className="px-4 py-4">Cost</th>
-                        <th className="px-4 py-4">Expire date</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {drugStockSaleData && drugStockSaleData.length > 0 && drugStockSaleData.map((item) => (
-                        <tr key={`${item.id}-${item.brand_name}`} className="border-t border-gray-800">
-                            <td className="px-4 py-2 border-r border-gray-800">{item.drug_name}</td>
-                            <td className="px-4 py-2 border-r border-gray-800">{item.brand_name}</td>
-                            <td className="px-4 py-2 border-r  border-gray-800">
-                                {item.minimum_quantity >= item.stock_quantity && (<span><span
-                                    className="text-red-500">{item.stock_quantity}</span><span
-                                    className="text-xs text-gray-600">  (min {item.minimum_quantity})</span></span>) || item.stock_quantity}
-                            </td>
-                            <td className="px-4 py-2 border-r border-gray-800">{item.sale_quantity}</td>
-                            <td className="px-4 py-2 border-r border-gray-800">{item.unit_price}</td>
-                            <td className="px-4 py-2 border-r border-gray-800">{item.cost}</td>
-                            <td className="px-4 py-2 border-r border-gray-800">{item.expire_date}</td>
+            <section
+                className="overflow-hidden rounded-[var(--radius-md)] border"
+                style={{borderColor: "var(--border-subtle)", background: "var(--surface-elevated)"}}
+            >
+                <div
+                    className="border-b px-5 py-4"
+                    style={{borderColor: "var(--border-subtle)", background: "color-mix(in srgb, var(--surface-soft) 72%, transparent)"}}
+                >
+                    <h2 className="text-lg font-semibold">Pharmacy Stock Summary</h2>
+                    <p className="mt-1 text-sm" style={{color: "var(--muted)"}}>
+                        Monitor stock movement, low inventory levels, and expiration dates across drug brands.
+                    </p>
+                </div>
+
+                <div className="relative overflow-x-auto">
+                    <table className="w-full text-left text-sm" style={{color: "var(--muted-strong)"}}>
+                        <thead style={{color: "var(--muted)"}}>
+                        <tr style={{background: "var(--surface-soft)", borderBottom: "1px solid var(--border-subtle)"}}>
+                            <th className="px-4 py-4 font-semibold">Drug</th>
+                            <th className="px-4 py-4 font-semibold">Brand</th>
+                            <th className="px-4 py-4 font-semibold">Stock quantity</th>
+                            <th className="px-4 py-4 font-semibold">Sale quantity</th>
+                            <th className="px-4 py-4 font-semibold">Unit price</th>
+                            <th className="px-4 py-4 font-semibold">Cost</th>
+                            <th className="px-4 py-4 font-semibold">Expire date</th>
                         </tr>
-                    ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                        {drugStockSaleData && drugStockSaleData.length > 0 && drugStockSaleData.map((item, index) => (
+                            <tr
+                                key={`${item.id}-${item.brand_name}`}
+                                style={{
+                                    borderTop: "1px solid var(--border-subtle)",
+                                    background: index % 2 === 0 ? "transparent" : "color-mix(in srgb, var(--surface-soft) 52%, transparent)",
+                                }}
+                            >
+                                <td className="px-4 py-3" style={{borderRight: "1px solid var(--border-subtle)"}}>{item.drug_name}</td>
+                                <td className="px-4 py-3" style={{borderRight: "1px solid var(--border-subtle)"}}>{item.brand_name}</td>
+                                <td className="px-4 py-3" style={{borderRight: "1px solid var(--border-subtle)"}}>
+                                    {item.minimum_quantity >= item.stock_quantity ? (
+                                        <span>
+                                            <span style={{color: "rgb(225, 29, 72)"}}>{item.stock_quantity}</span>
+                                            <span className="ml-1 text-xs" style={{color: "var(--muted)"}}>
+                                                (min {item.minimum_quantity})
+                                            </span>
+                                        </span>
+                                    ) : item.stock_quantity}
+                                </td>
+                                <td className="px-4 py-3" style={{borderRight: "1px solid var(--border-subtle)"}}>{item.sale_quantity}</td>
+                                <td className="px-4 py-3" style={{borderRight: "1px solid var(--border-subtle)"}}>{item.unit_price}</td>
+                                <td className="px-4 py-3" style={{borderRight: "1px solid var(--border-subtle)"}}>{item.cost}</td>
+                                <td className="px-4 py-3">{item.expire_date}</td>
+                            </tr>
+                        ))}
+                        </tbody>
+                    </table>
+                </div>
+
                 {totalPages > 1 &&
-                    <div className="p-6 border-t border-gray-800">
+                    <div className="border-t p-6" style={{borderColor: "var(--border-subtle)"}}>
                         <Pagination
                             currentPage={currentPage}
                             totalPages={totalPages}
@@ -96,14 +123,14 @@ const PharmacyAdminPortal: React.FC = () => {
 
                 <div>
                     {!loading && !stockError && drugStockSaleData.length === 0 &&
-                        <div className="p-6 text-center text-gray-500">No drug stock sales data found</div>
+                        <div className="p-6 text-center" style={{color: "var(--muted)"}}>No drug stock sales data found</div>
                     }
                     {!loading && stockError &&
-                        <div className="p-6 text-center text-red-500">{stockError}</div>
+                        <div className="p-6 text-center" style={{color: "rgb(225, 29, 72)"}}>{stockError}</div>
                     }
                     {loading && <div className="p-6 text-center"><Loader/></div>}
                 </div>
-            </div>
+            </section>
 
         </div>)
 }

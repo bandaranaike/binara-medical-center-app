@@ -71,23 +71,38 @@ const BookingList: React.FC = () => {
     };
 
     return (
-        <div className="rounded-lg shadow-md">
-            <h2 className="text-2xl font-bold mb-4">Patient Bookings</h2>
+        <div className="space-y-5">
+            <div className="space-y-4">
+                <div>
+                    <h2 className="text-2xl font-bold">Patient Bookings</h2>
+                    <p className="mt-1 text-sm" style={{color: "var(--muted)"}}>
+                        Review today&apos;s, future, and older booking records from one place.
+                    </p>
+                </div>
 
-            <div className="flex mb-6 border-b border-gray-700">
-                {TABS.map(tab => (
-                    <button
-                        key={tab.key}
-                        className={`px-4 py-2 transition-colors ${
-                            activeTab === tab.key
-                                ? "text-blue-500 border-b-2 border-blue-700"
-                                : "text-gray-400"
-                        }`}
-                        onClick={() => handleTabChange(tab.key)}
-                    >
-                        {tab.label}
-                    </button>
-                ))}
+                <div
+                    className="flex flex-wrap gap-2 rounded-[var(--radius-md)] border p-2"
+                    style={{borderColor: "var(--border-subtle)", background: "color-mix(in srgb, var(--surface-soft) 72%, transparent)"}}
+                >
+                    {TABS.map(tab => {
+                        const isActive = activeTab === tab.key;
+
+                        return (
+                            <button
+                                key={tab.key}
+                                className="rounded-[var(--radius-sm)] border px-4 py-2.5 text-sm font-medium transition"
+                                style={{
+                                    background: isActive ? "linear-gradient(135deg, var(--accent), var(--accent-strong))" : "var(--surface-elevated)",
+                                    borderColor: isActive ? "transparent" : "var(--border-subtle)",
+                                    color: isActive ? "#ffffff" : "var(--muted-strong)",
+                                }}
+                                onClick={() => handleTabChange(tab.key)}
+                            >
+                                {tab.label}
+                            </button>
+                        );
+                    })}
+                </div>
             </div>
 
             {loading ? (
