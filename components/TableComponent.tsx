@@ -253,8 +253,8 @@ export default function TableComponent({tab, onLoaded}: TableComponentProps) {
         <div className="mx-auto mt-2 w-full">
             <div className="mb-4 flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
                 <div className="flex min-w-0 flex-1 flex-col gap-3">
-                    {filters && <div className="app-panel flex flex-col gap-3 px-4 py-4 lg:flex-row lg:items-center">
-                        <span className="app-label mb-0 min-w-fit">Search</span>
+                    {filters && <div className="app-panel relative z-20 flex flex-col gap-2 px-2 py-2 lg:flex-row lg:items-center">
+                        <span className="app-label mb-0 pl-2 min-w-fit">Search</span>
                         <div className="min-w-[220px]">
                             <CustomSelect
                                 options={filters.options}
@@ -272,7 +272,7 @@ export default function TableComponent({tab, onLoaded}: TableComponentProps) {
                         </div>
                         {searchField && <button
                             type="button"
-                            className="app-button-secondary h-11 px-3 py-2"
+                            className="app-button-secondary h-10 px-2.5 py-2"
                             onClick={() => resetSearch()}
                         >
                             <XCircleIcon width={18}/>
@@ -280,7 +280,7 @@ export default function TableComponent({tab, onLoaded}: TableComponentProps) {
                     </div>
                     }
                 </div>
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap gap-3 pt-3">
                     {!readonly && <button
                         onClick={() => setShowBulkDeleteConfirm(true)}
                         className={`inline-flex items-center gap-2 rounded-[var(--radius-sm)] border px-4 py-3 text-sm font-semibold transition ${selectedRows.size === 0 ? 'cursor-not-allowed opacity-50' : ''}`}

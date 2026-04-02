@@ -31,8 +31,8 @@ const CustomSelect: React.FC<CustomSelectProps> = ({options, value, onChange, cl
 
     return (
         <div>
-            {isOpen && <div className="absolute left-0 top-0 z-10 h-screen w-screen bg-transparent" onClick={() => setIsOpen(false)}></div>}
-            <div className={`relative min-w-40 w-full ${className}`}>
+            {isOpen && <div className="fixed inset-0 z-40 bg-transparent" onClick={() => setIsOpen(false)}></div>}
+            <div className={`relative z-50 min-w-40 w-full ${className}`}>
                 {placeholder && <label className="app-label">{placeholder}</label>}
                 <button
                     type="button"
@@ -43,7 +43,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({options, value, onChange, cl
                     <ChevronDownIcon className="absolute right-3 top-3.5" />
                 </button>
                 {isOpen && (
-                    <div className="absolute z-20 mt-1 w-full rounded-[var(--radius-sm)] border p-1 shadow-lg" style={{background: "var(--surface-elevated)", borderColor: "var(--border-subtle)"}}>
+                    <div className="absolute z-[60] mt-1 w-full rounded-[var(--radius-sm)] border p-1 shadow-lg" style={{background: "var(--surface-elevated)", borderColor: "var(--border-subtle)"}}>
                         {options.length > 10 && (
                             <input
                                 type="text"
