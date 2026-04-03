@@ -106,9 +106,19 @@ const BookingList: React.FC = () => {
             </div>
 
             {loading ? (
-                <p>Loading bookings...</p>
+                <div
+                    className="rounded-[var(--radius-md)] border px-4 py-6 text-sm"
+                    style={{borderColor: "var(--border-subtle)", background: "var(--surface-soft)", color: "var(--muted)"}}
+                >
+                    Loading bookings...
+                </div>
             ) : error ? (
-                <p className="text-red-500">{error}</p>
+                <div
+                    className="rounded-[var(--radius-md)] border px-4 py-6 text-sm"
+                    style={{borderColor: "rgba(244,63,94,0.26)", background: "rgba(244,63,94,0.1)", color: "#fda4af"}}
+                >
+                    {error}
+                </div>
             ) : bookings[activeTab].length > 0 ? (
                 <BookingsTable
                     bookings={bookings[activeTab]}
@@ -117,7 +127,12 @@ const BookingList: React.FC = () => {
                     showDeleteConfirmation={showDeleteConfirmation}
                 />
             ) : (
-                <p>No bookings available.</p>
+                <div
+                    className="rounded-[var(--radius-md)] border px-4 py-6 text-sm"
+                    style={{borderColor: "var(--border-subtle)", background: "var(--surface-soft)", color: "var(--muted)"}}
+                >
+                    No bookings available.
+                </div>
             )}
 
             {showBooking && (

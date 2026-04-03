@@ -1,4 +1,5 @@
 import React, {FormEvent, useState} from "react";
+import {Eye, EyeOff} from "lucide-react";
 import CustomCheckbox from "@/components/form/CustomCheckbox";
 import Loader from "@/components/form/Loader";
 import axios, {ensureCsrfCookie} from "@/lib/axios";
@@ -11,6 +12,7 @@ interface LoginWindowProps {
 const LoginWindow: React.FC<LoginWindowProps> = ({onUserHasLoggedIn}) => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
     const [remember, setRemember] = useState(true);
     const [loginError, setLoginError] = useState<string[]>([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -123,15 +125,27 @@ const LoginWindow: React.FC<LoginWindowProps> = ({onUserHasLoggedIn}) => {
 
                         <div className="space-y-2">
                             <label className="app-label" htmlFor="password">Password</label>
-                            <input
-                                id="password"
-                                type="password"
-                                autoComplete="current-password"
-                                className="app-input h-14 rounded-[1.2rem]"
-                                value={password}
-                                onChange={(event) => setPassword(event.target.value)}
-                                placeholder="Enter your password"
-                            />
+                            <div className="relative">
+                                <input
+                                    id="password"
+                                    type={showPassword ? "text" : "password"}
+                                    autoComplete="current-password"
+                                    className="app-input h-14 rounded-[1.2rem] pr-14"
+                                    value={password}
+                                    onChange={(event) => setPassword(event.target.value)}
+                                    placeholder="Enter your password"
+                                />
+                                <button
+                                    type="button"
+                                    className="absolute inset-y-0 right-0 flex w-14 items-center justify-center transition hover:opacity-80"
+                                    style={{color: "var(--muted)"}}
+                                    onClick={() => setShowPassword((current) => !current)}
+                                    aria-label={showPassword ? "Hide password" : "Show password"}
+                                    aria-pressed={showPassword}
+                                >
+                                    {showPassword ? <EyeOff className="h-5 w-5"/> : <Eye className="h-5 w-5"/>}
+                                </button>
+                            </div>
                         </div>
 
                         <div className="rounded-[1.2rem] border p-4" style={{borderColor: "var(--border-subtle)", background: "var(--surface-soft)"}}>

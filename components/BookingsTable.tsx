@@ -7,50 +7,78 @@ const BookingsTable: React.FC<{
     handleShowBooking: (booking: Booking) => void;
     showDeleteConfirmation: (booking: Booking) => void;
 }> = ({bookings, handleShowBooking, showDeleteConfirmation}) => (
-    <div className="relative overflow-x-auto sm:rounded-lg border border-gray-800">
-        <table className="w-full text-sm text-left text-gray-400">
-            <thead className="font-bold">
-            <tr className="bg-gray-800">
-                <th className="px-4 py-4">Bill Id</th>
-                <th className="px-4 py-4">Booking Number</th>
-                <th className="px-4 py-4">Doctor Name</th>
-                <th className="px-4 py-4">Appointment Type</th>
-                <th className="px-4 py-4">Patient</th>
-                <th className="px-4 py-4">Amount</th>
-                <th className="px-4 py-4">Date</th>
-                <th className="px-4 py-4">Action</th>
-            </tr>
-            </thead>
-            <tbody>
-            {bookings.map((booking) => (
-                <tr key={booking.id} className="border-t border-gray-800">
-                    <td className="px-4 py-2 border-r border-gray-800">{booking.id}</td>
-                    <td className="px-4 py-2 border-r border-gray-800">{booking.queue_number}</td>
-                    <td className="px-4 py-2 border-r border-gray-800">{booking.doctor_name ?? 'No doctor assigned'}</td>
-                    <td className="px-4 py-2 border-r border-gray-800">{booking.appointment_type}</td>
-                    <td className="px-4 py-2 border-r border-gray-800">{booking.patient_name}</td>
-                    <td className="px-4 py-2 border-r border-gray-800">{(Number(booking.bill_amount) + Number(booking.system_amount)).toFixed(2)}</td>
-                    <td className="px-4 py-2 border-r border-gray-800">{booking.queue_date}</td>
-                    <td className="px-4 py-2">
-                        <button
-                            className="px-4 py-1 rounded bg-blue-800 text-white mr-4"
-                            onClick={() => handleShowBooking(booking)}
-                            disabled={!!booking.bill_id}
-                        >
-                            Create Bill
-                        </button>
-                        <button
-                            className="px-4 py-1 rounded bg-red-800 text-white"
-                            onClick={() => showDeleteConfirmation(booking)}
-                            disabled={!!booking.bill_id}
-                        >
-                            Delete
-                        </button>
-                    </td>
-                </tr>
-            ))}
-            </tbody>
-        </table>
+    <div
+        className="overflow-hidden rounded-[var(--radius-lg)] border bg-[var(--surface-elevated)] shadow-[var(--shadow-soft)]"
+        style={{borderColor: "var(--border-subtle)"}}
+    >
+        <div className="overflow-x-auto">
+            <table className="min-w-full text-left text-sm text-[var(--foreground)]">
+                <thead style={{background: "var(--surface-soft)"}}>
+                    <tr>
+                        <th className="whitespace-nowrap px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em]" style={{color: "var(--muted)"}}>Bill Id</th>
+                        <th className="whitespace-nowrap px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em]" style={{color: "var(--muted)"}}>Booking Number</th>
+                        <th className="whitespace-nowrap px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em]" style={{color: "var(--muted)"}}>Doctor Name</th>
+                        <th className="whitespace-nowrap px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em]" style={{color: "var(--muted)"}}>Appointment Type</th>
+                        <th className="whitespace-nowrap px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em]" style={{color: "var(--muted)"}}>Patient</th>
+                        <th className="whitespace-nowrap px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em]" style={{color: "var(--muted)"}}>Amount</th>
+                        <th className="whitespace-nowrap px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em]" style={{color: "var(--muted)"}}>Date</th>
+                        <th className="whitespace-nowrap px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em]" style={{color: "var(--muted)"}}>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {bookings.map((booking) => {
+                        const isLocked = !!booking.bill_id;
+
+                        return (
+                            <tr
+                                key={booking.id}
+                                className="transition hover:bg-[var(--surface-soft)]"
+                                style={{borderTop: "1px solid var(--border-subtle)"}}
+                            >
+                                <td className="whitespace-nowrap px-4 py-3 font-medium">{booking.id}</td>
+                                <td className="whitespace-nowrap px-4 py-3" style={{color: "var(--muted-strong)"}}>{booking.queue_number}</td>
+                                <td className="whitespace-nowrap px-4 py-3" style={{color: "var(--muted-strong)"}}>{booking.doctor_name ?? "No doctor assigned"}</td>
+                                <td className="whitespace-nowrap px-4 py-3" style={{color: "var(--muted-strong)"}}>{booking.appointment_type}</td>
+                                <td className="whitespace-nowrap px-4 py-3 font-medium">{booking.patient_name}</td>
+                                <td className="whitespace-nowrap px-4 py-3 font-medium">{(Number(booking.bill_amount) + Number(booking.system_amount)).toFixed(2)}</td>
+                                <td className="whitespace-nowrap px-4 py-3" style={{color: "var(--muted-strong)"}}>{booking.queue_date}</td>
+                                <td className="whitespace-nowrap px-4 py-3">
+                                    <div className="flex flex-wrap gap-2">
+                                        <button
+                                            className="rounded-[0.8rem] px-3 py-2 text-sm font-medium transition"
+                                            style={{
+                                                background: isLocked ? "var(--surface-soft)" : "linear-gradient(135deg, var(--accent), var(--accent-strong))",
+                                                color: isLocked ? "var(--muted)" : "#ffffff",
+                                                border: isLocked ? "1px solid var(--border-subtle)" : "1px solid transparent",
+                                                cursor: isLocked ? "not-allowed" : "pointer",
+                                            }}
+                                            onClick={() => handleShowBooking(booking)}
+                                            disabled={isLocked}
+                                        >
+                                            Create Bill
+                                        </button>
+                                        <button
+                                            className="rounded-[0.8rem] border px-3 py-2 text-sm font-medium transition hover:border-[var(--border-strong)] hover:bg-[var(--surface-soft)]"
+                                            style={{
+                                                borderColor: "var(--border-subtle)",
+                                                background: "var(--surface-elevated)",
+                                                color: isLocked ? "var(--muted)" : "#dc2626",
+                                                cursor: isLocked ? "not-allowed" : "pointer",
+                                                opacity: isLocked ? 0.7 : 1,
+                                            }}
+                                            onClick={() => showDeleteConfirmation(booking)}
+                                            disabled={isLocked}
+                                        >
+                                            Delete
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        );
+                    })}
+                </tbody>
+            </table>
+        </div>
     </div>
 );
 
