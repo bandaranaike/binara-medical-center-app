@@ -56,6 +56,32 @@ export default function TableComponent({tab, onLoaded}: TableComponentProps) {
 
     const {id: apiUrl, fields, dropdowns, select, actions, filters, labels, types, readonly, sort} = tab;
 
+    const buildInitialFormData = useCallback((record: FormData = {}) => {
+        const nextFormData = {...record};
+
+        Object.entries(types ?? {}).forEach(([field, type]) => {
+            if (type === "checkbox" && nextFormData[field] === undefined) {
+                nextFormData[field] = false;
+            }
+        });
+
+        return nextFormData;
+    }, [types]);
+
+    const renderFieldValue = (record: FormData, field: string) => {
+        const value = record[field];
+
+        if (labels?.includes(field) && value) {
+            return <StatusLabel status={String(value)}/>;
+        }
+
+        if (typeof value === "boolean") {
+            return value ? "Yes" : "No";
+        }
+
+        return value ?? "";
+    };
+
     useEffect(() => {
         setData([])
         setTotalPages(0)
@@ -153,7 +179,7 @@ export default function TableComponent({tab, onLoaded}: TableComponentProps) {
 
     const openCreateOrUpdateDialog = (record: FormData = {}) => {
         setUpdateOrCreateError("");
-        setFormData(record);
+        setFormData(buildInitialFormData(record));
         setCurrentRecordId(record.id || null);
         setIsCreateOrUpdateDialogOpen(true);
     };
@@ -339,8 +365,7 @@ export default function TableComponent({tab, onLoaded}: TableComponentProps) {
                                 {fields.map((field: any) => (
                                     (!field.endsWith("_id") && !["password"].includes(field)) &&
                                     <td key={field} className="whitespace-nowrap border-t px-4 py-3" style={{borderColor: "var(--border-subtle)"}}>
-                                        {labels?.includes(field) && record[field] ?
-                                            <StatusLabel status={record[field]}/> : record[field]}
+                                        {renderFieldValue(record, field)}
                                     </td>
                                 ))}
                                 {!readonly && <td className="border-t p-3" style={{borderColor: "var(--border-subtle)"}}>
@@ -552,15 +577,30 @@ export default function TableComponent({tab, onLoaded}: TableComponentProps) {
                                                         <label className="app-label">
                                                             {field.replace('_', ' ')}
                                                         </label>
-                                                        <input
-                                                            type={(types && types[field]) ? types[field] : 'text'}
-                                                            name={field}
-                                                            value={formData[field] || ''}
-                                                            onChange={(e) =>
-                                                                setFormData({...formData, [field]: e.target.value})
-                                                            }
-                                                            className="app-input mt-1"
-                                                        />
+                                                        {types?.[field] === "checkbox" ? (
+                                                            <label className="mt-2 inline-flex items-center gap-3 text-sm">
+                                                                <input
+                                                                    type="checkbox"
+                                                                    name={field}
+                                                                    checked={Boolean(formData[field])}
+                                                                    onChange={(e) =>
+                                                                        setFormData({...formData, [field]: e.target.checked})
+                                                                    }
+                                                                    className="h-4 w-4 rounded border-[var(--border-subtle)]"
+                                                                />
+                                                                <span style={{color: "var(--muted-strong)"}}>Mark this day as closed</span>
+                                                            </label>
+                                                        ) : (
+                                                            <input
+                                                                type={(types && types[field]) ? types[field] : 'text'}
+                                                                name={field}
+                                                                value={formData[field] || ''}
+                                                                onChange={(e) =>
+                                                                    setFormData({...formData, [field]: e.target.value})
+                                                                }
+                                                                className="app-input mt-1"
+                                                            />
+                                                        )}
                                                     </>
                                                 )}
                                             </div>

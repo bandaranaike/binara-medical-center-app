@@ -25,6 +25,19 @@ const createAvailabilityForMonth = async (record: any) => {
 export const tabs: AdminTab[] = [
     {id: "allergies", fields: ["name"], filters: {options: [{label: "Name", value: "name"}]}},
     {id: "diseases", fields: ["name"], filters: {options: [{label: "Name", value: "name"}]}},
+    {
+        id: "holidays",
+        title: "Holidays",
+        fields: ["name", "date", "message", "is_closed"],
+        filters: {
+            options: [
+                {label: "Name", value: "name"},
+                {label: "Date", value: "date"}
+            ],
+            types: {date: "date"}
+        },
+        types: {date: "date", is_closed: "checkbox"}
+    },
     {id: "hospitals", fields: ["name", "location"], filters: {options: [{label: "Name", value: "name"}]}},
     {id: "specialties", fields: ["name"], filters: {options: [{label: "Name", value: "name"}]}},
     {
