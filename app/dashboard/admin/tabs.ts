@@ -14,8 +14,8 @@ export function openDoctorAvailabilityPanel(
     id: number | string = 0,
 ) {
     // Zustand exposes getState() without using hooks
-    const { open } = useModalStore.getState();
-    open(renderDoctorAvailabilityPanel(doctorId,id));
+    const {open} = useModalStore.getState();
+    open(renderDoctorAvailabilityPanel(doctorId, id));
 }
 
 const createAvailabilityForMonth = async (record: any) => {
@@ -54,7 +54,12 @@ export const tabs: AdminTab[] = [
                 {label: "Type", value: "doctor_type"}
             ]
         },
-        labels: ["doctor_type"]
+        labels: ["doctor_type"],
+        sort: {
+            name: {type: "string"},
+            hospital: {type: "string"},
+            specialty: {type: "string"},
+        }
     },
     {
         id: "doctors-schedules",
@@ -74,7 +79,13 @@ export const tabs: AdminTab[] = [
             ]
         },
         types: {time: "time"},
-        labels: ["weekday", "recurring", "status"]
+        labels: ["weekday", "recurring", "status"],
+        sort: {
+            doctor: {type: "string"},
+            weekday: {type: "string"},
+            recurring: {type: "string"},
+            time: {type: "string"},
+        }
     },
     {
         id: "doctors-availabilities",
@@ -89,7 +100,12 @@ export const tabs: AdminTab[] = [
             types: {date: "date"}
         },
         labels: ["status"],
-        types: {date: "date", time: "time"}
+        types: {date: "date", time: "time"},
+        sort: {
+            doctor: {type: "string"},
+            time: {type: "string"},
+            date: {type: "string"},
+        }
     },
     {
         id: "roles",

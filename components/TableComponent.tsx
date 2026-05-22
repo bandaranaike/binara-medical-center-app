@@ -338,7 +338,7 @@ export default function TableComponent({tab, onLoaded}: TableComponentProps) {
                             {fields.map((field) => (
                                 (!field.endsWith("_id") && !["password"].includes(field)) &&
                                 <th key={field} className="whitespace-nowrap px-4 py-4 text-xs font-semibold uppercase tracking-[0.24em]" style={{color: "var(--muted)"}}>
-                                    <div className="flex gap-1 justify-between">
+                                    <div className="flex gap-2">
                                         <span className="first-letter:uppercase">{field.replace('_', ' ')}</span>
                                         {sort && sort[field] && <SortIcon
                                             type={sort[field].type}
