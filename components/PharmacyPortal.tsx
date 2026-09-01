@@ -43,7 +43,7 @@ const PharmacyPortal: React.FC = () => {
 
         axios.put(`bills/${billId}/send-to-reception`, {
             status: "reception",
-            bill_amount: finalBillAmounts.bill_total,
+            referred_amount: finalBillAmounts.referred_total,
             system_amount: finalBillAmounts.system_total,
         })
             .then(() => {

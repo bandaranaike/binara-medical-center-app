@@ -107,7 +107,7 @@ const ShowBillAndPrint: FC<ShowBillAndPrintProps> = ({
                             <p className='pb-1'>
                                 <span className="text-[var(--foreground-muted)]">Amount: </span>
                                 <span className='font-semibold text-emerald-500'>
-                                    {(Number(selectedBooking.bill_amount) + Number(selectedBooking.system_amount)).toFixed(2)}
+                                    {(Number(selectedBooking.referred_amount) + Number(selectedBooking.system_amount)).toFixed(2)}
                                 </span>
                             </p>
                             <p className='pb-1'>

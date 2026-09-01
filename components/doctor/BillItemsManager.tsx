@@ -6,7 +6,7 @@ import SearchableSelectOrCreate from "@/components/form/SearchableSelectOrCreate
 interface BillItem {
     id: number;
     service: { id: number; name: string };
-    bill_amount: string;
+    referred_amount: string;
     system_amount: string;
 }
 
@@ -49,7 +49,7 @@ const BillItemsManager: React.FC<Props> = ({billId, medicineTotal}) => {
 
     const calculateTotal = () => {
         const total = billItems.reduce((acc, item) => {
-            return acc + parseFloat(item.bill_amount) + parseFloat(item.system_amount);
+            return acc + parseFloat(item.referred_amount) + parseFloat(item.system_amount);
         }, 0);
         setTotal(total);
     }
@@ -72,7 +72,7 @@ const BillItemsManager: React.FC<Props> = ({billId, medicineTotal}) => {
             bill_id: billId,
             service_id: selectedService.value,
             service_name: selectedService.value === '-1' ? selectedService.label : null,
-            bill_amount: servicePrice,
+            referred_amount: servicePrice,
             system_amount: systemPrice,
         };
 
@@ -93,7 +93,7 @@ const BillItemsManager: React.FC<Props> = ({billId, medicineTotal}) => {
     const handleUpdateAmount = (
         itemId: number,
         value: string,
-        key: 'bill_amount' | 'system_amount'
+        key: 'referred_amount' | 'system_amount'
     ) => {
         setBillItems(prev =>
             prev.map(item => (item.id === itemId ? {...item, [key]: value} : item))
@@ -185,9 +185,9 @@ const BillItemsManager: React.FC<Props> = ({billId, medicineTotal}) => {
                                     <input
                                         type="text"
                                         className="w-28 block px-2 py-1 border border-gray-700 rounded bg-gray-800 focus:outline-none focus:border-blue-600"
-                                        value={item.bill_amount}
+                                        value={item.referred_amount}
                                         onChange={e =>
-                                            handleUpdateAmount(item.id, e.target.value, 'bill_amount')
+                                            handleUpdateAmount(item.id, e.target.value, 'referred_amount')
                                         }
                                     />
                                 </td>

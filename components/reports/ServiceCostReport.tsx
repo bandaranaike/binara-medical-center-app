@@ -9,7 +9,7 @@ interface ServiceCostItem {
     service_id: number;
     service_name: string;
     service_key: string;
-    total_bill_amount: number;
+    total_referred_amount: number;
     total_system_amount: number;
     item_count: number;
 }
@@ -18,7 +18,7 @@ interface ReportMeta {
     start_date: string;
     end_date: string;
     total_services: number;
-    total_bill_amount: number;
+    total_referred_amount: number;
     total_system_amount: number;
 }
 
@@ -189,9 +189,9 @@ const ServiceCostReport = () => {
                                 <p className="font-medium text-[var(--foreground)]">{report.meta.total_services}</p>
                             </div>
                             <div className="rounded-[var(--radius-sm)] border bg-[var(--surface-elevated)] p-3 shadow-sm" style={{borderColor: "var(--border-subtle)"}}>
-                                <p className="text-sm" style={{color: "var(--muted)"}}>Total Bill Amount</p>
+                                <p className="text-sm" style={{color: "var(--muted)"}}>Total Referred Amount</p>
                                 <p className="font-medium text-green-600 dark:text-green-400">
-                                    {report.meta.total_bill_amount.toLocaleString(undefined, {
+                                    {report.meta.total_referred_amount.toLocaleString(undefined, {
                                         minimumFractionDigits: 2,
                                         maximumFractionDigits: 2,
                                     })}
@@ -225,7 +225,7 @@ const ServiceCostReport = () => {
                                         Items
                                     </th>
                                     <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider" style={{color: "var(--muted)"}}>
-                                        Bill Amount
+                                        Referred Amount
                                     </th>
                                     <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider" style={{color: "var(--muted)"}}>
                                         System Amount
@@ -245,7 +245,7 @@ const ServiceCostReport = () => {
                                             {item.item_count}
                                         </td>
                                         <td className="whitespace-nowrap border-t px-6 py-4 text-right text-sm font-medium text-green-600 dark:text-green-400" style={{borderColor: "var(--border-subtle)"}}>
-                                            {item.total_bill_amount.toLocaleString(undefined, {
+                                            {item.total_referred_amount.toLocaleString(undefined, {
                                                 minimumFractionDigits: 2,
                                                 maximumFractionDigits: 2,
                                             })}

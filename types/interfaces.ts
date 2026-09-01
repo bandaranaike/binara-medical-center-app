@@ -38,13 +38,13 @@ export interface BillItem {
     bill_id: number;
     service_id: number;
     service: Service;
-    bill_amount: string;
+    referred_amount: string;
     system_amount: string;
     patient_medicines: PatientMedicineHistory[];
 }
 
 export interface Booking {
-    bill_amount: number;
+    referred_amount: number;
     system_amount: number;
     id: number;
     uuid: string;
@@ -198,7 +198,7 @@ export interface ServicesStatus {
     count: number;
     total: number;
     system_total: number;
-    bill_total: number;
+    referred_total: number;
 }
 
 export interface User {

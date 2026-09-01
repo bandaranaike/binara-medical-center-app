@@ -40,7 +40,7 @@ const BookingsTable: React.FC<{
                                 <td className="whitespace-nowrap px-4 py-3" style={{color: "var(--muted-strong)"}}>{booking.doctor_name ?? "No doctor assigned"}</td>
                                 <td className="whitespace-nowrap px-4 py-3" style={{color: "var(--muted-strong)"}}>{booking.appointment_type}</td>
                                 <td className="whitespace-nowrap px-4 py-3 font-medium">{booking.patient_name}</td>
-                                <td className="whitespace-nowrap px-4 py-3 font-medium">{(Number(booking.bill_amount) + Number(booking.system_amount)).toFixed(2)}</td>
+                                <td className="whitespace-nowrap px-4 py-3 font-medium">{(Number(booking.referred_amount) + Number(booking.system_amount)).toFixed(2)}</td>
                                 <td className="whitespace-nowrap px-4 py-3" style={{color: "var(--muted-strong)"}}>{booking.queue_date}</td>
                                 <td className="whitespace-nowrap px-4 py-3">
                                     <div className="flex flex-wrap gap-2">

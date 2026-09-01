@@ -133,6 +133,7 @@ const TodayList: React.FC = () => {
                             <th className="px-4 py-4" style={{background: "var(--surface-soft)"}}>Doctor Name</th>
                             <th className="px-4 py-4" style={{background: "var(--surface-soft)"}}>Type</th>
                             <th className="px-4 py-4" style={{background: "var(--surface-soft)"}}>Patient Name</th>
+                            <th className="px-4 py-4" style={{background: "var(--surface-soft)"}}>System Price</th>
                             <th className="px-4 py-4" style={{background: "var(--surface-soft)"}}>Amount</th>
                             <th className="px-4 py-4" style={{background: "var(--surface-soft)"}}>Date</th>
                             <th className="px-4 py-4" style={{background: "var(--surface-soft)"}}>Payment</th>
@@ -148,7 +149,8 @@ const TodayList: React.FC = () => {
                                 <td className="px-4 py-3" style={{borderRight: "1px solid var(--border-subtle)"}}>{bill.doctor_name}</td>
                                 <td className="px-4 py-3" style={{borderRight: "1px solid var(--border-subtle)"}}>{bill.appointment_type}</td>
                                 <td className="px-4 py-3" style={{borderRight: "1px solid var(--border-subtle)"}}>{bill.patient_name}</td>
-                                <td className="px-4 py-3" style={{borderRight: "1px solid var(--border-subtle)"}}>{(Number(bill.bill_amount) + Number(bill.system_amount)).toFixed(2)}</td>
+                                <td className="px-4 py-3" style={{borderRight: "1px solid var(--border-subtle)"}}>{Number(bill.system_amount).toFixed(2)}</td>
+                                <td className="px-4 py-3" style={{borderRight: "1px solid var(--border-subtle)"}}>{(Number(bill.referred_amount) + Number(bill.system_amount)).toFixed(2)}</td>
                                 <td className="whitespace-nowrap px-4 py-3" style={{borderRight: "1px solid var(--border-subtle)"}}>{formatColomboDateTime(bill.queue_date)}</td>
                                 <td className="px-4 py-3" style={{borderRight: "1px solid var(--border-subtle)"}}>{bill.payment_status}</td>
                                 <td className="px-4 py-2">

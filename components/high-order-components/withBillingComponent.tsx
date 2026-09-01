@@ -61,7 +61,7 @@ const withBillingComponent = <P extends object>(
         const [isPrinting, setIsPrinting] = useState(true);
         const [isLoading, setIsLoading] = useState(false);
         const [resetForm, setResetForm] = useState("");
-        const [billAmount, setBillAmount] = useState(0);
+        const [referredAmount, setReferredAmount] = useState(0);
         const [systemAmount, setSystemAmount] = useState(0);
         const [paymentType, setPaymentType] = useState<Option | null>({value: 'cash', label: 'Cash'})
 
@@ -75,7 +75,7 @@ const withBillingComponent = <P extends object>(
                     .filter(([key]) => key.endsWith(flag))
                     .reduce((sum, [, value]) => (sum + Number(value)), 0)
             }
-            setBillAmount(getTotalAmount('_fee'));
+            setReferredAmount(getTotalAmount('_fee'));
             setSystemAmount(getTotalAmount('_charge'));
 
             if (formData.doctor_id) {
@@ -204,7 +204,7 @@ const withBillingComponent = <P extends object>(
                 setErrors({});
                 axiosLocal.post('bills', {
                     ...formData,
-                    bill_amount: billAmount,
+                    referred_amount: referredAmount,
                     system_amount: systemAmount,
                     bill_id: billNumber,
                     payment_type: paymentType?.value,
@@ -318,7 +318,7 @@ const withBillingComponent = <P extends object>(
                 <div className="flex justify-between mt-4">
                     <div className="flex items-center">
                         <div className="text-lg mr-12"><span
-                            className="text-sm text-gray-400">Total : </span> {(systemAmount + billAmount).toFixed(2)}
+                            className="text-sm text-gray-400">Total : </span> {(systemAmount + referredAmount).toFixed(2)}
                         </div>
                     </div>
                     <div className="mt-3">

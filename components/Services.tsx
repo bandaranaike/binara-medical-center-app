@@ -16,7 +16,7 @@ export interface ServicesProps {
 }
 
 export type BillTotals = {
-    billTotal: number;
+    referredTotal: number;
     systemTotal: number;
     total: number
 }
@@ -24,7 +24,7 @@ export type BillTotals = {
 const Services: React.FC<ServicesProps> = (
     {patientId, onServiceStatusChange, resetBillItems, initialBill, onBillCreated, showMedicineTable = false}) => {
 
-    const billTotalDefault: BillTotals = {billTotal: 0, systemTotal: 0, total: 0}
+    const billTotalDefault: BillTotals = {referredTotal: 0, systemTotal: 0, total: 0}
 
     const [selectedService, setSelectedService] = useState<Option>();
     const [activeBill, setActiveBill] = useState<Bill>();
@@ -58,7 +58,7 @@ const Services: React.FC<ServicesProps> = (
             bill_id: activeBill?.id || 0,
             count: activeBill?.bill_items.length || 0,
             system_total: finalBillAmounts.systemTotal,
-            bill_total: finalBillAmounts.billTotal,
+            referred_total: finalBillAmounts.referredTotal,
             total: finalBillAmounts.total,
         });
     }, [finalBillAmounts]);
@@ -94,7 +94,7 @@ const Services: React.FC<ServicesProps> = (
                 bill_id: billId,
                 service_id: selectedService.value,
                 service_name: selectedService.value === '-1' ? selectedService.label : null,
-                bill_amount: servicePrice,
+                referred_amount: servicePrice,
                 system_amount: serviceInstitutionPrice,
                 patient_id: patientId,
             };
@@ -179,12 +179,12 @@ const Services: React.FC<ServicesProps> = (
         if (activeBill) {
             const totalValues = activeBill.bill_items.reduce(
                 (acc, item) => {
-                    const bill = parseFloat(item.bill_amount) || 0
+                    const referred = parseFloat(item.referred_amount) || 0
                     const system = parseFloat(item.system_amount) || 0
 
-                    acc.billTotal += bill;
+                    acc.referredTotal += referred;
                     acc.systemTotal += system;
-                    acc.total += bill + system;
+                    acc.total += referred + system;
 
                     return acc;
                 }, billTotalDefault);
@@ -303,9 +303,9 @@ const Services: React.FC<ServicesProps> = (
                                             <input
                                                 type="text"
                                                 className="text-sm px-2 py-1 border rounded border-gray-700 bg-gray-800 w-32 focus:border-blue-600"
-                                                value={item.bill_amount}
+                                                value={item.referred_amount}
                                                 onChange={(e) =>
-                                                    handleInputChange(item.id, e.target.value, 'bill_amount')
+                                                    handleInputChange(item.id, e.target.value, 'referred_amount')
                                                 }
                                             />
                                         </td>
@@ -348,8 +348,8 @@ const Services: React.FC<ServicesProps> = (
                                 <td className="font-bold pb-1">: {finalBillAmounts.systemTotal.toFixed(2)}</td>
                             </tr>
                             <tr className="">
-                                <td className="text-right pr-1 pb-1">Bill charge</td>
-                                <td className="font-bold pb-1">: {finalBillAmounts.billTotal.toFixed(2)}</td>
+                                <td className="text-right pr-1 pb-1">Referred charge</td>
+                                <td className="font-bold pb-1">: {finalBillAmounts.referredTotal.toFixed(2)}</td>
                             </tr>
                             <tr className="">
                                 <td className="text-right pr-1 pb-1">{showMedicineTable ? 'Total' : "Service total: "}</td>
